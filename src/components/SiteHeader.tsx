@@ -1,14 +1,16 @@
 import { User } from "lucide-react";
+import logoImg from "@/assets/dominica_logo.png";
 
 const SiteHeader = () => {
   return (
-    <header className="flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
+    <header className="flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
       <div className="flex-1" />
       <div className="text-center">
-        <h1 className="text-4xl md:text-5xl font-heading font-black tracking-tight leading-none">
-          <span className="text-primary">DOMINICA</span>
-          <span className="text-secondary italic">NEWS.DM</span>
-        </h1>
+        <img
+          src={logoImg}
+          alt="DominicaNews.DM"
+          className="h-14 md:h-16 w-auto object-contain"
+        />
       </div>
       <div className="flex-1 flex justify-end">
         <div className="flex items-center gap-2 text-muted-foreground">
