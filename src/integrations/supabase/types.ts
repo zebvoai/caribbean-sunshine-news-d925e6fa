@@ -14,16 +14,253 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      article_categories: {
+        Row: {
+          article_id: string
+          category_id: string
+        }
+        Insert: {
+          article_id: string
+          category_id: string
+        }
+        Update: {
+          article_id?: string
+          category_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_categories_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "article_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      articles: {
+        Row: {
+          author_id: string | null
+          body: string
+          cover_image_alt: string | null
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          excerpt: string
+          id: string
+          is_breaking: boolean
+          is_featured: boolean
+          is_pinned: boolean
+          meta_description: string | null
+          meta_title: string | null
+          primary_category_id: string | null
+          publication_status: Database["public"]["Enums"]["publication_status"]
+          published_at: string | null
+          scheduled_for: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body?: string
+          cover_image_alt?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt: string
+          id?: string
+          is_breaking?: boolean
+          is_featured?: boolean
+          is_pinned?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          primary_category_id?: string | null
+          publication_status?: Database["public"]["Enums"]["publication_status"]
+          published_at?: string | null
+          scheduled_for?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          cover_image_alt?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          excerpt?: string
+          id?: string
+          is_breaking?: boolean
+          is_featured?: boolean
+          is_pinned?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          primary_category_id?: string | null
+          publication_status?: Database["public"]["Enums"]["publication_status"]
+          published_at?: string | null
+          scheduled_for?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "authors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_primary_category_id_fkey"
+            columns: ["primary_category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      authors: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          full_name: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      social_embeds: {
+        Row: {
+          article_id: string
+          created_at: string
+          embed_code: string | null
+          embed_url: string | null
+          id: string
+          platform: Database["public"]["Enums"]["social_platform"]
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          embed_code?: string | null
+          embed_url?: string | null
+          id?: string
+          platform: Database["public"]["Enums"]["social_platform"]
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          embed_code?: string | null
+          embed_url?: string | null
+          id?: string
+          platform?: Database["public"]["Enums"]["social_platform"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_embeds_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_create_content: { Args: never; Returns: boolean }
+      can_publish: { Args: never; Returns: boolean }
+      current_user_has_role: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor" | "reporter"
+      publication_status: "draft" | "published" | "scheduled"
+      social_platform:
+        | "instagram"
+        | "twitter"
+        | "youtube"
+        | "tiktok"
+        | "spotify"
+        | "facebook"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +387,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor", "reporter"],
+      publication_status: ["draft", "published", "scheduled"],
+      social_platform: [
+        "instagram",
+        "twitter",
+        "youtube",
+        "tiktok",
+        "spotify",
+        "facebook",
+      ],
+    },
   },
 } as const
