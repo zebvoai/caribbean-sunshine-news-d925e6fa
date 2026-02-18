@@ -40,7 +40,7 @@ const Index = () => {
   useEffect(() => {
     Promise.all([
       mongoApi.getArticles({ status: "published", limit: 12 }),
-      mongoApi.getArticles({ status: "published", limit: 5, is_breaking: true }),
+      mongoApi.getArticles({ status: "published", limit: 2, is_breaking: true }),
     ])
       .then(([all, breaking]) => {
         setArticles(all.map((a) => ({ ...toNewsArticle(a), is_breaking: a.is_breaking })));
