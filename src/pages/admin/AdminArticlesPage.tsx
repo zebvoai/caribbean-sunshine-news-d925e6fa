@@ -1,41 +1,42 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PlusCircle, Eye, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 
-const STATUS_COLORS: Record<string, string> = {
-  published: "bg-primary/10 text-primary",
-  draft: "bg-muted text-muted-foreground",
-  scheduled: "bg-secondary/10 text-secondary",
-};
+const STATUS_TABS = ["published", "draft", "scheduled"] as const;
+type StatusTab = typeof STATUS_TABS[number];
 
 const AdminArticlesPage = () => {
+  const navigate = useNavigate();
   const [articles, setArticles] = useState<MongoArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState<StatusTab>("published");
 
   const loadArticles = async () => {
     setLoading(true);
     try {
-      const data = await mongoApi.getArticles({
-        status: filter !== "all" ? filter : undefined,
-        limit: 100,
-      });
+      const data = await mongoApi.getArticles({ limit: 100 });
       setArticles(data);
-    } catch (err: any) {
+    } catch {
       toast.error("Failed to load articles");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { loadArticles(); }, [filter]);
+  useEffect(() => { loadArticles(); }, []);
 
-  const filtered = articles.filter((a) =>
-    a.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const counts = {
+    published: articles.filter((a) => a.publication_status === "published").length,
+    draft: articles.filter((a) => a.publication_status === "draft").length,
+    scheduled: articles.filter((a) => a.publication_status === "scheduled").length,
+  };
+
+  const filtered = articles
+    .filter((a) => a.publication_status === activeTab)
+    .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()));
 
   const deleteArticle = async (id: string) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
@@ -50,127 +51,152 @@ const AdminArticlesPage = () => {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
         <div>
           <h1 className="text-2xl font-heading font-bold text-foreground">Articles</h1>
-          <p className="text-sm text-muted-foreground mt-1">{articles.length} total articles</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage all news articles</p>
         </div>
         <Link
           to="/admin/articles/create"
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors"
         >
           <PlusCircle className="h-4 w-4" />
-          New Article
+          Create Article
         </Link>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search articles..."
-            className="w-full pl-9 pr-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-        {["all", "published", "draft", "scheduled"].map((s) => (
+      {/* Tabs */}
+      <div className="flex items-center gap-2 mt-5 mb-5 border-b border-border">
+        {STATUS_TABS.map((tab) => (
           <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium capitalize transition-colors ${
-              filter === s ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold capitalize transition-colors border-b-2 -mb-px ${
+              activeTab === tab
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            {s}
+            {tab === "published" && <span className="w-2 h-2 rounded-full bg-primary inline-block" />}
+            {tab === "draft" && <span className="inline-flex items-center justify-center w-4 h-4"><svg viewBox="0 0 16 16" className="h-3.5 w-3.5 opacity-60"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/></svg></span>}
+            {tab === "scheduled" && <span className="inline-flex items-center justify-center w-4 h-4"><svg viewBox="0 0 16 16" className="h-3.5 w-3.5 opacity-60"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" fill="none"/><path d="M8 5v3l2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></span>}
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            <span className={`ml-1 text-xs font-bold px-1.5 py-0.5 rounded-full ${
+              activeTab === tab ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+            }`}>
+              {counts[tab]}
+            </span>
           </button>
         ))}
       </div>
 
-      {/* Table */}
-      <div className="border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/30">
-              <th className="text-left px-4 py-3 font-semibold text-foreground">Title</th>
-              <th className="text-left px-4 py-3 font-semibold text-foreground">Status</th>
-              <th className="text-left px-4 py-3 font-semibold text-foreground hidden md:table-cell">Flags</th>
-              <th className="text-left px-4 py-3 font-semibold text-foreground hidden lg:table-cell">Date</th>
-              <th className="text-right px-4 py-3 font-semibold text-foreground">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={5} className="text-center py-12 text-muted-foreground">
-                  Loading articles...
-                </td>
-              </tr>
-            ) : filtered.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center py-12 text-muted-foreground">
-                  No articles found.{" "}
-                  <Link to="/admin/articles/create" className="text-primary hover:underline">
-                    Create your first article
-                  </Link>
-                </td>
-              </tr>
-            ) : (
-              filtered.map((article) => (
-                <tr key={article.id} className="border-b border-border last:border-0 hover:bg-muted/20">
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-foreground line-clamp-1">{article.title}</p>
-                    <p className="text-xs text-muted-foreground font-mono">/news/{article.slug}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${STATUS_COLORS[article.publication_status] || "bg-muted text-muted-foreground"}`}>
+      {/* Search */}
+      <div className="relative max-w-sm mb-5">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search articles..."
+          className="w-full pl-9 pr-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+        />
+      </div>
+
+      {/* Article Cards */}
+      {loading ? (
+        <div className="space-y-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-xl border border-border p-5 bg-card animate-pulse h-28" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-20 text-muted-foreground font-body">
+          <p className="text-lg mb-3">No {activeTab} articles found.</p>
+          <Link to="/admin/articles/create" className="text-primary hover:underline text-sm">
+            Create your first article →
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((article) => (
+            <div
+              key={article.id}
+              className="border border-border rounded-xl p-5 bg-card hover:border-primary/30 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  {/* Title + badges */}
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <h3 className="font-heading font-bold text-base text-foreground leading-snug">
+                      {article.title}
+                    </h3>
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary capitalize">
                       {article.publication_status}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 hidden md:table-cell">
-                    <div className="flex gap-1">
-                      {article.is_breaking && <span className="px-1.5 py-0.5 bg-destructive/10 text-destructive text-xs rounded font-medium">Breaking</span>}
-                      {article.is_featured && <span className="px-1.5 py-0.5 bg-secondary/10 text-secondary text-xs rounded font-medium">Featured</span>}
-                      {article.is_pinned && <span className="px-1.5 py-0.5 bg-primary/10 text-primary text-xs rounded font-medium">Pinned</span>}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs">
-                    {article.published_at
-                      ? new Date(article.published_at).toLocaleDateString()
-                      : article.created_at
-                      ? new Date(article.created_at).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <a
-                        href={`/news/${article.slug}`}
-                        target="_blank"
-                        className="p-1.5 hover:bg-muted rounded transition-colors"
-                        title="View"
-                      >
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                      </a>
-                      <button className="p-1.5 hover:bg-muted rounded transition-colors" title="Edit">
-                        <Edit className="h-4 w-4 text-muted-foreground" />
-                      </button>
-                      <button
-                        onClick={() => deleteArticle(article.id)}
-                        className="p-1.5 hover:bg-destructive/10 rounded transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    {article.is_breaking && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-destructive text-destructive-foreground">
+                        Breaking
+                      </span>
+                    )}
+                    {article.is_featured && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-secondary/10 text-secondary">
+                        Featured
+                      </span>
+                    )}
+                    {article.is_pinned && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
+                        Pinned
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Meta */}
+                  <p className="text-xs text-muted-foreground font-body mb-2 flex items-center gap-1.5">
+                    <span>Dominica News</span>
+                    <span>•</span>
+                    <span>
+                      {article.published_at
+                        ? new Date(article.published_at).toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" })
+                        : article.created_at
+                        ? new Date(article.created_at).toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" })
+                        : "—"}
+                    </span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1">
+                      <Eye className="h-3 w-3" />
+                      {article.view_count} views
+                    </span>
+                  </p>
+
+                  {/* Excerpt */}
+                  <p className="text-sm text-muted-foreground font-body line-clamp-2 leading-relaxed">
+                    {article.excerpt}
+                  </p>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button
+                    onClick={() => navigate(`/admin/articles/edit/${article.id}`)}
+                    className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                  <button
+                    onClick={() => deleteArticle(article.id)}
+                    className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
