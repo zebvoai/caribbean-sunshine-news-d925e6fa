@@ -178,12 +178,16 @@ const CreateArticlePage = () => {
     if (title && !slug) generateSlug(title);
   };
 
-  const saveArticle = async (): Promise<string | null> => {
+  const saveArticle = async (
+    status: "draft" | "published" | "scheduled" = "draft",
+    scheduledAt?: string
+  ): Promise<string | null> => {
     if (!title.trim()) { toast.error("Title is required"); return null; }
     if (!slug.trim()) { toast.error("Slug is required"); return null; }
     if (!excerpt.trim()) { toast.error("Excerpt is required"); return null; }
     if (!body.trim() || body === "<p></p>") { toast.error("Article body is required"); return null; }
 
+    const now = new Date().toISOString();
     const payload = {
       title: title.trim(),
       slug: slug.trim(),
@@ -198,12 +202,15 @@ const CreateArticlePage = () => {
       is_breaking: isBreaking,
       meta_title: (metaTitle || title).substring(0, 60),
       meta_description: (metaDescription || excerpt).substring(0, 160),
+      publication_status: status,
+      published_at: status === "published" ? now : null,
+      scheduled_for: scheduledAt || null,
     };
 
     const { data: { user } } = await supabase.auth.getUser();
     const { data: article, error } = await supabase
       .from("articles")
-      .insert({ ...payload, created_by: user?.id })
+      .insert({ ...payload, created_by: user?.id || null })
       .select()
       .single();
 
@@ -237,7 +244,7 @@ const CreateArticlePage = () => {
   const handleSaveDraft = async () => {
     setSaving(true);
     try {
-      const id = await saveArticle();
+      const id = await saveArticle("draft");
       if (id) {
         toast.success("Article saved as draft");
         navigate("/admin/articles");
@@ -256,21 +263,11 @@ const CreateArticlePage = () => {
     }
     setPublishing(true);
     try {
-      const id = await saveArticle();
-      if (!id) return;
-
-      // Directly update publication status — works without auth session
-      const { error } = await supabase
-        .from("articles")
-        .update({
-          publication_status: "published",
-          published_at: new Date().toISOString(),
-        })
-        .eq("id", id);
-
-      if (error) throw error;
-      toast.success("Article published successfully!");
-      navigate("/admin/articles");
+      const id = await saveArticle("published");
+      if (id) {
+        toast.success("Article published successfully!");
+        navigate("/admin/articles");
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to publish");
     } finally {
@@ -283,17 +280,11 @@ const CreateArticlePage = () => {
     if (currentUserRole === "reporter") { toast.error("Reporters cannot schedule articles"); return; }
     setScheduling(true);
     try {
-      const id = await saveArticle();
-      if (!id) return;
-
-      const { data: { session } } = await supabase.auth.getSession();
-      const { data, error } = await supabase.functions.invoke("schedule-article", {
-        body: { article_id: id, scheduled_for: scheduledFor },
-        headers: { Authorization: `Bearer ${session?.access_token}` },
-      });
-      if (error || data?.error) throw new Error(data?.error || error?.message);
-      toast.success("Article scheduled!");
-      navigate("/admin/articles");
+      const id = await saveArticle("scheduled", scheduledFor);
+      if (id) {
+        toast.success("Article scheduled!");
+        navigate("/admin/articles");
+      }
     } catch (err: any) {
       toast.error(err.message || "Failed to schedule");
     } finally {
