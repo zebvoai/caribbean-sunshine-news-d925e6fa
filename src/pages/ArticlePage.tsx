@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
+import SiteFooter from "@/components/SiteFooter";
 import { mongoApi } from "@/lib/mongoApi";
 import {
   Calendar,
@@ -594,6 +595,7 @@ const ArticlePage = () => {
           </section>
         )}
       </main>
+      <SiteFooter />
     </div>
   );
 };
