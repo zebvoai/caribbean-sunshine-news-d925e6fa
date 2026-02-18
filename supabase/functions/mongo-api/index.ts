@@ -216,16 +216,27 @@ Deno.serve(async (req) => {
       const status = url.searchParams.get("status");
       const limit = parseInt(url.searchParams.get("limit") || "50");
       const categoryId = url.searchParams.get("category_id");
+      const categorySlug = url.searchParams.get("category_slug");
       const excludeId = url.searchParams.get("exclude_id");
-
       const isBreaking = url.searchParams.get("is_breaking");
 
       const filter: any = {};
       if (status && status !== "all") filter.status = status;
       if (isBreaking === "true") filter.isBreaking = true;
-      if (categoryId) {
+
+      // Resolve category by slug if provided
+      if (categorySlug) {
+        const catDoc = await db.collection("categories").findOne({ slug: categorySlug });
+        if (catDoc) {
+          filter.category = catDoc._id;
+        } else {
+          // No category found with this slug — return empty
+          return jsonResponse([]);
+        }
+      } else if (categoryId) {
         try { filter.category = new ObjectId(categoryId); } catch {}
       }
+
       if (excludeId) {
         try { filter._id = { $ne: new ObjectId(excludeId) }; } catch {}
       }

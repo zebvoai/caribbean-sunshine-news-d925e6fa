@@ -110,6 +110,7 @@ export const mongoApi = {
     status?: string;
     limit?: number;
     category_id?: string;
+    category_slug?: string;
     exclude_id?: string;
     is_breaking?: boolean;
   } = {}): Promise<MongoArticle[]> {
@@ -117,6 +118,7 @@ export const mongoApi = {
     if (params.status) p.status = params.status;
     if (params.limit) p.limit = String(params.limit);
     if (params.category_id) p.category_id = params.category_id;
+    if (params.category_slug) p.category_slug = params.category_slug;
     if (params.exclude_id) p.exclude_id = params.exclude_id;
     if (params.is_breaking) p.is_breaking = "true";
     return get<MongoArticle[]>(p);
