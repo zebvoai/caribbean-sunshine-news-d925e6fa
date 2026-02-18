@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -7,18 +7,7 @@ import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
 import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-interface Author {
-  id: string;
-  full_name: string;
-  role: string;
-}
+import { mongoApi, MongoCategory, MongoAuthor } from "@/lib/mongoApi";
 
 const SECTION_CLASSES = "bg-card border border-border rounded-xl p-6 space-y-4";
 const LABEL_CLASSES = "block text-sm font-semibold text-foreground mb-1.5";
@@ -92,15 +81,22 @@ const Toggle = ({
   </label>
 );
 
+const generateSlugLocal = (text: string) =>
+  text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .substring(0, 80);
+
 const CreateArticlePage = () => {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
   const [scheduling, setScheduling] = useState(false);
-  const [slugGenerating, setSlugGenerating] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [authors, setAuthors] = useState<Author[]>([]);
-  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
+  const [categories, setCategories] = useState<MongoCategory[]>([]);
+  const [authors, setAuthors] = useState<MongoAuthor[]>([]);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -120,62 +116,13 @@ const CreateArticlePage = () => {
   const [isBreaking, setIsBreaking] = useState(false);
   const [scheduledFor, setScheduledFor] = useState("");
 
-  // Load categories, authors, and current user
   useEffect(() => {
-    const load = async () => {
-      const { data: cats } = await supabase.from("categories").select("*").order("name");
-      if (cats) setCategories(cats);
-
-      const { data: auths } = await supabase.from("authors").select("*").order("full_name");
-      if (auths) setAuthors(auths);
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: roleRow } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        setCurrentUserRole(roleRow?.role || null);
-
-        // Pre-select this user's author record
-        const { data: authorRow } = await supabase
-          .from("authors")
-          .select("id")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        if (authorRow) setAuthorId(authorRow.id);
-      }
-    };
-    load();
-  }, []);
-
-  const generateSlug = useCallback(async (titleValue: string) => {
-    if (!titleValue.trim()) return;
-    setSlugGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-slug", {
-        body: { title: titleValue },
-      });
-      if (error) throw error;
-      setSlug(data.slug);
-    } catch {
-      // Fallback client-side
-      setSlug(
-        titleValue
-          .toLowerCase()
-          .trim()
-          .replace(/[^\w\s-]/g, "")
-          .replace(/\s+/g, "-")
-          .substring(0, 80)
-      );
-    } finally {
-      setSlugGenerating(false);
-    }
+    mongoApi.getCategories().then(setCategories).catch(console.error);
+    mongoApi.getAuthors().then(setAuthors).catch(console.error);
   }, []);
 
   const handleTitleBlur = () => {
-    if (title && !slug) generateSlug(title);
+    if (title && !slug) setSlug(generateSlugLocal(title));
   };
 
   const saveArticle = async (
@@ -197,6 +144,7 @@ const CreateArticlePage = () => {
       cover_image_alt: coverImageAlt || null,
       author_id: authorId || null,
       primary_category_id: primaryCategoryId || null,
+      additional_category_ids: additionalCategories,
       is_pinned: isPinned,
       is_featured: isFeatured,
       is_breaking: isBreaking,
@@ -205,40 +153,15 @@ const CreateArticlePage = () => {
       publication_status: status,
       published_at: status === "published" ? now : null,
       scheduled_for: scheduledAt || null,
+      social_embeds: socialEmbeds.map((e) => ({
+        platform: e.platform,
+        embed_url: e.embed_url || null,
+        embed_code: e.embed_code || null,
+      })),
     };
 
-    const { data: { user } } = await supabase.auth.getUser();
-    const { data: article, error } = await supabase
-      .from("articles")
-      .insert({ ...payload, created_by: user?.id || null })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    // Save additional categories
-    if (additionalCategories.length > 0) {
-      await supabase.from("article_categories").insert(
-        additionalCategories.map((cat_id) => ({
-          article_id: article.id,
-          category_id: cat_id,
-        }))
-      );
-    }
-
-    // Save social embeds
-    if (socialEmbeds.length > 0) {
-      await supabase.from("social_embeds").insert(
-        socialEmbeds.map((e) => ({
-          article_id: article.id,
-          platform: e.platform as "facebook" | "instagram" | "spotify" | "tiktok" | "twitter" | "youtube",
-          embed_url: e.embed_url || null,
-          embed_code: e.embed_code || null,
-        }))
-      );
-    }
-
-    return article.id;
+    const { id } = await mongoApi.createArticle(payload);
+    return id;
   };
 
   const handleSaveDraft = async () => {
@@ -257,10 +180,6 @@ const CreateArticlePage = () => {
   };
 
   const handlePublish = async () => {
-    if (currentUserRole === "reporter") {
-      toast.error("Reporters can only save drafts");
-      return;
-    }
     setPublishing(true);
     try {
       const id = await saveArticle("published");
@@ -277,7 +196,6 @@ const CreateArticlePage = () => {
 
   const handleSchedule = async () => {
     if (!scheduledFor) { toast.error("Please select a date and time to schedule"); return; }
-    if (currentUserRole === "reporter") { toast.error("Reporters cannot schedule articles"); return; }
     setScheduling(true);
     try {
       const id = await saveArticle("scheduled", scheduledFor);
@@ -297,9 +215,6 @@ const CreateArticlePage = () => {
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
   };
-
-  // Allow publish when no auth role is set (admin panel not yet behind auth)
-  const canPublish = !currentUserRole || currentUserRole === "admin" || currentUserRole === "editor";
 
   return (
     <div className="p-6 max-w-4xl">
@@ -335,12 +250,7 @@ const CreateArticlePage = () => {
           </div>
 
           <div>
-            <label className={LABEL_CLASSES}>
-              Slug *{" "}
-              {slugGenerating && (
-                <span className="text-xs text-muted-foreground font-normal">generating...</span>
-              )}
-            </label>
+            <label className={LABEL_CLASSES}>Slug *</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -352,8 +262,8 @@ const CreateArticlePage = () => {
               />
               <button
                 type="button"
-                onClick={() => generateSlug(title)}
-                disabled={!title || slugGenerating}
+                onClick={() => title && setSlug(generateSlugLocal(title))}
+                disabled={!title}
                 className="px-3 py-2 border border-border rounded-md text-sm hover:bg-muted transition-colors disabled:opacity-50"
               >
                 Regenerate
@@ -400,7 +310,7 @@ const CreateArticlePage = () => {
                 <option value="">Select author...</option>
                 {authors.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.full_name} ({a.role})
+                    {a.full_name}
                   </option>
                 ))}
               </select>
@@ -492,7 +402,6 @@ const CreateArticlePage = () => {
             <Toggle checked={isBreaking} onChange={setIsBreaking} label="Breaking News" icon={Zap} colorClass="bg-destructive" />
           </div>
 
-          {/* Schedule picker */}
           <div>
             <label className={LABEL_CLASSES}>Schedule for Later</label>
             <input
@@ -504,7 +413,6 @@ const CreateArticlePage = () => {
             />
           </div>
 
-          {/* Action buttons */}
           <div className="flex flex-wrap gap-3 pt-2">
             <button
               type="button"
@@ -516,36 +424,26 @@ const CreateArticlePage = () => {
               Save as Draft
             </button>
 
-            {canPublish && (
-              <button
-                type="button"
-                onClick={handlePublish}
-                disabled={publishing}
-                className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
-              >
-                {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Publish Now
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handlePublish}
+              disabled={publishing}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+            >
+              {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Publish Now
+            </button>
 
-            {canPublish && (
-              <button
-                type="button"
-                onClick={handleSchedule}
-                disabled={scheduling || !scheduledFor}
-                className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-secondary-foreground rounded-lg text-sm font-semibold hover:bg-secondary/90 transition-colors disabled:opacity-60"
-              >
-                {scheduling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
-                Schedule
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleSchedule}
+              disabled={scheduling || !scheduledFor}
+              className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-secondary-foreground rounded-lg text-sm font-semibold hover:bg-secondary/90 transition-colors disabled:opacity-60"
+            >
+              {scheduling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
+              Schedule
+            </button>
           </div>
-
-          {currentUserRole === "reporter" && (
-            <p className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
-              ℹ️ As a reporter, you can save drafts only. An admin or editor will publish your article.
-            </p>
-          )}
         </Section>
       </form>
     </div>
