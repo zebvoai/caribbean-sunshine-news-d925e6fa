@@ -39,6 +39,7 @@ const normalizeArticle = (doc: any, full = false) => {
     meta_title: doc.seo?.metaTitle || doc.seo?.title || null,
     meta_description: doc.seo?.metaDescription || doc.seo?.description || null,
     primary_category_id: doc.category?.toString() || null,
+    author_id: doc.author?.toString() || null,
     created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
     updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
   };
@@ -50,6 +51,7 @@ const normalizeArticle = (doc: any, full = false) => {
       embed_url: e.url || e.embed_url || null,
       embed_code: e.code || e.embed_code || null,
     }));
+    base.additional_category_ids = (doc.categories || []).map((c: any) => c.toString());
     base.authors = doc._author
       ? {
           id: doc._author._id.toString(),
@@ -133,6 +135,58 @@ Deno.serve(async (req) => {
         const id = url.searchParams.get("id");
         if (!id) return jsonError("id required", 400);
         await db.collection("articles").deleteOne({ _id: new ObjectId(id) });
+        return jsonResponse({ success: true });
+      }
+
+      // UPDATE (PATCH)
+      if (req.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        const body = await req.json();
+        const now = new Date();
+        const update: any = {
+          updatedAt: now,
+        };
+        if (body.title !== undefined) update.title = body.title;
+        if (body.slug !== undefined) update.slug = body.slug;
+        if (body.body !== undefined) update.content = body.body;
+        if (body.excerpt !== undefined) update.excerpt = body.excerpt;
+        if (body.cover_image_url !== undefined) update.featuredImage = body.cover_image_url;
+        if (body.cover_image_alt !== undefined) update.featuredImageAlt = body.cover_image_alt;
+        if (body.publication_status !== undefined) update.status = body.publication_status;
+        if (body.published_at !== undefined) update.publishedAt = body.published_at ? new Date(body.published_at) : null;
+        if (body.scheduled_for !== undefined) update.scheduledFor = body.scheduled_for ? new Date(body.scheduled_for) : null;
+        if (body.is_breaking !== undefined) update.isBreaking = body.is_breaking;
+        if (body.is_featured !== undefined) update.isFeatured = body.is_featured;
+        if (body.is_pinned !== undefined) update.isPinned = body.is_pinned;
+        if (body.meta_title !== undefined || body.meta_description !== undefined) {
+          update.seo = {
+            metaTitle: body.meta_title || null,
+            metaDescription: body.meta_description || null,
+          };
+        }
+        if (body.social_embeds !== undefined) {
+          update.embeds = (body.social_embeds || []).map((e: any) => ({
+            platform: e.platform,
+            url: e.embed_url || null,
+            code: e.embed_code || null,
+          }));
+        }
+        if (body.author_id !== undefined) {
+          try { update.author = body.author_id ? new ObjectId(body.author_id) : null; } catch {}
+        }
+        if (body.primary_category_id !== undefined) {
+          try { update.category = body.primary_category_id ? new ObjectId(body.primary_category_id) : null; } catch {}
+        }
+        if (body.additional_category_ids !== undefined) {
+          update.categories = (body.additional_category_ids || []).map((cid: string) => {
+            try { return new ObjectId(cid); } catch { return null; }
+          }).filter(Boolean);
+        }
+        await db.collection("articles").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update }
+        );
         return jsonResponse({ success: true });
       }
 

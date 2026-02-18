@@ -59,10 +59,12 @@ export interface MongoArticle {
   meta_title: string | null;
   meta_description: string | null;
   primary_category_id: string | null;
+  author_id: string | null;
   created_at: string | null;
   updated_at: string | null;
   // Full article only:
   body?: string;
+  additional_category_ids?: string[];
   social_embeds?: { platform: string; embed_url: string | null; embed_code: string | null }[];
   authors?: { id: string; full_name: string; avatar_url: string | null; bio: string | null; role: string } | null;
   categories?: { name: string; slug: string } | null;
@@ -137,9 +139,28 @@ export const mongoApi = {
     return get<MongoArticle>({ resource: "articles", slug });
   },
 
+  /** Get a single article by id (admin use, includes body) */
+  getArticleById(id: string): Promise<MongoArticle> {
+    return get<MongoArticle>({ resource: "articles", id });
+  },
+
   /** Create a new article */
   createArticle(payload: CreateArticlePayload): Promise<{ id: string }> {
     return post<{ id: string }>({ resource: "articles" }, payload);
+  },
+
+  /** Update an existing article by id */
+  updateArticle(id: string, payload: Partial<CreateArticlePayload>): Promise<{ success: boolean }> {
+    const qs = new URLSearchParams({ resource: "articles", id }).toString();
+    return fetch(`${BASE}?${qs}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(payload),
+    }).then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
+      return data;
+    });
   },
 
   /** Delete an article by id */
