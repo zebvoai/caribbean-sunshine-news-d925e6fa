@@ -11,7 +11,7 @@ const navItems = [
 
 const NavBar = () => {
   return (
-    <nav className="border-y border-border">
+    <nav className="sticky top-0 z-50 bg-background border-y border-border shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-center gap-1 px-4">
         {navItems.map((item) => (
           <Link

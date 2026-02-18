@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
+import SiteFooter from "@/components/SiteFooter";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 import type { NewsArticle } from "@/data/newsData";
 
@@ -131,6 +132,7 @@ const Index = () => {
           )}
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 };
