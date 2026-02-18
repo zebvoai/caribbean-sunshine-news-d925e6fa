@@ -290,13 +290,24 @@ Deno.serve(async (req) => {
       if (categorySlug) {
         const catDoc = await db.collection("categories").findOne({ slug: categorySlug });
         if (catDoc) {
-          filter.category = catDoc._id;
+          // Match articles where the category is either primary OR in the additional categories array
+          filter.$or = [
+            { category: catDoc._id },
+            { categories: catDoc._id },
+          ];
         } else {
           // No category found with this slug — return empty
           return jsonResponse([]);
         }
       } else if (categoryId) {
-        try { filter.category = new ObjectId(categoryId); } catch {}
+        let catObjId: ObjectId | null = null;
+        try { catObjId = new ObjectId(categoryId); } catch {}
+        if (catObjId) {
+          filter.$or = [
+            { category: catObjId },
+            { categories: catObjId },
+          ];
+        }
       }
 
       if (excludeId) {
