@@ -1,21 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { PlusCircle, Eye, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
-
-interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  publication_status: string;
-  is_breaking: boolean;
-  is_featured: boolean;
-  is_pinned: boolean;
-  created_at: string;
-  published_at: string | null;
-  primary_category_id: string | null;
-}
+import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 
 const STATUS_COLORS: Record<string, string> = {
   published: "bg-primary/10 text-primary",
@@ -24,26 +11,24 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const AdminArticlesPage = () => {
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<MongoArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
   const loadArticles = async () => {
     setLoading(true);
-    let query = supabase
-      .from("articles")
-      .select("id,title,slug,publication_status,is_breaking,is_featured,is_pinned,created_at,published_at,primary_category_id")
-      .order("created_at", { ascending: false });
-
-    if (filter !== "all") {
-      query = query.eq("publication_status", filter as "draft" | "published" | "scheduled");
+    try {
+      const data = await mongoApi.getArticles({
+        status: filter !== "all" ? filter : undefined,
+        limit: 100,
+      });
+      setArticles(data);
+    } catch (err: any) {
+      toast.error("Failed to load articles");
+    } finally {
+      setLoading(false);
     }
-
-    const { data, error } = await query;
-    if (error) toast.error("Failed to load articles");
-    else setArticles(data || []);
-    setLoading(false);
   };
 
   useEffect(() => { loadArticles(); }, [filter]);
@@ -54,9 +39,13 @@ const AdminArticlesPage = () => {
 
   const deleteArticle = async (id: string) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
-    const { error } = await supabase.from("articles").delete().eq("id", id);
-    if (error) toast.error(error.message);
-    else { toast.success("Article deleted"); loadArticles(); }
+    try {
+      await mongoApi.deleteArticle(id);
+      toast.success("Article deleted");
+      loadArticles();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete");
+    }
   };
 
   return (
@@ -150,7 +139,9 @@ const AdminArticlesPage = () => {
                   <td className="px-4 py-3 hidden lg:table-cell text-muted-foreground text-xs">
                     {article.published_at
                       ? new Date(article.published_at).toLocaleDateString()
-                      : new Date(article.created_at).toLocaleDateString()}
+                      : article.created_at
+                      ? new Date(article.created_at).toLocaleDateString()
+                      : "—"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">

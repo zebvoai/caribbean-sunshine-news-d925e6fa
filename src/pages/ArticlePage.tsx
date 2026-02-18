@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
+import { mongoApi } from "@/lib/mongoApi";
 import {
   Calendar,
   User,
@@ -158,28 +158,14 @@ const ArticlePage = () => {
 
     const load = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("articles")
-        .select(
-          `id, title, slug, excerpt, body, cover_image_url, cover_image_alt,
-           is_breaking, is_featured, is_pinned, meta_title, meta_description,
-           published_at, view_count, primary_category_id,
-           authors:author_id(id, full_name, avatar_url, bio, role),
-           categories:primary_category_id(name, slug),
-           social_embeds(platform, embed_url, embed_code)`
-        )
-        .eq("slug", slug)
-        .eq("publication_status", "published")
-        .single();
-
-      if (error || !data) {
-        setLoading(false);
+      try {
+        const data = await mongoApi.getArticleBySlug(slug);
+        setArticle(data as unknown as Article);
+      } catch {
         navigate("/404", { replace: true });
-        return;
+      } finally {
+        setLoading(false);
       }
-
-      setArticle(data as unknown as Article);
-      setLoading(false);
     };
 
     load();
@@ -188,11 +174,11 @@ const ArticlePage = () => {
   // ── Increment view count (debounced, once per slug per page load) ───────────
   useEffect(() => {
     if (!article || viewCounted.current) return;
-    const timer = setTimeout(async () => {
+    const timer = setTimeout(() => {
       if (viewCounted.current) return;
       viewCounted.current = true;
-      await supabase.rpc("increment_article_view", { article_slug: article.slug });
-    }, 3000); // 3-second delay as basic spam protection
+      mongoApi.incrementView((article as any).slug).catch(() => {});
+    }, 3000);
     return () => clearTimeout(timer);
   }, [article]);
 
@@ -203,39 +189,24 @@ const ArticlePage = () => {
       let results: RelatedArticle[] = [];
 
       // First: same primary category
-      if (article.primary_category_id) {
-        const { data } = await supabase
-          .from("articles")
-          .select(
-            "id, title, slug, excerpt, cover_image_url, published_at, categories:primary_category_id(name), authors:author_id(full_name)"
-          )
-          .eq("publication_status", "published")
-          .eq("primary_category_id", article.primary_category_id)
-          .neq("id", article.id)
-          .order("published_at", { ascending: false })
-          .limit(6);
-        results = (data as unknown as RelatedArticle[]) || [];
+      if ((article as any).primary_category_id) {
+        const data = await mongoApi.getArticles({
+          status: "published",
+          category_id: (article as any).primary_category_id,
+          exclude_id: (article as any).id,
+          limit: 6,
+        }).catch(() => []);
+        results = data as unknown as RelatedArticle[];
       }
 
       // Fill up to 6 with latest if needed
       if (results.length < 6) {
-        const existingIds = [article.id, ...results.map((r) => r.id)];
-        const needed = 6 - results.length;
-        // Fetch more than needed and filter client-side to exclude already fetched
-        const { data: fallback } = await supabase
-          .from("articles")
-          .select(
-            "id, title, slug, excerpt, cover_image_url, published_at, categories:primary_category_id(name), authors:author_id(full_name)"
-          )
-          .eq("publication_status", "published")
-          .order("published_at", { ascending: false })
-          .limit(needed + existingIds.length + 5);
-        if (fallback) {
-          const filtered = (fallback as unknown as RelatedArticle[]).filter(
-            (a) => !existingIds.includes(a.id)
-          );
-          results = [...results, ...filtered.slice(0, needed)];
-        }
+        const existingIds = [(article as any).id, ...results.map((r) => r.id)];
+        const fallback = await mongoApi.getArticles({ status: "published", limit: 20 }).catch(() => []);
+        const filtered = (fallback as unknown as RelatedArticle[]).filter(
+          (a) => !existingIds.includes(a.id)
+        );
+        results = [...results, ...filtered.slice(0, 6 - results.length)];
       }
 
       setRelated(results.slice(0, 6));

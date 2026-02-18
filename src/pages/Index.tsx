@@ -2,22 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
-import { supabase } from "@/integrations/supabase/client";
 import NewsCard from "@/components/NewsCard";
+import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 import type { NewsArticle } from "@/data/newsData";
 
-interface DbArticle {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  cover_image_url: string | null;
-  is_breaking: boolean;
-  published_at: string | null;
-  categories: { name: string } | null;
-}
-
-const toNewsArticle = (a: DbArticle): NewsArticle & { slug: string } => ({
+const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
   id: 0,
   title: a.title,
   excerpt: a.excerpt,
@@ -35,24 +24,16 @@ const toNewsArticle = (a: DbArticle): NewsArticle & { slug: string } => ({
 });
 
 const Index = () => {
-  const [dbArticles, setDbArticles] = useState<DbArticle[]>([]);
+  const [articles, setArticles] = useState<(NewsArticle & { slug: string })[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase
-        .from("articles")
-        .select("id, title, slug, excerpt, cover_image_url, is_breaking, published_at, categories:primary_category_id(name)")
-        .eq("publication_status", "published")
-        .order("published_at", { ascending: false })
-        .limit(12);
-      setDbArticles((data as DbArticle[]) || []);
-      setLoading(false);
-    };
-    load();
+    mongoApi
+      .getArticles({ status: "published", limit: 12 })
+      .then((data) => setArticles(data.map(toNewsArticle)))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
-
-  const articles = dbArticles.map(toNewsArticle);
 
   return (
     <div className="min-h-screen bg-background">
