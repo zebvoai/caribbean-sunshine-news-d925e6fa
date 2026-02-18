@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+
 import logoImg from "@/assets/dominica_logo.png";
 
 const SiteHeader = () => {
@@ -13,10 +13,6 @@ const SiteHeader = () => {
         />
       </div>
       <div className="flex-1 flex justify-end">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <User className="h-5 w-5" />
-          <span className="text-sm font-body font-medium">Surabhi</span>
-        </div>
       </div>
     </header>
   );
