@@ -218,8 +218,11 @@ Deno.serve(async (req) => {
       const categoryId = url.searchParams.get("category_id");
       const excludeId = url.searchParams.get("exclude_id");
 
+      const isBreaking = url.searchParams.get("is_breaking");
+
       const filter: any = {};
       if (status && status !== "all") filter.status = status;
+      if (isBreaking === "true") filter.isBreaking = true;
       if (categoryId) {
         try { filter.category = new ObjectId(categoryId); } catch {}
       }
