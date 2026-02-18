@@ -79,6 +79,14 @@ export interface MongoAuthor {
   full_name: string;
   role: string;
   email: string | null;
+  bio: string | null;
+  avatar_url: string | null;
+  is_active: boolean;
+  articles_count: number;
+  expertise: string[];
+  specialization: string[];
+  location: string | null;
+  slug: string | null;
 }
 
 export interface CreateArticlePayload {

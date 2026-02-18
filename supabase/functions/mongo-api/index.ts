@@ -76,8 +76,16 @@ const normalizeCategory = (doc: any) => ({
 const normalizeAuthor = (doc: any) => ({
   id: doc._id.toString(),
   full_name: doc.name || "Unknown",
-  role: "reporter",
+  role: doc.title || "Reporter",
   email: doc.email || null,
+  bio: doc.bio || null,
+  avatar_url: doc.avatarUrl || doc.avatar || null,
+  is_active: doc.isActive !== false,
+  articles_count: doc.articlesCount || 0,
+  expertise: doc.expertise || [],
+  specialization: doc.specialization || [],
+  location: doc.location || null,
+  slug: doc.slug || null,
 });
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
