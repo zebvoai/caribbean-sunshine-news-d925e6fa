@@ -3,7 +3,7 @@ import logoImg from "@/assets/dominica_logo.png";
 
 const SiteHeader = () => {
   return (
-    <header className="flex items-center justify-between px-6 py-5 max-w-7xl mx-auto">
+    <header className="flex items-center justify-between px-6 py-5 max-w-7xl mx-auto animate-fade-in-up">
       <div className="flex-1" />
       <div className="text-center">
         <img

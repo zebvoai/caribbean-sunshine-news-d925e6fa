@@ -7,7 +7,7 @@ interface NewsCardProps {
 
 const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
   return (
-    <article className="group rounded-lg overflow-hidden bg-card shadow-card hover:shadow-card-hover hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+    <article className="group rounded-lg overflow-hidden bg-card shadow-card hover:shadow-card-hover hover:scale-[1.02] transition-all duration-300 cursor-pointer animate-fade-in-up">
       <div className="relative overflow-hidden">
         <img
           src={article.image}

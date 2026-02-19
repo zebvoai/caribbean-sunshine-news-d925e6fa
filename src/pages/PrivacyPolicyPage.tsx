@@ -6,7 +6,7 @@ const PrivacyPolicyPage = () => (
   <div className="min-h-screen bg-background">
     <SiteHeader />
     <NavBar />
-    <main className="max-w-3xl mx-auto px-6 py-12 font-body">
+    <main className="max-w-3xl mx-auto px-6 py-12 font-body animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
       <h1 className="text-3xl font-heading font-bold text-foreground mb-6">Privacy Policy</h1>
       <p className="text-sm text-muted-foreground mb-8">Last updated: February 19, 2026</p>
       <div className="prose prose-lg text-muted-foreground space-y-6">

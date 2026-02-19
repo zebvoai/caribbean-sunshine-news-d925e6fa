@@ -352,7 +352,7 @@ const ArticlePage = () => {
       <SiteHeader />
       <NavBar />
 
-      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6">
+      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
         {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
         <nav aria-label="breadcrumb" className="mb-5">
           <ol className="flex items-center gap-1.5 text-sm text-muted-foreground font-body flex-wrap">

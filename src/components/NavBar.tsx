@@ -35,7 +35,7 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background border-y border-border shadow-sm">
+    <nav className="sticky top-0 z-50 bg-background border-y border-border shadow-sm animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
       <div className="max-w-7xl mx-auto flex items-center justify-center gap-1 px-4 overflow-x-auto">
         <Link
           to="/"

@@ -6,7 +6,7 @@ const AboutPage = () => (
   <div className="min-h-screen bg-background">
     <SiteHeader />
     <NavBar />
-    <main className="max-w-3xl mx-auto px-6 py-12 font-body">
+    <main className="max-w-3xl mx-auto px-6 py-12 font-body animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
       <h1 className="text-3xl font-heading font-bold text-foreground mb-6">About Us</h1>
       <div className="prose prose-lg text-muted-foreground space-y-4">
         <p>
