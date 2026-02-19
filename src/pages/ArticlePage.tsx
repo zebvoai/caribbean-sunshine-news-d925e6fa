@@ -352,9 +352,9 @@ const ArticlePage = () => {
       <SiteHeader />
       <NavBar />
 
-      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6">
         {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
-        <nav aria-label="breadcrumb" className="mb-5">
+        <nav aria-label="breadcrumb" className="mb-5 animate-fade-in-up">
           <ol className="flex items-center gap-1.5 text-sm text-muted-foreground font-body flex-wrap">
             <li>
               <Link to="/" className="hover:text-primary transition-colors">
@@ -385,7 +385,7 @@ const ArticlePage = () => {
         </nav>
 
         {/* ── Badges ──────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="flex flex-wrap items-center gap-2 mb-3 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
           {article.is_breaking && (
             <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1 rounded uppercase tracking-wide">
               <Zap className="h-3 w-3" />
@@ -410,20 +410,21 @@ const ArticlePage = () => {
 
         {/* ── Title ───────────────────────────────────────────────────────── */}
         <h1
-          className={`text-3xl md:text-4xl font-heading font-bold text-foreground leading-tight mb-4 ${
+          className={`text-3xl md:text-4xl font-heading font-bold text-foreground leading-tight mb-4 animate-fade-in-up ${
             article.is_featured ? "text-secondary" : ""
           }`}
+          style={{ animationDelay: "0.1s" }}
         >
           {article.title}
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
-        <p className="text-lg text-muted-foreground font-body mb-4 leading-relaxed">
+        <p className="text-lg text-muted-foreground font-body mb-4 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
           {article.excerpt}
         </p>
 
         {/* ── Meta Row ────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground font-body mb-5 pb-5 border-b border-border">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground font-body mb-5 pb-5 border-b border-border animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <span className="font-semibold text-foreground">Dominica News</span>
           <span className="text-border">•</span>
           {pubDate && (
@@ -455,7 +456,7 @@ const ArticlePage = () => {
 
         {/* ── Cover Image ─────────────────────────────────────────────────── */}
         {article.cover_image_url && (
-          <figure className="mb-6 rounded-xl overflow-hidden shadow-card">
+          <figure className="mb-6 rounded-xl overflow-hidden shadow-card animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
             <img
               src={article.cover_image_url}
               alt={article.cover_image_alt || article.title}
@@ -470,7 +471,7 @@ const ArticlePage = () => {
         )}
 
         {/* ── Share Bar ───────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-3 mb-8 py-4 border-y border-border">
+        <div className="flex items-center gap-3 mb-8 py-4 border-y border-border animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
           <span className="text-sm font-semibold font-body text-muted-foreground mr-1">Share:</span>
           <button
             onClick={shareFacebook}
@@ -501,7 +502,7 @@ const ArticlePage = () => {
         {/* ── Article Body ────────────────────────────────────────────────── */}
         <div
           className="
-            prose prose-lg max-w-none font-body
+            prose prose-lg max-w-none font-body animate-fade-in-up
             prose-headings:font-heading prose-headings:text-foreground
             prose-p:text-foreground prose-p:leading-relaxed
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
@@ -511,6 +512,7 @@ const ArticlePage = () => {
             prose-li:text-foreground
             mb-10
           "
+          style={{ animationDelay: "0.35s" }}
           dangerouslySetInnerHTML={{ __html: article.body }}
         />
 
@@ -547,7 +549,7 @@ const ArticlePage = () => {
 
         {/* ── About the Author ────────────────────────────────────────────── */}
         {article.authors && (
-          <section className="mb-10 p-5 border border-border rounded-xl bg-muted/20">
+          <section className="mb-10 p-5 border border-border rounded-xl bg-muted/20 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
             <h3 className="font-heading font-bold text-base text-muted-foreground uppercase tracking-wide mb-4">
               About the Author
             </h3>
@@ -590,7 +592,7 @@ const ArticlePage = () => {
 
         {/* ── Related Articles ────────────────────────────────────────────── */}
         {related.length > 0 && (
-          <section className="mb-10">
+          <section className="mb-10 animate-fade-in-up" style={{ animationDelay: "0.45s" }}>
             <h3 className="font-heading font-bold text-xl text-foreground border-b-2 border-primary pb-2 mb-6">
               Related Articles
             </h3>
