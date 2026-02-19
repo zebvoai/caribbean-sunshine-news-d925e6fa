@@ -61,10 +61,10 @@ const SiteFooter = () => {
             <h3 className="font-heading font-bold text-base mb-4">Follow Us</h3>
             <div className="flex items-center gap-3 mb-3">
               {[
-                { Icon: Facebook, href: "#" },
-                { Icon: Twitter, href: "#" },
-                { Icon: Instagram, href: "#" },
-                { Icon: Youtube, href: "#" },
+                { Icon: Facebook, href: "https://www.facebook.com/dominicanews" },
+                { Icon: Twitter, href: "https://www.facebook.com/dominicanews" },
+                { Icon: Instagram, href: "https://www.instagram.com/dominicanews" },
+                { Icon: Youtube, href: "https://www.youtube.com/channel/UCvtEDb_00XXqe9oFUAkJ9ww" },
               ].map(({ Icon, href }, i) => (
                 <a
                   key={i}
