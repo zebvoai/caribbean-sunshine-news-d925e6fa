@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   FileText,
@@ -17,7 +17,9 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const mainNav = [
@@ -90,6 +92,13 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  };
+
   return (
     <aside
       className={cn(
@@ -116,6 +125,15 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
         <NavSection label="Content" items={contentNav} collapsed={collapsed} />
         <NavSection label="Settings" items={settingsNav} collapsed={collapsed} />
       </nav>
+      <div className="border-t border-border p-2">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-body font-medium text-destructive hover:bg-destructive/10 transition-colors w-full"
+        >
+          <LogOut className="h-4 w-4 flex-shrink-0" />
+          {!collapsed && <span>Logout</span>}
+        </button>
+      </div>
     </aside>
   );
 };

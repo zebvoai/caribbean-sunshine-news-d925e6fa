@@ -13,6 +13,8 @@ import AdminAuthorsPage from "./pages/admin/AdminAuthorsPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import EditArticlePage from "./pages/admin/EditArticlePage";
 import ArticlePage from "./pages/ArticlePage";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminAuthGuard from "./components/admin/AdminAuthGuard";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +27,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/news/:slug" element={<ArticlePage />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminAuthGuard><AdminLayout /></AdminAuthGuard>}>
             <Route index element={<AdminDashboard />} />
             <Route path="articles" element={<AdminArticlesPage />} />
             <Route path="articles/create" element={<CreateArticlePage />} />
