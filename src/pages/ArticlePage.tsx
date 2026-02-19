@@ -286,7 +286,8 @@ const ArticlePage = () => {
   }, [article]);
 
   // ── Share handlers ─────────────────────────────────────────────────────────
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const articlePath = slug ? `/news/${slug}` : "";
+  const shareUrl = `https://dominicanews.dm${articlePath}`;
 
   const shareFacebook = () =>
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank");
@@ -297,12 +298,18 @@ const ArticlePage = () => {
       "_blank"
     );
 
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      toast({ title: "Link copied!", description: "Article link copied to clipboard." });
-    } catch {
-      toast({ title: "Copy failed", description: "Please copy the URL manually.", variant: "destructive" });
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: article?.title || "", url: shareUrl });
+      } catch { /* user cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast({ title: "Link copied!", description: shareUrl });
+      } catch {
+        toast({ title: "Copy failed", description: "Please copy the URL manually.", variant: "destructive" });
+      }
     }
   };
 
@@ -482,12 +489,12 @@ const ArticlePage = () => {
             Twitter
           </button>
           <button
-            onClick={copyLink}
-            aria-label="Copy link"
+            onClick={handleShare}
+            aria-label="Share"
             className="flex items-center gap-1.5 text-sm font-body font-semibold px-3 py-1.5 rounded border border-border text-foreground hover:bg-muted transition-colors"
           >
             <Link2 className="h-3.5 w-3.5" />
-            Copy Link
+            Share
           </button>
         </div>
 
