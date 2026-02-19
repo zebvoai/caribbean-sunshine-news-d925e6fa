@@ -1,10 +1,17 @@
 import { Facebook, Twitter, Instagram, Youtube, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { mongoApi } from "@/lib/mongoApi";
 
 const SiteFooter = () => {
   const [email, setEmail] = useState("");
-
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => mongoApi.getCategories(),
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  });
   return (
     <footer className="bg-primary text-primary-foreground mt-12">
       <div className="max-w-7xl mx-auto px-6 py-12">
@@ -23,13 +30,27 @@ const SiteFooter = () => {
           <div>
             <h3 className="font-heading font-bold text-base mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm font-body">
-              {["About Us", "Editorial Team", "Contact", "Privacy Policy", "Terms of Service"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/about" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <span className="opacity-50 cursor-not-allowed">Editorial Team</span>
+              </li>
+              <li>
+                <span className="opacity-50 cursor-not-allowed">Contact</span>
+              </li>
+              <li>
+                <Link to="/privacy-policy" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-of-service" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                  Terms of Service
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -37,19 +58,13 @@ const SiteFooter = () => {
           <div>
             <h3 className="font-heading font-bold text-base mb-4">Categories</h3>
             <ul className="space-y-2 text-sm font-body">
-              {[
-                { label: "News", cat: "news" },
-                { label: "Politics", cat: "politics" },
-                { label: "Weather", cat: "weather" },
-                { label: "Sports", cat: "sports" },
-                { label: "Entertainment", cat: "entertainment" },
-              ].map((item) => (
-                <li key={item.cat}>
+              {categories.map((cat) => (
+                <li key={cat.id}>
                   <Link
-                    to={`/?cat=${item.cat}`}
+                    to={`/?cat=${cat.slug}`}
                     className="opacity-90 hover:opacity-100 hover:underline transition-opacity"
                   >
-                    {item.label}
+                    {cat.name}
                   </Link>
                 </li>
               ))}
