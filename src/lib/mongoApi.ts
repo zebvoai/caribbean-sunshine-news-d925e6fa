@@ -74,6 +74,12 @@ export interface MongoCategory {
   id: string;
   name: string;
   slug: string;
+  description: string;
+  display_order: number;
+  is_pinned: boolean;
+  articles_count: number;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface MongoAuthor {
@@ -176,6 +182,30 @@ export const mongoApi = {
   /** List all categories */
   getCategories(): Promise<MongoCategory[]> {
     return get<MongoCategory[]>({ resource: "categories" });
+  },
+
+  /** Create a new category */
+  createCategory(payload: { name: string; slug: string; description?: string; display_order?: number; is_pinned?: boolean }): Promise<{ id: string }> {
+    return post<{ id: string }>({ resource: "categories" }, payload);
+  },
+
+  /** Update a category */
+  updateCategory(id: string, payload: Partial<{ name: string; slug: string; description: string; display_order: number; is_pinned: boolean }>): Promise<{ success: boolean }> {
+    const qs = new URLSearchParams({ resource: "categories", id }).toString();
+    return fetch(`${BASE}?${qs}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(payload),
+    }).then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
+      return data;
+    });
+  },
+
+  /** Delete a category */
+  deleteCategory(id: string): Promise<{ success: boolean }> {
+    return del<{ success: boolean }>({ resource: "categories", id });
   },
 
   /** List all authors */

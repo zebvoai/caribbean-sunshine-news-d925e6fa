@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminArticlesPage from "./pages/admin/AdminArticlesPage";
 import CreateArticlePage from "./pages/admin/CreateArticlePage";
 import AdminAuthorsPage from "./pages/admin/AdminAuthorsPage";
+import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import EditArticlePage from "./pages/admin/EditArticlePage";
 import ArticlePage from "./pages/ArticlePage";
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="articles/create" element={<CreateArticlePage />} />
             <Route path="articles/edit/:id" element={<EditArticlePage />} />
             <Route path="authors" element={<AdminAuthorsPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
