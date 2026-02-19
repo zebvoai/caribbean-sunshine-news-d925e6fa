@@ -69,10 +69,16 @@ const normalizeArticle = (doc: any, full = false) => {
   return base;
 };
 
-const normalizeCategory = (doc: any) => ({
+const normalizeCategory = (doc: any, articlesCount?: number) => ({
   id: doc._id.toString(),
   name: doc.name,
   slug: doc.slug,
+  description: doc.description || "",
+  display_order: doc.displayOrder || 0,
+  is_pinned: doc.isPinned || false,
+  articles_count: articlesCount ?? 0,
+  created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
+  updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
 });
 
 const normalizeAuthor = (doc: any) => ({
@@ -326,12 +332,67 @@ Deno.serve(async (req) => {
 
     // ── CATEGORIES ───────────────────────────────────────────────────────────
     if (resource === "categories") {
+      // DELETE
+      if (req.method === "DELETE") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        await db.collection("categories").deleteOne({ _id: new ObjectId(id) });
+        return jsonResponse({ success: true });
+      }
+
+      // CREATE
+      if (req.method === "POST") {
+        const body = await req.json();
+        const now = new Date();
+        const doc: any = {
+          name: body.name,
+          slug: body.slug,
+          description: body.description || "",
+          displayOrder: body.display_order ?? 0,
+          isPinned: body.is_pinned || false,
+          createdAt: now,
+          updatedAt: now,
+          __v: 0,
+        };
+        const result = await db.collection("categories").insertOne(doc);
+        return jsonResponse({ id: result.insertedId.toString() });
+      }
+
+      // UPDATE (PATCH)
+      if (req.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        const body = await req.json();
+        const update: any = { updatedAt: new Date() };
+        if (body.name !== undefined) update.name = body.name;
+        if (body.slug !== undefined) update.slug = body.slug;
+        if (body.description !== undefined) update.description = body.description;
+        if (body.display_order !== undefined) update.displayOrder = body.display_order;
+        if (body.is_pinned !== undefined) update.isPinned = body.is_pinned;
+        await db.collection("categories").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // GET list with article counts
       const docs = await db
         .collection("categories")
         .find({})
         .sort({ displayOrder: 1, name: 1 })
         .toArray();
-      return jsonResponse(docs.map(normalizeCategory));
+
+      // Count articles per category (primary + additional)
+      const counts: Record<string, number> = {};
+      for (const cat of docs) {
+        const count = await db.collection("articles").countDocuments({
+          $or: [{ category: cat._id }, { categories: cat._id }],
+        });
+        counts[cat._id.toString()] = count;
+      }
+
+      return jsonResponse(docs.map((d) => normalizeCategory(d, counts[d._id.toString()] || 0)));
     }
 
     // ── AUTHORS ──────────────────────────────────────────────────────────────
