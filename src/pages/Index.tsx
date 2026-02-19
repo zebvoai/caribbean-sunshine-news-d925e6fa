@@ -70,7 +70,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <NavBar />
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-10 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
 
         {/* Breaking News Section — only on home */}
         {!activeCat && !loadingArticles && breakingArticles.length > 0 && (
