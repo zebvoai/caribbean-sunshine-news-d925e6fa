@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
@@ -37,33 +37,30 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get("cat");
 
-  const [articles, setArticles] = useState<(NewsArticle & { slug: string; is_breaking?: boolean })[]>([]);
-  const [breakingArticles, setBreakingArticles] = useState<ReturnType<typeof toBreakingArticle>[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: articles = [], isLoading: loadingArticles } = useQuery({
+    queryKey: ["articles", activeCat || "home"],
+    queryFn: () => {
+      const params: Parameters<typeof mongoApi.getArticles>[0] = {
+        status: "published",
+        limit: 12,
+      };
+      if (activeCat) params.category_slug = activeCat;
+      return mongoApi.getArticles(params);
+    },
+    staleTime: 5 * 60 * 1000, // 5 min cache — instant tab switch
+    gcTime: 10 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    setLoading(true);
-    const articleParams: Parameters<typeof mongoApi.getArticles>[0] = {
-      status: "published",
-      limit: 12,
-    };
-    if (activeCat) articleParams.category_slug = activeCat;
+  const { data: breakingRaw = [] } = useQuery({
+    queryKey: ["articles", "breaking"],
+    queryFn: () => mongoApi.getArticles({ status: "published", limit: 2, is_breaking: true }),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    enabled: !activeCat,
+  });
 
-    const requests: Promise<MongoArticle[]>[] = [mongoApi.getArticles(articleParams)];
-
-    // Only fetch breaking news on the homepage (no category filter)
-    if (!activeCat) {
-      requests.push(mongoApi.getArticles({ status: "published", limit: 2, is_breaking: true }));
-    }
-
-    Promise.all(requests)
-      .then(([all, breaking = []]) => {
-        setArticles(all.map((a) => ({ ...toNewsArticle(a), is_breaking: a.is_breaking })));
-        setBreakingArticles(breaking.filter((a) => a.is_breaking).map(toBreakingArticle));
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [activeCat]);
+  const mappedArticles = articles.map((a) => ({ ...toNewsArticle(a), is_breaking: a.is_breaking }));
+  const breakingArticles = breakingRaw.filter((a) => a.is_breaking).map(toBreakingArticle);
 
   const sectionTitle = activeCat
     ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1)
@@ -76,7 +73,7 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
 
         {/* Breaking News Section — only on home */}
-        {!activeCat && !loading && breakingArticles.length > 0 && (
+        {!activeCat && !loadingArticles && breakingArticles.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-1">
               <span className="text-destructive text-xl">🔥</span>
@@ -93,6 +90,7 @@ const Index = () => {
                       <img
                         src={a.cover_image_url}
                         alt={a.title}
+                        loading="lazy"
                         className="w-40 h-28 object-cover rounded-lg flex-shrink-0 group-hover:opacity-90 transition-opacity"
                       />
                     )}
@@ -126,13 +124,13 @@ const Index = () => {
         <section>
           <h2 className="text-3xl font-heading font-bold text-foreground mb-6">{sectionTitle}</h2>
 
-          {loading ? (
+          {loadingArticles ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="rounded-lg bg-muted animate-pulse h-72" />
               ))}
             </div>
-          ) : articles.length === 0 ? (
+          ) : mappedArticles.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground font-body">
               <p className="text-lg mb-3">No articles in this category yet.</p>
               <Link to="/admin/articles/create" className="text-primary hover:underline text-sm">
@@ -141,7 +139,7 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.map((article, idx) => (
+              {mappedArticles.map((article, idx) => (
                 <Link key={idx} to={`/news/${article.slug}`} className="block">
                   <NewsCard article={article} isBreaking={article.is_breaking} />
                 </Link>

@@ -12,6 +12,8 @@ const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
         <img
           src={article.image}
           alt={article.title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3 flex gap-2">
