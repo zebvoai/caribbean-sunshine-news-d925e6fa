@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import TypewriterText from "@/components/TypewriterText";
+
 import { useParams, Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
@@ -411,11 +411,12 @@ const ArticlePage = () => {
 
         {/* ── Title ───────────────────────────────────────────────────────── */}
         <h1
-          className={`text-3xl md:text-4xl font-heading font-bold text-foreground leading-tight mb-4 ${
+          className={`text-3xl md:text-4xl font-heading font-bold text-foreground leading-tight mb-4 animate-fade-in-up ${
             article.is_featured ? "text-secondary" : ""
           }`}
+          style={{ animationDelay: "0.1s" }}
         >
-          <TypewriterText text={article.title} speed={18} delay={200} />
+          {article.title}
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
