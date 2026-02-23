@@ -504,13 +504,14 @@ const ArticlePage = () => {
         <div
           className="
             prose prose-lg max-w-none font-body animate-fade-in-up
+            text-justify
             prose-headings:font-heading prose-headings:text-foreground
-            prose-p:text-foreground prose-p:leading-relaxed
+            prose-p:text-foreground prose-p:leading-[1.9] prose-p:mb-5
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
             prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
             prose-strong:text-foreground
             prose-img:rounded-lg prose-img:shadow-card
-            prose-li:text-foreground
+            prose-li:text-foreground prose-li:leading-[1.9]
             mb-10
           "
           style={{ animationDelay: "0.35s" }}
