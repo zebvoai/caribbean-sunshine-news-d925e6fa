@@ -11,13 +11,12 @@ const NavBar = () => {
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: () => mongoApi.getCategories(),
-    staleTime: 30 * 60 * 1000, // categories rarely change
+    staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
   const isHomeActive = location.pathname === "/" && !activeCat;
 
-  // Prefetch category articles on hover for instant switching
   const prefetch = (slug: string | null) => {
     const key = slug || "home";
     queryClient.prefetchQuery({
@@ -35,15 +34,15 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-background border-y border-border shadow-sm animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
-      <div className="max-w-7xl mx-auto flex items-center justify-center gap-1 px-4 overflow-x-auto">
+    <nav className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+      <div className="max-w-7xl mx-auto flex items-center justify-center gap-0 px-4 overflow-x-auto">
         <Link
           to="/"
           onMouseEnter={() => prefetch(null)}
-          className={`px-5 py-3 text-sm font-body font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
+          className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 ${
             isHomeActive
-              ? "text-nav-active border-b-2 border-nav-active"
-              : "text-foreground hover:bg-nav-hover"
+              ? "text-accent border-accent"
+              : "text-foreground border-transparent hover:text-accent hover:border-accent/40"
           }`}
         >
           Home
@@ -54,10 +53,10 @@ const NavBar = () => {
             key={cat.id}
             to={`/?cat=${cat.slug}`}
             onMouseEnter={() => prefetch(cat.slug)}
-            className={`px-5 py-3 text-sm font-body font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
+            className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 ${
               activeCat === cat.slug
-                ? "text-nav-active border-b-2 border-nav-active"
-                : "text-foreground hover:bg-nav-hover"
+                ? "text-accent border-accent"
+                : "text-foreground border-transparent hover:text-accent hover:border-accent/40"
             }`}
           >
             {cat.name}

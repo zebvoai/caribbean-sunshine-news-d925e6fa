@@ -14,8 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        heading: ["Merriweather", "Georgia", "serif"],
-        body: ["Open Sans", "Helvetica Neue", "sans-serif"],
+        heading: ["Playfair Display", "Georgia", "serif"],
+        body: ["Source Sans 3", "Helvetica Neue", "sans-serif"],
+        serif: ["IBM Plex Serif", "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Open+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@300;400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,35 +6,35 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 20% 15%;
+    --background: 0 0% 97%;
+    --foreground: 220 20% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 15%;
+    --card-foreground: 220 20% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 15%;
+    --popover-foreground: 220 20% 12%;
 
-    --primary: 145 63% 32%;
+    --primary: 145 63% 28%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 213 60% 45%;
+    --secondary: 213 60% 42%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 96%;
+    --muted: 210 14% 93%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 145 63% 32%;
+    --accent: 0 72% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 20% 90%;
+    --border: 214 18% 86%;
     --input: 214 20% 90%;
     --ring: 213 60% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -45,12 +45,14 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --news-badge: 145 63% 32%;
+    --news-badge: 145 63% 28%;
     --news-badge-foreground: 0 0% 100%;
-    --nav-active: 213 60% 45%;
-    --nav-hover: 210 20% 96%;
-    --card-shadow: 0 2px 8px -2px hsl(220 20% 15% / 0.08);
-    --card-shadow-hover: 0 8px 24px -4px hsl(220 20% 15% / 0.15);
+    --nav-active: 0 72% 50%;
+    --nav-hover: 210 14% 93%;
+    --card-shadow: 0 1px 3px 0 hsl(220 20% 12% / 0.06), 0 1px 2px -1px hsl(220 20% 12% / 0.06);
+    --card-shadow-hover: 0 4px 16px -2px hsl(220 20% 12% / 0.12);
+    --topbar-bg: 0 72% 50%;
+    --topbar-fg: 0 0% 100%;
   }
 
   .dark {
@@ -66,8 +68,8 @@
     --secondary-foreground: 0 0% 100%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 72% 55%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
@@ -91,9 +93,62 @@
 
   body {
     @apply bg-background text-foreground font-body antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Professional news prose styling */
+@layer components {
+  .news-prose {
+    @apply font-serif text-foreground;
+    font-size: 1.125rem;
+    line-height: 1.85;
+  }
+
+  .news-prose p {
+    @apply mb-5;
+  }
+
+  .news-prose p:empty {
+    @apply hidden;
+  }
+
+  .news-prose h2,
+  .news-prose h3,
+  .news-prose h4 {
+    @apply font-heading font-bold text-foreground mt-8 mb-4;
+  }
+
+  .news-prose h2 { @apply text-2xl; }
+  .news-prose h3 { @apply text-xl; }
+
+  .news-prose a {
+    @apply text-secondary underline underline-offset-2 decoration-secondary/40 hover:decoration-secondary transition-colors;
+  }
+
+  .news-prose blockquote {
+    @apply border-l-4 border-accent pl-5 py-2 my-6 italic text-muted-foreground bg-muted/30 rounded-r-md;
+  }
+
+  .news-prose img {
+    @apply rounded-md shadow-card my-6;
+  }
+
+  .news-prose ul, .news-prose ol {
+    @apply pl-6 mb-5;
+  }
+
+  .news-prose li {
+    @apply mb-2 leading-[1.8];
+  }
+
+  .news-prose strong {
+    @apply font-semibold text-foreground;
   }
 }

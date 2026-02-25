@@ -411,16 +411,14 @@ const ArticlePage = () => {
 
         {/* ── Title ───────────────────────────────────────────────────────── */}
         <h1
-          className={`text-3xl md:text-4xl font-heading font-bold text-foreground leading-tight mb-4 animate-fade-in-up ${
-            article.is_featured ? "text-secondary" : ""
-          }`}
+          className="text-2xl md:text-[2.25rem] font-heading font-bold text-foreground leading-tight mb-4 animate-fade-in-up"
           style={{ animationDelay: "0.1s" }}
         >
           {article.title}
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
-        <p className="text-lg text-muted-foreground font-body mb-4 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-4 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
           {article.excerpt}
         </p>
 
@@ -502,19 +500,7 @@ const ArticlePage = () => {
 
         {/* ── Article Body ────────────────────────────────────────────────── */}
         <div
-          className="
-            prose prose-lg max-w-none font-body animate-fade-in-up
-            text-justify
-            prose-headings:font-heading prose-headings:text-foreground
-            prose-p:text-foreground prose-p:leading-[1.9] prose-p:mb-5
-            prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-            prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-            prose-strong:text-foreground
-            prose-img:rounded-lg prose-img:shadow-card
-            prose-li:text-foreground prose-li:leading-[1.9]
-            mb-10
-            [&_p:empty]:hidden
-          "
+          className="news-prose text-justify max-w-none mb-10 animate-fade-in-up"
           style={{ animationDelay: "0.35s" }}
           dangerouslySetInnerHTML={{ __html: article.body }}
         />
