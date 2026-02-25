@@ -41,8 +41,8 @@ const NavBar = () => {
           onMouseEnter={() => prefetch(null)}
           className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 ${
             isHomeActive
-              ? "text-accent border-accent"
-              : "text-foreground border-transparent hover:text-accent hover:border-accent/40"
+              ? "text-primary border-primary"
+              : "text-foreground border-transparent hover:text-primary hover:border-primary/40"
           }`}
         >
           Home
@@ -55,8 +55,8 @@ const NavBar = () => {
             onMouseEnter={() => prefetch(cat.slug)}
             className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 ${
               activeCat === cat.slug
-                ? "text-accent border-accent"
-                : "text-foreground border-transparent hover:text-accent hover:border-accent/40"
+                ? "text-primary border-primary"
+                : "text-foreground border-transparent hover:text-primary hover:border-primary/40"
             }`}
           >
             {cat.name}
