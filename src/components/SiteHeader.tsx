@@ -12,7 +12,7 @@ const SiteHeader = () => {
   return (
     <>
       {/* Top accent bar */}
-      <div className="bg-accent text-accent-foreground">
+      <div className="bg-primary text-primary-foreground">
         <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center justify-between text-xs font-body font-medium tracking-wide">
           <span>{today}</span>
           <span className="hidden sm:inline">Your Trusted Caribbean News Source</span>
