@@ -22,7 +22,7 @@ const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
               Breaking
             </span>
           )}
-          <span className="bg-accent text-accent-foreground text-[10px] font-body font-bold px-2.5 py-1 rounded uppercase tracking-wider">
+          <span className="bg-primary text-primary-foreground text-[10px] font-body font-bold px-2.5 py-1 rounded uppercase tracking-wider">
             {article.category}
           </span>
         </div>
