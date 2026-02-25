@@ -70,18 +70,18 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <NavBar />
-      <main className="max-w-7xl mx-auto px-6 py-8 space-y-10 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
         {/* Breaking News Section — only on home */}
         {!activeCat && !loadingArticles && breakingArticles.length > 0 && (
           <section>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-destructive text-xl">🔥</span>
-              <h2 className="text-2xl font-heading font-extrabold text-foreground tracking-wide uppercase">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
+              <h2 className="text-lg font-heading font-bold text-destructive uppercase tracking-wider">
                 Breaking News
               </h2>
             </div>
-            <div className="border-b-2 border-destructive mb-5" />
+            <div className="border-b-2 border-destructive mb-4" />
             <div className="space-y-4">
               {breakingArticles.map((a) => (
                 <Link key={a.id} to={`/news/${a.slug}`} className="block group">
@@ -122,7 +122,10 @@ const Index = () => {
 
         {/* Articles Section */}
         <section>
-          <h2 className="text-3xl font-heading font-bold text-foreground mb-6">{sectionTitle}</h2>
+          <div className="flex items-center gap-3 mb-6">
+            <h2 className="text-2xl font-heading font-bold text-foreground">{sectionTitle}</h2>
+            <div className="flex-1 h-px bg-border" />
+          </div>
 
           {loadingArticles ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

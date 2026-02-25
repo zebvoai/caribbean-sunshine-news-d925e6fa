@@ -13,7 +13,7 @@ const SiteFooter = () => {
     gcTime: 60 * 60 * 1000,
   });
   return (
-    <footer className="bg-primary text-primary-foreground mt-12 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+    <footer className="bg-foreground text-background mt-0">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
 
@@ -112,7 +112,7 @@ const SiteFooter = () => {
               placeholder="Your email address"
               className="w-full px-3 py-2 text-sm text-foreground bg-background rounded mb-2 focus:outline-none focus:ring-2 focus:ring-secondary"
             />
-            <button className="w-full py-2 bg-[hsl(var(--secondary))] hover:opacity-90 text-secondary-foreground font-semibold text-sm rounded transition-opacity">
+            <button className="w-full py-2 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-sm rounded transition-colors">
               Subscribe
             </button>
             <p className="text-xs opacity-70 mt-2 font-body">Join 10,000+ readers. Unsubscribe anytime.</p>
@@ -121,9 +121,9 @@ const SiteFooter = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-primary-foreground/20">
-        <div className="max-w-7xl mx-auto px-6 py-4 text-center text-sm opacity-80 font-body">
-          © {new Date().getFullYear()} Dominica News. All rights reserved.
+      <div className="border-t border-background/20">
+        <div className="max-w-7xl mx-auto px-6 py-4 text-center text-sm opacity-60 font-body">
+          © {new Date().getFullYear()} DominicaNews.DM — All rights reserved.
         </div>
       </div>
     </footer>
