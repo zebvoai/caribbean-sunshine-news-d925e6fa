@@ -513,6 +513,7 @@ const ArticlePage = () => {
             prose-img:rounded-lg prose-img:shadow-card
             prose-li:text-foreground prose-li:leading-[1.9]
             mb-10
+            [&_p:empty]:hidden
           "
           style={{ animationDelay: "0.35s" }}
           dangerouslySetInnerHTML={{ __html: article.body }}
