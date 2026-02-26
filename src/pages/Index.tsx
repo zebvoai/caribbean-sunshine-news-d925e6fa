@@ -66,6 +66,7 @@ const Index = () => {
     ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1)
     : "Latest News";
 
+
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -91,7 +92,16 @@ const Index = () => {
                         src={a.cover_image_url}
                         alt={a.title}
                         loading="lazy"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          if (img.dataset.fallbackApplied === "true") {
+                            img.style.display = "none";
+                            return;
+                          }
+                          img.dataset.fallbackApplied = "true";
+                          img.src = "/placeholder.svg";
+                        }}
                         className="w-40 h-28 object-cover rounded-lg flex-shrink-0 group-hover:opacity-90 transition-opacity"
                       />
                     )}

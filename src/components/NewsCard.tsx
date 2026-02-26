@@ -18,6 +18,7 @@ const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
             alt={article.title}
             loading="lazy"
             decoding="async"
+            referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
           />

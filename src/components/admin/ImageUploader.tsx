@@ -56,7 +56,16 @@ const ImageUploader = ({
   };
 
   const handleUrlApply = () => {
-    onImageUrlChange(urlInput);
+    const trimmed = urlInput.trim();
+    if (!trimmed) {
+      onImageUrlChange("");
+      return;
+    }
+    if (trimmed.startsWith("data:")) {
+      toast.error("Base64 image URLs are not supported. Please upload the image instead.");
+      return;
+    }
+    onImageUrlChange(trimmed);
   };
 
   return (

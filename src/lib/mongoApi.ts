@@ -246,4 +246,21 @@ export const mongoApi = {
   getAuthors(): Promise<MongoAuthor[]> {
     return get<MongoAuthor[]>({ resource: "authors" });
   },
+
+  /** Repair legacy base64 article images by migrating them to storage URLs */
+  repairLegacyImages(limit = 30): Promise<{
+    scanned: number;
+    repaired: number;
+    failed: number;
+    dry_run: boolean;
+    errors: Array<{ id: string; reason: string }>;
+  }> {
+    return post<{
+      scanned: number;
+      repaired: number;
+      failed: number;
+      dry_run: boolean;
+      errors: Array<{ id: string; reason: string }>;
+    }>({ resource: "articles/repair-images" }, { limit });
+  },
 };
