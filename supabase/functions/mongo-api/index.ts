@@ -28,6 +28,66 @@ const sanitizeImageUrl = (url: string | null | undefined): string | null => {
   return url;
 };
 
+const decodeDataUriImage = (
+  dataUri: string
+): { bytes: Uint8Array; contentType: string; extension: string } | null => {
+  const match = dataUri.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  if (!match) return null;
+
+  const [, contentType, base64] = match;
+  const mimeToExtension: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/jpg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+    "image/avif": "avif",
+  };
+
+  const extension = mimeToExtension[contentType.toLowerCase()] || "jpg";
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return { bytes, contentType, extension };
+};
+
+async function uploadDataUriToStorage(dataUri: string): Promise<string> {
+  const parsed = decodeDataUriImage(dataUri);
+  if (!parsed) throw new Error("Invalid data URI image format");
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceKey) {
+    throw new Error("Storage environment variables are not configured");
+  }
+
+  const objectPath = `articles/${Date.now()}-${crypto.randomUUID()}.${parsed.extension}`;
+  const uploadRes = await fetch(
+    `${supabaseUrl}/storage/v1/object/article-images/${objectPath}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+        "Content-Type": parsed.contentType,
+        "x-upsert": "false",
+      },
+      body: parsed.bytes,
+    }
+  );
+
+  if (!uploadRes.ok) {
+    const details = await uploadRes.text();
+    throw new Error(`Storage upload failed: ${uploadRes.status} ${details}`);
+  }
+
+  return `${supabaseUrl}/storage/v1/object/public/article-images/${objectPath}`;
+};
+
 const normalizeArticle = (doc: any, full = false) => {
   const base: any = {
     id: doc._id.toString(),
@@ -130,6 +190,58 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const resource = url.searchParams.get("resource") || "";
     const db = await getDb();
+
+    // ── ARTICLES/REPAIR-IMAGES (one-time migration helper) ──────────────────
+    if (resource === "articles/repair-images" && req.method === "POST") {
+      const payload = await req.json().catch(() => ({}));
+      const requestedLimit = Number(payload?.limit ?? 50);
+      const limit = Number.isFinite(requestedLimit)
+        ? Math.min(Math.max(requestedLimit, 1), 200)
+        : 50;
+      const dryRun = Boolean(payload?.dry_run);
+
+      const docs = await db
+        .collection("articles")
+        .find({ featuredImage: { $type: "string", $regex: "^data:image/" } })
+        .limit(limit)
+        .toArray();
+
+      let repaired = 0;
+      let failed = 0;
+      const errors: Array<{ id: string; reason: string }> = [];
+
+      for (const doc of docs) {
+        try {
+          const uploadedUrl = await uploadDataUriToStorage(doc.featuredImage);
+          if (!dryRun) {
+            await db.collection("articles").updateOne(
+              { _id: doc._id },
+              {
+                $set: {
+                  featuredImage: uploadedUrl,
+                  updatedAt: new Date(),
+                },
+              }
+            );
+          }
+          repaired += 1;
+        } catch (e: any) {
+          failed += 1;
+          errors.push({
+            id: doc._id.toString(),
+            reason: e?.message || "unknown error",
+          });
+        }
+      }
+
+      return jsonResponse({
+        scanned: docs.length,
+        repaired,
+        failed,
+        dry_run: dryRun,
+        errors: errors.slice(0, 20),
+      });
+    }
 
     // ── ARTICLES/VIEW (increment) ────────────────────────────────────────────
     if (resource === "articles/view" && req.method === "POST") {

@@ -105,6 +105,16 @@ const RelatedCard = ({ article }: { article: RelatedArticle }) => (
           alt={article.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (img.dataset.fallbackApplied === "true") {
+              img.style.display = "none";
+              return;
+            }
+            img.dataset.fallbackApplied = "true";
+            img.src = "/placeholder.svg";
+          }}
         />
       ) : (
         <div className="w-full h-full bg-muted flex items-center justify-center">
@@ -459,6 +469,16 @@ const ArticlePage = () => {
             <img
               src={article.cover_image_url}
               alt={article.cover_image_alt || article.title}
+              referrerPolicy="no-referrer"
+              onError={(e) => {
+                const img = e.currentTarget;
+                if (img.dataset.fallbackApplied === "true") {
+                  img.style.display = "none";
+                  return;
+                }
+                img.dataset.fallbackApplied = "true";
+                img.src = "/placeholder.svg";
+              }}
               className="w-full max-h-[480px] object-cover"
             />
             {article.cover_image_alt && (
@@ -548,6 +568,16 @@ const ArticlePage = () => {
                   <img
                     src={article.authors.avatar_url}
                     alt={article.authors.full_name}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      if (img.dataset.fallbackApplied === "true") {
+                        img.style.display = "none";
+                        return;
+                      }
+                      img.dataset.fallbackApplied = "true";
+                      img.src = "/placeholder.svg";
+                    }}
                     className="w-16 h-16 rounded-full object-cover border-2 border-border"
                   />
                 ) : (
