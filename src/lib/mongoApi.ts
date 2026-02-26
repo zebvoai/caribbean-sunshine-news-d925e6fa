@@ -3,41 +3,79 @@
  * All database operations go through this module.
  */
 
-const BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mongo-api`;
+const DIRECT_BASE = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mongo-api`;
+const PROXY_BASE = "/api/mongo-api";
 const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+const isPreviewHost =
+  typeof window !== "undefined" &&
+  (window.location.hostname.includes("lovable.app") ||
+    window.location.hostname.includes("lovableproject.com"));
+
+const BASES = isPreviewHost ? [DIRECT_BASE] : [PROXY_BASE, DIRECT_BASE];
 
 const headers = {
   apikey: ANON_KEY,
   Authorization: `Bearer ${ANON_KEY}`,
-  "Content-Type": "application/json",
 };
 
-async function get<T>(params: Record<string, string>): Promise<T> {
-  const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`${BASE}?${qs}`, { headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
+async function fetchJsonSafely<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, {
+    ...init,
+    headers: {
+      ...headers,
+      ...(init?.headers || {}),
+    },
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const text = await response.text();
+
+  if (!contentType.includes("application/json")) {
+    const preview = text.substring(0, 180).replace(/\s+/g, " ").trim();
+    throw new Error(
+      `Unexpected response format (${contentType || "unknown"}). Status ${response.status}. ${preview || "Empty response."}`
+    );
+  }
+
+  const data = text ? JSON.parse(text) : {};
+
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed: ${response.status}`);
+  }
+
   return data as T;
+}
+
+async function requestWithFallback<T>(params: Record<string, string>, init?: RequestInit): Promise<T> {
+  const qs = new URLSearchParams(params).toString();
+  let lastError: Error | null = null;
+
+  for (const base of BASES) {
+    try {
+      return await fetchJsonSafely<T>(`${base}?${qs}`, init);
+    } catch (err) {
+      lastError = err as Error;
+    }
+  }
+
+  throw lastError || new Error("Request failed");
+}
+
+async function get<T>(params: Record<string, string>): Promise<T> {
+  return requestWithFallback<T>(params);
 }
 
 async function post<T>(params: Record<string, string>, body: unknown): Promise<T> {
-  const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`${BASE}?${qs}`, {
+  return requestWithFallback<T>(params, {
     method: "POST",
-    headers,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
-  return data as T;
 }
 
 async function del<T>(params: Record<string, string>): Promise<T> {
-  const qs = new URLSearchParams(params).toString();
-  const res = await fetch(`${BASE}?${qs}`, { method: "DELETE", headers });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
-  return data as T;
+  return requestWithFallback<T>(params, { method: "DELETE" });
 }
 
 // ─── Article types ────────────────────────────────────────────────────────────
@@ -157,16 +195,14 @@ export const mongoApi = {
 
   /** Update an existing article by id */
   updateArticle(id: string, payload: Partial<CreateArticlePayload>): Promise<{ success: boolean }> {
-    const qs = new URLSearchParams({ resource: "articles", id }).toString();
-    return fetch(`${BASE}?${qs}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(payload),
-    }).then(async (res) => {
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
-      return data;
-    });
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "articles", id },
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
   },
 
   /** Delete an article by id */
@@ -191,16 +227,14 @@ export const mongoApi = {
 
   /** Update a category */
   updateCategory(id: string, payload: Partial<{ name: string; slug: string; description: string; display_order: number; is_pinned: boolean }>): Promise<{ success: boolean }> {
-    const qs = new URLSearchParams({ resource: "categories", id }).toString();
-    return fetch(`${BASE}?${qs}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(payload),
-    }).then(async (res) => {
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
-      return data;
-    });
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "categories", id },
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
   },
 
   /** Delete a category */

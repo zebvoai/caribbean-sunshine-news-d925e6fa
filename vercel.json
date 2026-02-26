@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/api/mongo-api",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/mongo-api"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
