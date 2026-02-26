@@ -2,3 +2,6 @@ project_id = "xqzffikjyrdmbuptreyj"
 
 [functions.mongo-api]
 verify_jwt = false
+
+[functions.og-proxy]
+verify_jwt = false
