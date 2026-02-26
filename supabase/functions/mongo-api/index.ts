@@ -21,13 +21,20 @@ async function getDb() {
 
 // ─── Normalizers ────────────────────────────────────────────────────────────
 
+const sanitizeImageUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  // Strip base64 data URIs — they bloat responses and break on constrained devices
+  if (url.startsWith("data:")) return null;
+  return url;
+};
+
 const normalizeArticle = (doc: any, full = false) => {
   const base: any = {
     id: doc._id.toString(),
     title: doc.title || "",
     slug: doc.slug || "",
     excerpt: doc.excerpt || "",
-    cover_image_url: doc.featuredImage || null,
+    cover_image_url: sanitizeImageUrl(doc.featuredImage),
     cover_image_alt: doc.featuredImageAlt || null,
     is_breaking: doc.isBreaking || false,
     is_featured: doc.isFeatured || false,

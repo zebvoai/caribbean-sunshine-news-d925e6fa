@@ -91,6 +91,7 @@ const Index = () => {
                         src={a.cover_image_url}
                         alt={a.title}
                         loading="lazy"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         className="w-40 h-28 object-cover rounded-lg flex-shrink-0 group-hover:opacity-90 transition-opacity"
                       />
                     )}
