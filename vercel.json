@@ -4,6 +4,17 @@
       "source": "/api/mongo-api",
       "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/mongo-api"
     },
+    {
+      "source": "/news/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i)whatsapp|facebookexternalhit|facebot|twitterbot|telegrambot|slackbot|discordbot|linkedinbot|pinterest|googlebot|bingbot|yandex|baiduspider|applebot|bot|crawl|spider|preview"
+        }
+      ],
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/og-proxy?slug=:slug"
+    },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
