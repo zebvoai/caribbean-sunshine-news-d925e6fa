@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { canUseSameOriginProxy } from "@/lib/networkProxy";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
@@ -10,56 +8,20 @@ const ENV_EMAIL = import.meta.env.VITE_ADMIN_EMAIL ?? "";
 const ENV_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? "";
 
 const AdminLoginPage = () => {
-  const [email, setEmail] = useState(ENV_EMAIL);
-  const [password, setPassword] = useState(ENV_PASSWORD);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const attemptLogin = async (em: string, pw: string): Promise<boolean> => {
-    // 1. Try direct Supabase auth
-    const direct = await supabase.auth.signInWithPassword({ email: em, password: pw });
-    if (!direct.error) return true;
-
-    // 2. If network-blocked, try same-origin proxy
-    const isNetworkIssue = /failed to fetch|networkerror|load failed/i.test(direct.error.message || "");
-    if (!isNetworkIssue || !canUseSameOriginProxy()) return false;
-
-    const response = await fetch("/api/auth/token?grant_type=password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-      },
-      body: JSON.stringify({ email: em, password: pw }),
-    });
-
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok || !payload?.access_token || !payload?.refresh_token) return false;
-
-    await supabase.auth.setSession({
-      access_token: payload.access_token,
-      refresh_token: payload.refresh_token,
-    });
-    return true;
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    try {
-      const success = await attemptLogin(email, password);
-      if (success) {
-        navigate("/admin");
-      } else {
-        setError("Invalid credentials or network blocked.");
-      }
-    } catch {
-      setError("Network blocked. Please retry from your company domain.");
-    } finally {
-      setLoading(false);
+    if (email === ENV_EMAIL && password === ENV_PASSWORD) {
+      sessionStorage.setItem("admin_authenticated", "true");
+      navigate("/admin");
+    } else {
+      setError("Invalid credentials.");
     }
   };
 
@@ -92,9 +54,9 @@ const AdminLoginPage = () => {
             required
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full">
           <LogIn className="h-4 w-4 mr-2" />
-          {loading ? "Signing in..." : "Sign In"}
+          Sign In
         </Button>
       </form>
     </div>
