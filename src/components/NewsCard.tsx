@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { NewsArticle } from "@/data/newsData";
 
 interface NewsCardProps {
@@ -8,13 +8,18 @@ interface NewsCardProps {
 
 const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
   const [imgError, setImgError] = useState(false);
+  const safeImageSrc = article.image?.trim() ?? "";
+
+  useEffect(() => {
+    setImgError(false);
+  }, [safeImageSrc]);
 
   return (
     <article className="group bg-card rounded overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300 cursor-pointer flex flex-col h-full">
       <div className="relative overflow-hidden">
-        {!imgError && article.image ? (
+        {!imgError && safeImageSrc ? (
           <img
-            src={article.image}
+            src={safeImageSrc}
             alt={article.title}
             loading="lazy"
             decoding="async"
@@ -23,9 +28,13 @@ const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-48 bg-muted flex items-center justify-center">
-            <span className="text-muted-foreground text-sm font-body">No image</span>
-          </div>
+          <img
+            src="/placeholder.svg"
+            alt={`Placeholder image for ${article.title}`}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-48 object-cover"
+          />
         )}
         <div className="absolute top-0 left-0 flex gap-1.5 p-3">
           {isBreaking && (
