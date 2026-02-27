@@ -263,4 +263,19 @@ export const mongoApi = {
       errors: Array<{ id: string; reason: string }>;
     }>({ resource: "articles/repair-images" }, { limit });
   },
+
+  /** Migrate external image URLs to Supabase Storage */
+  migrateExternalImages(limit = 50): Promise<{
+    scanned: number;
+    migrated: number;
+    failed: number;
+    errors: Array<{ id: string; title: string; reason: string }>;
+  }> {
+    return post<{
+      scanned: number;
+      migrated: number;
+      failed: number;
+      errors: Array<{ id: string; title: string; reason: string }>;
+    }>({ resource: "articles/migrate-images" }, { limit });
+  },
 };

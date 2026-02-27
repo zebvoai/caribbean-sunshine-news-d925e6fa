@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { CheckCircle, RefreshCw, FileText, Eye, Users, TrendingUp, PlusCircle, Clock } from "lucide-react";
+import { CheckCircle, RefreshCw, FileText, Eye, Users, TrendingUp, PlusCircle, Clock, ImageIcon } from "lucide-react";
+import { mongoApi } from "@/lib/mongoApi";
+import { toast } from "sonner";
 
 const statCards = [
   {
@@ -57,10 +59,29 @@ const recentActivity = [
 
 const AdminDashboard = () => {
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "testing">("connected");
+  const [migrating, setMigrating] = useState(false);
 
   const testConnection = () => {
     setConnectionStatus("testing");
     setTimeout(() => setConnectionStatus("connected"), 1500);
+  };
+
+  const migrateImages = async () => {
+    setMigrating(true);
+    try {
+      const result = await mongoApi.migrateExternalImages(100);
+      if (result.migrated > 0) {
+        toast.success(`Migrated ${result.migrated} image(s) to storage.${result.failed ? ` ${result.failed} failed.` : ""}`);
+      } else if (result.scanned === 0) {
+        toast.info("All images are already in storage — nothing to migrate.");
+      } else {
+        toast.warning(`${result.failed} image(s) failed to migrate.`);
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Migration failed");
+    } finally {
+      setMigrating(false);
+    }
   };
 
   return (
@@ -92,13 +113,23 @@ const AdminDashboard = () => {
         <div className="bg-primary/5 border border-primary/15 rounded-md px-4 py-2 mb-4 text-sm text-primary">
           ✓ Backend API is reachable and responding correctly
         </div>
-        <button
-          onClick={testConnection}
-          className="inline-flex items-center gap-2 border border-border rounded-md px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
-        >
-          <RefreshCw className={`h-4 w-4 ${connectionStatus === "testing" ? "animate-spin" : ""}`} />
-          {connectionStatus === "testing" ? "Testing..." : "Test Connection"}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={testConnection}
+            className="inline-flex items-center gap-2 border border-border rounded-md px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+          >
+            <RefreshCw className={`h-4 w-4 ${connectionStatus === "testing" ? "animate-spin" : ""}`} />
+            {connectionStatus === "testing" ? "Testing..." : "Test Connection"}
+          </button>
+          <button
+            onClick={migrateImages}
+            disabled={migrating}
+            className="inline-flex items-center gap-2 border border-primary/30 bg-primary/5 text-primary rounded-md px-4 py-2 text-sm font-medium hover:bg-primary/10 transition-colors disabled:opacity-50"
+          >
+            <ImageIcon className={`h-4 w-4 ${migrating ? "animate-spin" : ""}`} />
+            {migrating ? "Migrating..." : "Migrate External Images"}
+          </button>
+        </div>
       </div>
 
       {/* Stats */}

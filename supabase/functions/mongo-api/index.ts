@@ -55,17 +55,22 @@ const decodeDataUriImage = (
   return { bytes, contentType, extension };
 };
 
-async function uploadDataUriToStorage(dataUri: string): Promise<string> {
-  const parsed = decodeDataUriImage(dataUri);
-  if (!parsed) throw new Error("Invalid data URI image format");
-
+function getStorageConfig() {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!supabaseUrl || !serviceKey) {
     throw new Error("Storage environment variables are not configured");
   }
+  return { supabaseUrl, serviceKey };
+}
 
-  const objectPath = `articles/${Date.now()}-${crypto.randomUUID()}.${parsed.extension}`;
+async function uploadBytesToStorage(
+  bytes: Uint8Array,
+  contentType: string,
+  extension: string
+): Promise<string> {
+  const { supabaseUrl, serviceKey } = getStorageConfig();
+  const objectPath = `articles/${Date.now()}-${crypto.randomUUID()}.${extension}`;
   const uploadRes = await fetch(
     `${supabaseUrl}/storage/v1/object/article-images/${objectPath}`,
     {
@@ -73,10 +78,10 @@ async function uploadDataUriToStorage(dataUri: string): Promise<string> {
       headers: {
         Authorization: `Bearer ${serviceKey}`,
         apikey: serviceKey,
-        "Content-Type": parsed.contentType,
+        "Content-Type": contentType,
         "x-upsert": "false",
       },
-      body: parsed.bytes,
+      body: bytes,
     }
   );
 
@@ -86,7 +91,37 @@ async function uploadDataUriToStorage(dataUri: string): Promise<string> {
   }
 
   return `${supabaseUrl}/storage/v1/object/public/article-images/${objectPath}`;
-};
+}
+
+async function uploadDataUriToStorage(dataUri: string): Promise<string> {
+  const parsed = decodeDataUriImage(dataUri);
+  if (!parsed) throw new Error("Invalid data URI image format");
+  return uploadBytesToStorage(parsed.bytes, parsed.contentType, parsed.extension);
+}
+
+async function uploadExternalUrlToStorage(imageUrl: string): Promise<string> {
+  const res = await fetch(imageUrl, {
+    headers: { "User-Agent": "DominicaNews/1.0" },
+    redirect: "follow",
+  });
+  if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+
+  const ct = res.headers.get("content-type") || "image/jpeg";
+  const extMap: Record<string, string> = {
+    "image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png",
+    "image/webp": "webp", "image/gif": "gif", "image/avif": "avif",
+  };
+  const extension = extMap[ct.split(";")[0].trim().toLowerCase()] || "jpg";
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  if (bytes.length > 10 * 1024 * 1024) throw new Error("Image exceeds 10MB limit");
+
+  return uploadBytesToStorage(bytes, ct, extension);
+}
+
+function isSupabaseStorageUrl(url: string): boolean {
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+  return url.startsWith(supabaseUrl);
+}
 
 const normalizeArticle = (doc: any, full = false) => {
   const base: any = {
@@ -242,6 +277,62 @@ Deno.serve(async (req) => {
         errors: errors.slice(0, 20),
       });
     }
+
+    // ── ARTICLES/MIGRATE-IMAGES (move external URLs to Supabase Storage) ────
+    if (resource === "articles/migrate-images" && req.method === "POST") {
+      const payload = await req.json().catch(() => ({}));
+      const requestedLimit = Number(payload?.limit ?? 50);
+      const limit = Number.isFinite(requestedLimit)
+        ? Math.min(Math.max(requestedLimit, 1), 200)
+        : 50;
+
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+
+      // Find articles with non-null featuredImage that is NOT already in Supabase Storage
+      const escapedUrl = supabaseUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const docs = await db
+        .collection("articles")
+        .find({
+          featuredImage: { $type: "string" },
+          $and: [
+            { featuredImage: { $not: { $regex: `^${escapedUrl}` } } },
+            { featuredImage: { $not: { $regex: "^data:" } } },
+            { featuredImage: { $not: { $eq: "" } } },
+          ],
+        })
+        .limit(limit)
+        .toArray();
+
+      let migrated = 0;
+      let failed = 0;
+      const errors: Array<{ id: string; title: string; reason: string }> = [];
+
+      for (const doc of docs) {
+        const url = doc.featuredImage;
+        if (!url || typeof url !== "string" || url.length < 5) continue;
+        if (isSupabaseStorageUrl(url) || url.startsWith("data:")) continue;
+
+        try {
+          const newUrl = await uploadExternalUrlToStorage(url);
+          await db.collection("articles").updateOne(
+            { _id: doc._id },
+            { $set: { featuredImage: newUrl, updatedAt: new Date() } }
+          );
+          migrated += 1;
+        } catch (e: any) {
+          failed += 1;
+          errors.push({
+            id: doc._id.toString(),
+            title: doc.title || "",
+            reason: e?.message || "unknown error",
+          });
+        }
+      }
+
+      return jsonResponse({ scanned: docs.length, migrated, failed, errors: errors.slice(0, 20) });
+    }
+
+
 
     // ── ARTICLES/VIEW (increment) ────────────────────────────────────────────
     if (resource === "articles/view" && req.method === "POST") {
