@@ -842,6 +842,132 @@ Deno.serve(async (req) => {
       })));
     }
 
+    // ── LIVE UPDATES ─────────────────────────────────────────────────────────
+    if (resource === "liveupdates") {
+      // DELETE
+      if (req.method === "DELETE") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        await db.collection("liveupdates").deleteOne({ _id: new ObjectId(id) });
+        return jsonResponse({ success: true });
+      }
+
+      // CREATE
+      if (req.method === "POST") {
+        const body = await req.json();
+        const now = new Date();
+        const doc: any = {
+          title: body.title,
+          slug: body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+          content: body.body || "",
+          excerpt: body.excerpt || "",
+          featuredImage: body.cover_image_url || null,
+          featuredImageAlt: body.cover_image_alt || null,
+          isLive: body.is_live !== false,
+          status: body.publication_status || "published",
+          publishedAt: now,
+          seo: {
+            metaTitle: body.meta_title || null,
+            metaDescription: body.meta_description || null,
+          },
+          tags: body.tags || [],
+          views: 0,
+          createdAt: now,
+          updatedAt: now,
+        };
+        if (body.author_id) {
+          try { doc.author = new ObjectId(body.author_id); } catch {}
+        }
+        if (body.primary_category_id) {
+          try { doc.category = new ObjectId(body.primary_category_id); } catch {}
+        }
+        const result = await db.collection("liveupdates").insertOne(doc);
+        return jsonResponse({ id: result.insertedId.toString() });
+      }
+
+      // UPDATE (PATCH)
+      if (req.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        const body = await req.json();
+        const update: any = { updatedAt: new Date() };
+        if (body.title !== undefined) update.title = body.title;
+        if (body.slug !== undefined) update.slug = body.slug;
+        if (body.body !== undefined) update.content = body.body;
+        if (body.excerpt !== undefined) update.excerpt = body.excerpt;
+        if (body.cover_image_url !== undefined) update.featuredImage = body.cover_image_url;
+        if (body.cover_image_alt !== undefined) update.featuredImageAlt = body.cover_image_alt;
+        if (body.is_live !== undefined) update.isLive = body.is_live;
+        if (body.publication_status !== undefined) update.status = body.publication_status;
+        if (body.meta_title !== undefined || body.meta_description !== undefined) {
+          update.seo = {
+            metaTitle: body.meta_title || null,
+            metaDescription: body.meta_description || null,
+          };
+        }
+        if (body.tags !== undefined) update.tags = body.tags || [];
+        if (body.author_id !== undefined) {
+          try { update.author = body.author_id ? new ObjectId(body.author_id) : null; } catch {}
+        }
+        if (body.primary_category_id !== undefined) {
+          try { update.category = body.primary_category_id ? new ObjectId(body.primary_category_id) : null; } catch {}
+        }
+        await db.collection("liveupdates").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // GET single by id
+      const id = url.searchParams.get("id");
+      if (id) {
+        try {
+          const doc = await db.collection("liveupdates").findOne({ _id: new ObjectId(id) });
+          if (!doc) return jsonError("Not found", 404);
+          return jsonResponse({
+            id: doc._id.toString(),
+            title: doc.title || "",
+            slug: doc.slug || "",
+            excerpt: doc.excerpt || "",
+            body: doc.content || doc.body || "",
+            cover_image_url: sanitizeImageUrl(doc.featuredImage),
+            cover_image_alt: doc.featuredImageAlt || null,
+            is_live: doc.isLive !== false,
+            publication_status: doc.status || "published",
+            published_at: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
+            meta_title: doc.seo?.metaTitle || null,
+            meta_description: doc.seo?.metaDescription || null,
+            tags: doc.tags || [],
+            view_count: doc.views || 0,
+            author_id: doc.author?.toString() || null,
+            primary_category_id: doc.category?.toString() || null,
+            created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
+            updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
+          });
+        } catch {
+          return jsonError("Invalid id", 400);
+        }
+      }
+
+      // GET list
+      const docs = await db.collection("liveupdates").find({}).sort({ updatedAt: -1, createdAt: -1 }).toArray();
+      return jsonResponse(docs.map((doc: any) => ({
+        id: doc._id.toString(),
+        title: doc.title || "",
+        slug: doc.slug || "",
+        excerpt: doc.excerpt || "",
+        cover_image_url: sanitizeImageUrl(doc.featuredImage),
+        is_live: doc.isLive !== false,
+        publication_status: doc.status || "published",
+        published_at: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
+        tags: doc.tags || [],
+        view_count: doc.views || 0,
+        created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
+        updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
+      })));
+    }
+
     // ── SETTINGS ──────────────────────────────────────────────────────────────
     if (resource === "settings") {
       // GET — returns the single settings document (or defaults)
