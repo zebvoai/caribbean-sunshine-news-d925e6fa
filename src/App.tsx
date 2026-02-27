@@ -24,6 +24,7 @@ import AdminBreakingNewsPage from "./pages/admin/AdminBreakingNewsPage";
 import AdminTagsPage from "./pages/admin/AdminTagsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminLiveUpdatesPage from "./pages/admin/AdminLiveUpdatesPage";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="pages" element={<AdminPagesPage />} />
             <Route path="breaking" element={<AdminBreakingNewsPage />} />
             <Route path="tags" element={<AdminTagsPage />} />
+            <Route path="live" element={<AdminLiveUpdatesPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="analytics" element={<AdminAnalyticsPage />} />
           </Route>

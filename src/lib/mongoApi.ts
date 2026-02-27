@@ -187,6 +187,43 @@ export interface MongoTag {
   updated_at: string | null;
 }
 
+export interface MongoLiveUpdate {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body?: string;
+  cover_image_url: string | null;
+  cover_image_alt?: string | null;
+  is_live: boolean;
+  publication_status: string;
+  published_at: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  tags?: string[];
+  view_count: number;
+  author_id?: string | null;
+  primary_category_id?: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface CreateLiveUpdatePayload {
+  title: string;
+  slug?: string;
+  excerpt?: string;
+  body?: string;
+  cover_image_url?: string | null;
+  cover_image_alt?: string | null;
+  is_live?: boolean;
+  publication_status?: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
+  tags?: string[];
+  author_id?: string | null;
+  primary_category_id?: string | null;
+}
+
 export interface CreateArticlePayload {
   title: string;
   slug: string;
@@ -420,6 +457,40 @@ export const mongoApi = {
   /** Delete a tag */
   deleteTag(id: string): Promise<{ success: boolean }> {
     return del<{ success: boolean }>({ resource: "tags", id });
+  },
+
+  // ─── Live Updates ────────────────────────────────────────────────────────
+
+  /** List all live updates */
+  getLiveUpdates(): Promise<MongoLiveUpdate[]> {
+    return get<MongoLiveUpdate[]>({ resource: "liveupdates" });
+  },
+
+  /** Get a single live update by id (includes body) */
+  getLiveUpdateById(id: string): Promise<MongoLiveUpdate> {
+    return get<MongoLiveUpdate>({ resource: "liveupdates", id });
+  },
+
+  /** Create a new live update */
+  createLiveUpdate(payload: CreateLiveUpdatePayload): Promise<{ id: string }> {
+    return post<{ id: string }>({ resource: "liveupdates" }, payload);
+  },
+
+  /** Update a live update */
+  updateLiveUpdate(id: string, payload: Partial<CreateLiveUpdatePayload>): Promise<{ success: boolean }> {
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "liveupdates", id },
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+  },
+
+  /** Delete a live update */
+  deleteLiveUpdate(id: string): Promise<{ success: boolean }> {
+    return del<{ success: boolean }>({ resource: "liveupdates", id });
   },
 
   // ─── Settings ───────────────────────────────────────────────────────────────
