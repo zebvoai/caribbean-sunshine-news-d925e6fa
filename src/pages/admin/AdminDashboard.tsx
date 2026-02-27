@@ -91,46 +91,7 @@ const AdminDashboard = () => {
         <p className="text-sm text-muted-foreground mt-1">Welcome back! Here's what's happening with your news site...</p>
       </div>
 
-      {/* API Connection Status */}
-      <div className="border border-border rounded-lg p-6 mb-6 bg-card">
-        <div className="flex items-center gap-2 mb-3">
-          <h2 className="text-base font-heading font-bold">API Connection Status</h2>
-          <CheckCircle className="h-5 w-5 text-primary" />
-        </div>
-        <div className="flex flex-wrap items-center gap-2 mb-3 text-sm">
-          <span className="text-muted-foreground font-medium">Backend:</span>
-          <code className="text-xs bg-muted px-2 py-1 rounded text-foreground">
-            https://dominica-news-backend.onrender.com
-          </code>
-        </div>
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-sm text-muted-foreground font-medium">Status:</span>
-          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-primary/20">
-            <span className="w-2 h-2 rounded-full bg-primary inline-block" />
-            Connected
-          </span>
-        </div>
-        <div className="bg-primary/5 border border-primary/15 rounded-md px-4 py-2 mb-4 text-sm text-primary">
-          ✓ Backend API is reachable and responding correctly
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={testConnection}
-            className="inline-flex items-center gap-2 border border-border rounded-md px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
-          >
-            <RefreshCw className={`h-4 w-4 ${connectionStatus === "testing" ? "animate-spin" : ""}`} />
-            {connectionStatus === "testing" ? "Testing..." : "Test Connection"}
-          </button>
-          <button
-            onClick={migrateImages}
-            disabled={migrating}
-            className="inline-flex items-center gap-2 border border-primary/30 bg-primary/5 text-primary rounded-md px-4 py-2 text-sm font-medium hover:bg-primary/10 transition-colors disabled:opacity-50"
-          >
-            <ImageIcon className={`h-4 w-4 ${migrating ? "animate-spin" : ""}`} />
-            {migrating ? "Migrating..." : "Migrate External Images"}
-          </button>
-        </div>
-      </div>
+
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
