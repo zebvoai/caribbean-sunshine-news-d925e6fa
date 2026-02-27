@@ -20,6 +20,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import DynamicPage from "./pages/DynamicPage";
 import AdminPagesPage from "./pages/admin/AdminPagesPage";
+import AdminBreakingNewsPage from "./pages/admin/AdminBreakingNewsPage";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="authors" element={<AdminAuthorsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="pages" element={<AdminPagesPage />} />
+            <Route path="breaking" element={<AdminBreakingNewsPage />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
