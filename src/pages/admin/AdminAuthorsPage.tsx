@@ -34,14 +34,14 @@ const AdminAuthorsPage = () => {
   const totalArticles = authors.reduce((sum, a) => sum + (a.articles_count || 0), 0);
 
   return (
-    <div className="p-6 max-w-6xl">
+    <div className="p-4 sm:p-6 max-w-6xl">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-foreground">Authors Management</h1>
+          <h1 className="text-xl sm:text-2xl font-heading font-bold text-foreground">Authors Management</h1>
           <p className="text-sm text-muted-foreground mt-1">Manage your editorial team and author profiles</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors">
+        <button className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors w-full sm:w-auto">
           <span className="text-base leading-none">+</span>
           Add Author
         </button>
@@ -84,13 +84,14 @@ const AdminAuthorsPage = () => {
         />
       </div>
 
-      {/* Table */}
+      {/* Authors List — card layout on mobile, table on desktop */}
       <div className="border border-border rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
+        {/* Desktop table */}
+        <table className="w-full text-sm hidden md:table">
           <thead>
             <tr className="border-b border-border bg-muted/30">
               <th className="text-left px-4 py-3 font-semibold text-foreground">Author</th>
-              <th className="text-left px-4 py-3 font-semibold text-foreground hidden md:table-cell">Contact</th>
+              <th className="text-left px-4 py-3 font-semibold text-foreground">Contact</th>
               <th className="text-left px-4 py-3 font-semibold text-foreground">Articles</th>
               <th className="text-left px-4 py-3 font-semibold text-foreground">Status</th>
               <th className="text-right px-4 py-3 font-semibold text-foreground">Actions</th>
@@ -127,7 +128,7 @@ const AdminAuthorsPage = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 hidden md:table-cell text-muted-foreground">
+                  <td className="px-4 py-3 text-muted-foreground">
                     {author.email && (
                       <span className="flex items-center gap-1.5 text-xs">
                         <span className="opacity-60">✉</span> {author.email}
@@ -168,6 +169,65 @@ const AdminAuthorsPage = () => {
             )}
           </tbody>
         </table>
+
+        {/* Mobile cards */}
+        <div className="md:hidden divide-y divide-border">
+          {loading ? (
+            <div className="text-center py-12 text-muted-foreground">Loading authors...</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">No authors found.</div>
+          ) : (
+            filtered.map((author) => (
+              <div key={author.id} className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {author.avatar_url ? (
+                      <img
+                        src={author.avatar_url}
+                        alt={author.full_name}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold flex-shrink-0">
+                        {getInitials(author.full_name)}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">{author.full_name}</p>
+                      <p className="text-xs text-muted-foreground">{author.role}</p>
+                    </div>
+                  </div>
+                  <span
+                    className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                      author.is_active
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {author.is_active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3">
+                    {author.email && <span>✉ {author.email}</span>}
+                    <span>{author.articles_count} articles</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button className="p-1.5 hover:bg-muted rounded transition-colors" title="View">
+                      <Eye className="h-4 w-4 text-primary" />
+                    </button>
+                    <button className="p-1.5 hover:bg-muted rounded transition-colors" title="Edit">
+                      <Edit className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                    <button className="p-1.5 hover:bg-destructive/10 rounded transition-colors" title="Delete">
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
