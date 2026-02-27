@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { NewsArticle } from "@/data/newsData";
+import { getProxiedAssetUrl } from "@/lib/networkProxy";
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -8,7 +9,7 @@ interface NewsCardProps {
 
 const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
   const [imgError, setImgError] = useState(false);
-  const safeImageSrc = article.image?.trim() ?? "";
+  const safeImageSrc = getProxiedAssetUrl(article.image?.trim() ?? "");
 
   useEffect(() => {
     setImgError(false);

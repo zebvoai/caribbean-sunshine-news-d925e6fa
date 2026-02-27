@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Upload, Link, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import { toast } from "sonner";
 
 interface ImageUploaderProps {
@@ -74,7 +75,7 @@ const ImageUploader = ({
       {imageUrl && (
         <div className="relative rounded-lg overflow-hidden border border-border">
           <img
-            src={imageUrl}
+            src={getProxiedAssetUrl(imageUrl)}
             alt={imageAlt || "Cover preview"}
             className="w-full h-48 object-cover"
           />

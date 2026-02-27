@@ -5,6 +5,14 @@
       "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/mongo-api"
     },
     {
+      "source": "/api/storage/:bucket/:path*",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/storage/v1/object/public/:bucket/:path*"
+    },
+    {
+      "source": "/api/auth/token",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/auth/v1/token"
+    },
+    {
       "source": "/news/:slug",
       "has": [
         {
