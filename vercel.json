@@ -21,7 +21,7 @@
           "value": "(?i)whatsapp|facebookexternalhit|facebot|twitterbot|telegrambot|slackbot|discordbot|linkedinbot|pinterest|googlebot|bingbot|yandex|baiduspider|applebot|bot|crawl|spider|preview"
         }
       ],
-      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/og-proxy?slug=:slug"
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/mongo-api?resource=og-meta&slug=:slug"
     },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
