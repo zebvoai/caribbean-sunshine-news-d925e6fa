@@ -247,6 +247,28 @@ export const mongoApi = {
     return get<MongoAuthor[]>({ resource: "authors" });
   },
 
+  /** Create a new author */
+  createAuthor(payload: { full_name: string; email?: string; bio?: string; role?: string; avatar_url?: string; is_active?: boolean; location?: string; slug?: string }): Promise<{ id: string }> {
+    return post<{ id: string }>({ resource: "authors" }, payload);
+  },
+
+  /** Update an author */
+  updateAuthor(id: string, payload: Partial<{ full_name: string; email: string; bio: string; role: string; avatar_url: string; is_active: boolean; location: string }>): Promise<{ success: boolean }> {
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "authors", id },
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+  },
+
+  /** Delete an author */
+  deleteAuthor(id: string): Promise<{ success: boolean }> {
+    return del<{ success: boolean }>({ resource: "authors", id });
+  },
+
   /** Repair legacy base64 article images by migrating them to storage URLs */
   repairLegacyImages(limit = 30): Promise<{
     scanned: number;
