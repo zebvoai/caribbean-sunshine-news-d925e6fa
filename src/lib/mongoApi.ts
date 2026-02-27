@@ -493,6 +493,26 @@ export const mongoApi = {
     return del<{ success: boolean }>({ resource: "liveupdates", id });
   },
 
+  // ─── Trash ──────────────────────────────────────────────────────────────────
+
+  /** List trashed articles */
+  getTrashedArticles(): Promise<(MongoArticle & { deleted_at: string | null })[]> {
+    return get<(MongoArticle & { deleted_at: string | null })[]>({ resource: "trash" });
+  },
+
+  /** Restore a trashed article */
+  restoreArticle(id: string): Promise<{ success: boolean }> {
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "trash", id },
+      { method: "PATCH" }
+    );
+  },
+
+  /** Permanently delete a trashed article */
+  permanentlyDeleteArticle(id: string): Promise<{ success: boolean }> {
+    return del<{ success: boolean }>({ resource: "trash", id });
+  },
+
   // ─── Settings ───────────────────────────────────────────────────────────────
 
   /** Get site settings */
