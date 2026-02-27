@@ -7,7 +7,7 @@ import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
 import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mongoApi, MongoCategory, MongoAuthor } from "@/lib/mongoApi";
+import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
 
 const SECTION_CLASSES = "bg-card border border-border rounded-xl p-6 space-y-4";
 const LABEL_CLASSES = "block text-sm font-semibold text-foreground mb-1.5";
@@ -97,6 +97,7 @@ const CreateArticlePage = () => {
   const [scheduling, setScheduling] = useState(false);
   const [categories, setCategories] = useState<MongoCategory[]>([]);
   const [authors, setAuthors] = useState<MongoAuthor[]>([]);
+  const [availableTags, setAvailableTags] = useState<MongoTag[]>([]);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -115,10 +116,12 @@ const CreateArticlePage = () => {
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
   const [scheduledFor, setScheduledFor] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     mongoApi.getCategories().then(setCategories).catch(console.error);
     mongoApi.getAuthors().then(setAuthors).catch(console.error);
+    mongoApi.getTags().then(setAvailableTags).catch(console.error);
   }, []);
 
   const handleTitleBlur = () => {
@@ -148,6 +151,7 @@ const CreateArticlePage = () => {
       is_pinned: isPinned,
       is_featured: isFeatured,
       is_breaking: isBreaking,
+      tags: selectedTags,
       meta_title: (metaTitle || title).substring(0, 60),
       meta_description: (metaDescription || excerpt).substring(0, 160),
       publication_status: status,
@@ -348,6 +352,36 @@ const CreateArticlePage = () => {
                   {c.name}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className={LABEL_CLASSES}>Tags</label>
+            <div className="flex flex-wrap gap-2">
+              {availableTags.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() =>
+                    setSelectedTags((prev) =>
+                      prev.includes(t.slug) ? prev.filter((s) => s !== t.slug) : [...prev, t.slug]
+                    )
+                  }
+                  className={cn(
+                    "px-3 py-1 rounded-full text-sm font-medium border transition-colors flex items-center gap-1.5",
+                    selectedTags.includes(t.slug)
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-foreground hover:border-primary hover:text-primary"
+                  )}
+                >
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: t.color || "#6b7280" }} />
+                  {t.name}
+                </button>
+              ))}
+              {availableTags.length === 0 && (
+                <p className="text-xs text-muted-foreground">No tags created yet. Go to Tags in the sidebar to create some.</p>
+              )}
             </div>
           </div>
         </Section>

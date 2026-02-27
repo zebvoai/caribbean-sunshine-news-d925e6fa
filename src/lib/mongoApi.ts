@@ -102,6 +102,7 @@ export interface MongoArticle {
   updated_at: string | null;
   // Full article only:
   body?: string;
+  tags?: string[];
   additional_category_ids?: string[];
   social_embeds?: { platform: string; embed_url: string | null; embed_code: string | null }[];
   authors?: { id: string; full_name: string; avatar_url: string | null; bio: string | null; role: string } | null;
@@ -148,6 +149,16 @@ export interface MongoPage {
   updated_at: string | null;
 }
 
+export interface MongoTag {
+  id: string;
+  name: string;
+  slug: string;
+  color: string | null;
+  description: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 export interface CreateArticlePayload {
   title: string;
   slug: string;
@@ -158,6 +169,7 @@ export interface CreateArticlePayload {
   author_id?: string | null;
   primary_category_id?: string | null;
   additional_category_ids?: string[];
+  tags?: string[];
   publication_status: "draft" | "published" | "scheduled";
   published_at?: string | null;
   scheduled_for?: string | null;
@@ -351,5 +363,34 @@ export const mongoApi = {
   /** Delete a page */
   deletePage(id: string): Promise<{ success: boolean }> {
     return del<{ success: boolean }>({ resource: "pages", id });
+  },
+
+  // ─── Tags ───────────────────────────────────────────────────────────────────
+
+  /** List all tags */
+  getTags(): Promise<MongoTag[]> {
+    return get<MongoTag[]>({ resource: "tags" });
+  },
+
+  /** Create a new tag */
+  createTag(payload: { name: string; slug?: string; color?: string; description?: string }): Promise<{ id: string }> {
+    return post<{ id: string }>({ resource: "tags" }, payload);
+  },
+
+  /** Update a tag */
+  updateTag(id: string, payload: Partial<{ name: string; slug: string; color: string; description: string }>): Promise<{ success: boolean }> {
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "tags", id },
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+  },
+
+  /** Delete a tag */
+  deleteTag(id: string): Promise<{ success: boolean }> {
+    return del<{ success: boolean }>({ resource: "tags", id });
   },
 };
