@@ -142,6 +142,7 @@ const normalizeArticle = (doc: any, full = false) => {
     meta_description: doc.seo?.metaDescription || doc.seo?.description || null,
     primary_category_id: doc.category?.toString() || null,
     author_id: doc.author?.toString() || null,
+    tags: doc.tags || [],
     created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
     updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
   };
@@ -388,6 +389,9 @@ Deno.serve(async (req) => {
             code: e.embed_code || null,
           }));
         }
+        if (body.tags !== undefined) {
+          update.tags = body.tags || [];
+        }
         if (body.author_id !== undefined) {
           try { update.author = body.author_id ? new ObjectId(body.author_id) : null; } catch {}
         }
@@ -435,7 +439,7 @@ Deno.serve(async (req) => {
           views: 0,
           likes: 0,
           shares: 0,
-          tags: [],
+          tags: body.tags || [],
           gallery: [],
           comments: [],
           readingTime: 2,
@@ -774,6 +778,65 @@ Deno.serve(async (req) => {
         is_active: d.is_active !== false,
         show_in_footer: d.show_in_footer !== false,
         display_order: d.display_order || 0,
+        created_at: d.createdAt ? new Date(d.createdAt).toISOString() : null,
+        updated_at: d.updatedAt ? new Date(d.updatedAt).toISOString() : null,
+      })));
+    }
+
+    // ── TAGS ──────────────────────────────────────────────────────────────────
+    if (resource === "tags") {
+      // DELETE
+      if (req.method === "DELETE") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        await db.collection("tags").deleteOne({ _id: new ObjectId(id) });
+        return jsonResponse({ success: true });
+      }
+
+      // CREATE
+      if (req.method === "POST") {
+        const body = await req.json();
+        const now = new Date();
+        const slug = (body.slug || body.name || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const existing = await db.collection("tags").findOne({ slug });
+        if (existing) return jsonError("A tag with this slug already exists", 409);
+        const doc: any = {
+          name: body.name,
+          slug,
+          color: body.color || null,
+          description: body.description || null,
+          createdAt: now,
+          updatedAt: now,
+        };
+        const result = await db.collection("tags").insertOne(doc);
+        return jsonResponse({ id: result.insertedId.toString() });
+      }
+
+      // UPDATE (PATCH)
+      if (req.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        const body = await req.json();
+        const update: any = { updatedAt: new Date() };
+        if (body.name !== undefined) update.name = body.name;
+        if (body.slug !== undefined) update.slug = body.slug;
+        if (body.color !== undefined) update.color = body.color;
+        if (body.description !== undefined) update.description = body.description;
+        await db.collection("tags").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // GET list
+      const docs = await db.collection("tags").find({}).sort({ name: 1 }).toArray();
+      return jsonResponse(docs.map((d: any) => ({
+        id: d._id.toString(),
+        name: d.name,
+        slug: d.slug,
+        color: d.color || null,
+        description: d.description || null,
         created_at: d.createdAt ? new Date(d.createdAt).toISOString() : null,
         updated_at: d.updatedAt ? new Date(d.updatedAt).toISOString() : null,
       })));
