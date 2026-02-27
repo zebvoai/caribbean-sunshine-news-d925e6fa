@@ -149,6 +149,34 @@ export interface MongoPage {
   updated_at: string | null;
 }
 
+export interface SiteSettings {
+  id?: string;
+  site_name: string;
+  site_tagline: string;
+  site_description: string;
+  contact_email: string;
+  contact_phone: string;
+  contact_address: string;
+  logo_url: string;
+  favicon_url: string;
+  primary_color: string;
+  secondary_color: string;
+  accent_color: string;
+  font_heading: string;
+  font_body: string;
+  social_facebook: string;
+  social_twitter: string;
+  social_instagram: string;
+  social_youtube: string;
+  meta_title: string;
+  meta_description: string;
+  articles_per_page: number;
+  show_breaking_ticker: boolean;
+  show_featured_section: boolean;
+  maintenance_mode: boolean;
+  google_analytics_id: string;
+}
+
 export interface MongoTag {
   id: string;
   name: string;
@@ -392,5 +420,24 @@ export const mongoApi = {
   /** Delete a tag */
   deleteTag(id: string): Promise<{ success: boolean }> {
     return del<{ success: boolean }>({ resource: "tags", id });
+  },
+
+  // ─── Settings ───────────────────────────────────────────────────────────────
+
+  /** Get site settings */
+  getSettings(): Promise<SiteSettings> {
+    return get<SiteSettings>({ resource: "settings" });
+  },
+
+  /** Update site settings */
+  updateSettings(payload: Partial<SiteSettings>): Promise<{ success: boolean }> {
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "settings" },
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
   },
 };

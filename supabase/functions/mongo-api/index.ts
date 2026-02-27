@@ -842,6 +842,63 @@ Deno.serve(async (req) => {
       })));
     }
 
+    // ── SETTINGS ──────────────────────────────────────────────────────────────
+    if (resource === "settings") {
+      // GET — returns the single settings document (or defaults)
+      if (req.method === "GET") {
+        const doc = await db.collection("settings").findOne({ _type: "site" });
+        const defaults = {
+          site_name: "Dominica News",
+          site_tagline: "Your Trusted Caribbean News Source",
+          site_description: "Breaking news, politics, weather, sports and entertainment from Dominica and the Caribbean.",
+          contact_email: "",
+          contact_phone: "",
+          contact_address: "",
+          logo_url: "",
+          favicon_url: "",
+          primary_color: "#1a7a3a",
+          secondary_color: "#2563ba",
+          accent_color: "#dc2626",
+          font_heading: "Playfair Display",
+          font_body: "Source Sans 3",
+          social_facebook: "https://www.facebook.com/dominicanews",
+          social_twitter: "https://www.facebook.com/dominicanews",
+          social_instagram: "https://www.instagram.com/dominicanews",
+          social_youtube: "https://www.youtube.com/channel/UCvtEDb_00XXqe9oFUAkJ9ww",
+          meta_title: "Dominica News - Breaking News & Caribbean Coverage",
+          meta_description: "Your trusted source for breaking news, politics, weather updates, and Caribbean coverage.",
+          articles_per_page: 20,
+          show_breaking_ticker: true,
+          show_featured_section: true,
+          maintenance_mode: false,
+          google_analytics_id: "",
+        };
+        if (!doc) {
+          return jsonResponse(defaults);
+        }
+        return jsonResponse({ ...defaults, ...doc, id: doc._id.toString() });
+      }
+
+      // PUT — upsert the settings document
+      if (req.method === "PUT" || req.method === "PATCH" || req.method === "POST") {
+        const body = await req.json();
+        const now = new Date();
+        // Remove any _id or id from body
+        delete body._id;
+        delete body.id;
+        delete body._type;
+        
+        await db.collection("settings").updateOne(
+          { _type: "site" },
+          { $set: { ...body, _type: "site", updatedAt: now } },
+          { upsert: true }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      return jsonError("Method not allowed", 405);
+    }
+
     return jsonError("Unknown resource", 400);
   } catch (err: any) {
     console.error("mongo-api error:", err);
