@@ -607,6 +607,59 @@ Deno.serve(async (req) => {
 
     // ── AUTHORS ──────────────────────────────────────────────────────────────
     if (resource === "authors") {
+      // DELETE
+      if (req.method === "DELETE") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        await db.collection("authors").deleteOne({ _id: new ObjectId(id) });
+        return jsonResponse({ success: true });
+      }
+
+      // CREATE
+      if (req.method === "POST") {
+        const body = await req.json();
+        const now = new Date();
+        const doc: any = {
+          name: body.full_name || body.name,
+          email: body.email || null,
+          bio: body.bio || null,
+          title: body.role || "Reporter",
+          avatarUrl: body.avatar_url || null,
+          isActive: body.is_active !== false,
+          expertise: body.expertise || [],
+          specialization: body.specialization || [],
+          location: body.location || null,
+          slug: body.slug || null,
+          articlesCount: 0,
+          createdAt: now,
+          updatedAt: now,
+          __v: 0,
+        };
+        const result = await db.collection("authors").insertOne(doc);
+        return jsonResponse({ id: result.insertedId.toString() });
+      }
+
+      // UPDATE (PATCH)
+      if (req.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        const body = await req.json();
+        const update: any = { updatedAt: new Date() };
+        if (body.full_name !== undefined) update.name = body.full_name;
+        if (body.email !== undefined) update.email = body.email;
+        if (body.bio !== undefined) update.bio = body.bio;
+        if (body.role !== undefined) update.title = body.role;
+        if (body.avatar_url !== undefined) update.avatarUrl = body.avatar_url;
+        if (body.is_active !== undefined) update.isActive = body.is_active;
+        if (body.location !== undefined) update.location = body.location;
+        await db.collection("authors").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // GET list
       const docs = await db
         .collection("authors")
         .find({})
