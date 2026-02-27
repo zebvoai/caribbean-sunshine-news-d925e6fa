@@ -299,7 +299,7 @@ const ArticlePage = () => {
 
   // ── Share handlers ─────────────────────────────────────────────────────────
   const articlePath = slug ? `/news/${slug}` : "";
-  const shareUrl = `https://dominicanews.dm${articlePath}`;
+  const shareUrl = `https://www.dominicanews.dm${articlePath}`;
 
   const shareFacebook = () =>
     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, "_blank");
