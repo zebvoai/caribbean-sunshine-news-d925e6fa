@@ -135,6 +135,19 @@ export interface MongoAuthor {
   slug: string | null;
 }
 
+export interface MongoPage {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  slug: string;
+  body: string;
+  is_active: boolean;
+  show_in_footer: boolean;
+  display_order: number;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 export interface CreateArticlePayload {
   title: string;
   slug: string;
@@ -299,5 +312,44 @@ export const mongoApi = {
       failed: number;
       errors: Array<{ id: string; title: string; reason: string }>;
     }>({ resource: "articles/migrate-images" }, { limit });
+  },
+
+  // ─── Pages ──────────────────────────────────────────────────────────────────
+
+  /** List all pages */
+  getPages(): Promise<MongoPage[]> {
+    return get<MongoPage[]>({ resource: "pages" });
+  },
+
+  /** Get a single page by slug */
+  getPageBySlug(slug: string): Promise<MongoPage> {
+    return get<MongoPage>({ resource: "pages", slug });
+  },
+
+  /** Get a single page by id */
+  getPageById(id: string): Promise<MongoPage> {
+    return get<MongoPage>({ resource: "pages", id });
+  },
+
+  /** Create a new page */
+  createPage(payload: { title: string; subtitle?: string; slug: string; body: string; is_active?: boolean; show_in_footer?: boolean; display_order?: number }): Promise<{ id: string }> {
+    return post<{ id: string }>({ resource: "pages" }, payload);
+  },
+
+  /** Update a page */
+  updatePage(id: string, payload: Partial<{ title: string; subtitle: string; slug: string; body: string; is_active: boolean; show_in_footer: boolean; display_order: number }>): Promise<{ success: boolean }> {
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "pages", id },
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+  },
+
+  /** Delete a page */
+  deletePage(id: string): Promise<{ success: boolean }> {
+    return del<{ success: boolean }>({ resource: "pages", id });
   },
 };

@@ -668,6 +668,117 @@ Deno.serve(async (req) => {
       return jsonResponse(docs.map(normalizeAuthor));
     }
 
+    // ── PAGES ─────────────────────────────────────────────────────────────────
+    if (resource === "pages") {
+      // DELETE
+      if (req.method === "DELETE") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        await db.collection("pages").deleteOne({ _id: new ObjectId(id) });
+        return jsonResponse({ success: true });
+      }
+
+      // CREATE
+      if (req.method === "POST") {
+        const body = await req.json();
+        const now = new Date();
+        const doc: any = {
+          title: body.title,
+          subtitle: body.subtitle || null,
+          slug: body.slug,
+          body: body.body || "",
+          is_active: body.is_active !== false,
+          show_in_footer: body.show_in_footer !== false,
+          display_order: body.display_order ?? 0,
+          createdAt: now,
+          updatedAt: now,
+        };
+        const result = await db.collection("pages").insertOne(doc);
+        return jsonResponse({ id: result.insertedId.toString() });
+      }
+
+      // UPDATE (PATCH)
+      if (req.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        const body = await req.json();
+        const update: any = { updatedAt: new Date() };
+        if (body.title !== undefined) update.title = body.title;
+        if (body.subtitle !== undefined) update.subtitle = body.subtitle;
+        if (body.slug !== undefined) update.slug = body.slug;
+        if (body.body !== undefined) update.body = body.body;
+        if (body.is_active !== undefined) update.is_active = body.is_active;
+        if (body.show_in_footer !== undefined) update.show_in_footer = body.show_in_footer;
+        if (body.display_order !== undefined) update.display_order = body.display_order;
+        await db.collection("pages").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: update }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // GET single by slug
+      const slug = url.searchParams.get("slug");
+      if (slug) {
+        const doc = await db.collection("pages").findOne({ slug, is_active: { $ne: false } });
+        if (!doc) return jsonError("Not found", 404);
+        return jsonResponse({
+          id: doc._id.toString(),
+          title: doc.title,
+          subtitle: doc.subtitle || null,
+          slug: doc.slug,
+          body: doc.body || "",
+          is_active: doc.is_active !== false,
+          show_in_footer: doc.show_in_footer !== false,
+          display_order: doc.display_order || 0,
+          created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
+          updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
+        });
+      }
+
+      // GET single by id
+      const id = url.searchParams.get("id");
+      if (id) {
+        try {
+          const doc = await db.collection("pages").findOne({ _id: new ObjectId(id) });
+          if (!doc) return jsonError("Not found", 404);
+          return jsonResponse({
+            id: doc._id.toString(),
+            title: doc.title,
+            subtitle: doc.subtitle || null,
+            slug: doc.slug,
+            body: doc.body || "",
+            is_active: doc.is_active !== false,
+            show_in_footer: doc.show_in_footer !== false,
+            display_order: doc.display_order || 0,
+            created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
+            updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
+          });
+        } catch {
+          return jsonError("Invalid id", 400);
+        }
+      }
+
+      // GET list
+      const docs = await db
+        .collection("pages")
+        .find({})
+        .sort({ display_order: 1, title: 1 })
+        .toArray();
+      return jsonResponse(docs.map((d: any) => ({
+        id: d._id.toString(),
+        title: d.title,
+        subtitle: d.subtitle || null,
+        slug: d.slug,
+        body: d.body || "",
+        is_active: d.is_active !== false,
+        show_in_footer: d.show_in_footer !== false,
+        display_order: d.display_order || 0,
+        created_at: d.createdAt ? new Date(d.createdAt).toISOString() : null,
+        updated_at: d.updatedAt ? new Date(d.updatedAt).toISOString() : null,
+      })));
+    }
+
     return jsonError("Unknown resource", 400);
   } catch (err: any) {
     console.error("mongo-api error:", err);

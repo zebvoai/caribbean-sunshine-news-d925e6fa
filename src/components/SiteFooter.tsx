@@ -12,6 +12,12 @@ const SiteFooter = () => {
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
+  const { data: pages = [] } = useQuery({
+    queryKey: ["footer-pages"],
+    queryFn: () => mongoApi.getPages(),
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  });
   return (
     <footer className="bg-foreground text-background mt-0">
       <div className="max-w-7xl mx-auto px-6 py-12">
@@ -35,12 +41,16 @@ const SiteFooter = () => {
                   About Us
                 </Link>
               </li>
-              <li>
-                <span className="opacity-50 cursor-not-allowed">Editorial Team</span>
-              </li>
-              <li>
-                <span className="opacity-50 cursor-not-allowed">Contact</span>
-              </li>
+              {pages
+                .filter((p) => p.is_active && p.show_in_footer)
+                .sort((a, b) => a.display_order - b.display_order)
+                .map((p) => (
+                  <li key={p.id}>
+                    <Link to={`/page/${p.slug}`} className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
+                      {p.title}
+                    </Link>
+                  </li>
+                ))}
               <li>
                 <Link to="/privacy-policy" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
                   Privacy Policy
