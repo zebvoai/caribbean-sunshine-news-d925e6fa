@@ -18,7 +18,6 @@ import {
   ChevronRight,
   LogOut,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 const mainNav = [
@@ -96,8 +95,8 @@ interface AdminSidebarProps {
 const AdminSidebar = ({ collapsed, onToggle, onNavigate }: AdminSidebarProps) => {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut({ scope: "local" });
+  const handleLogout = () => {
+    sessionStorage.removeItem("admin_authenticated");
     onNavigate?.();
     navigate("/admin/login");
   };
