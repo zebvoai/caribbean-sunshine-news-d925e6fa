@@ -1102,14 +1102,15 @@ ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""
 
       try {
         const doc = await db.collection("articles").findOne(
-          { slug, status: "published", deletedAt: { $in: [null, undefined] } },
-          { projection: { title: 1, excerpt: 1, featuredImage: 1, seo: 1, publishedAt: 1, author: 1 } }
+          { slug, status: "published", $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] },
+          { projection: { title: 1, excerpt: 1, featuredImage: 1, seo: 1, publishedAt: 1, author: 1, cover_image_url: 1 } }
         );
+        console.log("og-meta lookup:", slug, "found:", !!doc, doc ? { title: doc.title, featuredImage: doc.featuredImage?.substring(0, 80) } : null);
         if (!doc) return fallback();
 
         const title = esc(doc.seo?.metaTitle || doc.title || SITE_NAME);
         const desc = esc(doc.seo?.metaDescription || doc.excerpt || DEFAULT_DESC);
-        const rawImg = doc.featuredImage || "";
+        const rawImg = doc.featuredImage || doc.cover_image_url || "";
         const ogImage = rawImg && !rawImg.startsWith("data:") ? rawImg : DEFAULT_IMAGE;
 
         let authorName = "";
