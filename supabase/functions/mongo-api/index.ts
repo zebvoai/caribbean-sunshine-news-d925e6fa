@@ -346,12 +346,50 @@ Deno.serve(async (req) => {
     }
 
     // ── ARTICLES ─────────────────────────────────────────────────────────────
-    if (resource === "articles") {
-      // DELETE
+    // ── TRASH (soft-deleted articles) ──────────────────────────────────────────
+    if (resource === "trash") {
+      // Permanently delete
       if (req.method === "DELETE") {
         const id = url.searchParams.get("id");
         if (!id) return jsonError("id required", 400);
-        await db.collection("articles").deleteOne({ _id: new ObjectId(id) });
+        await db.collection("articles").deleteOne({ _id: new ObjectId(id), deletedAt: { $ne: null } });
+        return jsonResponse({ success: true });
+      }
+
+      // Restore (PATCH)
+      if (req.method === "PATCH") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        await db.collection("articles").updateOne(
+          { _id: new ObjectId(id) },
+          { $unset: { deletedAt: "" }, $set: { updatedAt: new Date() } }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // GET list of trashed articles
+      const docs = await db
+        .collection("articles")
+        .find({ deletedAt: { $ne: null } }, { projection: { content: 0, body: 0 } })
+        .sort({ deletedAt: -1 })
+        .limit(200)
+        .toArray();
+
+      return jsonResponse(docs.map((d: any) => ({
+        ...normalizeArticle(d, false),
+        deleted_at: d.deletedAt ? new Date(d.deletedAt).toISOString() : null,
+      })));
+    }
+
+    if (resource === "articles") {
+      // DELETE (soft-delete: move to trash)
+      if (req.method === "DELETE") {
+        const id = url.searchParams.get("id");
+        if (!id) return jsonError("id required", 400);
+        await db.collection("articles").updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { deletedAt: new Date(), updatedAt: new Date() } }
+        );
         return jsonResponse({ success: true });
       }
 
@@ -502,7 +540,7 @@ Deno.serve(async (req) => {
       const excludeId = url.searchParams.get("exclude_id");
       const isBreaking = url.searchParams.get("is_breaking");
 
-      const filter: any = {};
+      const filter: any = { deletedAt: { $in: [null, undefined] } };
       if (status && status !== "all") filter.status = status;
       if (isBreaking === "true") filter.isBreaking = true;
 
