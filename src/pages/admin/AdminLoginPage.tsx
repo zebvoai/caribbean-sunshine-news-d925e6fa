@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 
-const ENV_EMAIL = import.meta.env.VITE_ADMIN_EMAIL ?? "";
-const ENV_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD ?? "";
+const ENV_LOGIN_ID =
+  (import.meta.env.VITE_ADMIN_LOGIN_ID ?? import.meta.env.VITE_ADMIN_EMAIL ?? "").trim();
+const ENV_PASSWORD = (import.meta.env.VITE_ADMIN_PASSWORD ?? "").trim();
 
 const AdminLoginPage = () => {
   const [email, setEmail] = useState("");
@@ -17,7 +18,16 @@ const AdminLoginPage = () => {
     e.preventDefault();
     setError("");
 
-    if (email === ENV_EMAIL && password === ENV_PASSWORD) {
+    const normalizedInputId = email.trim().toLowerCase();
+    const normalizedEnvId = ENV_LOGIN_ID.toLowerCase();
+    const normalizedInputPassword = password.trim();
+
+    if (!ENV_LOGIN_ID || !ENV_PASSWORD) {
+      setError("Admin login is not configured. Please set VITE_ADMIN_LOGIN_ID (or VITE_ADMIN_EMAIL) and VITE_ADMIN_PASSWORD in Vercel.");
+      return;
+    }
+
+    if (normalizedInputId === normalizedEnvId && normalizedInputPassword === ENV_PASSWORD) {
       sessionStorage.setItem("admin_authenticated", "true");
       navigate("/admin");
     } else {
