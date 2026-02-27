@@ -153,8 +153,8 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mappedArticles.map((article, idx) => (
-                <Link key={idx} to={`/news/${article.slug}`} className="block">
+              {mappedArticles.map((article) => (
+                <Link key={article.slug} to={`/news/${article.slug}`} className="block">
                   <NewsCard article={article} isBreaking={article.is_breaking} />
                 </Link>
               ))}
