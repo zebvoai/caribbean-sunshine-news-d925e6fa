@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CheckCircle, RefreshCw, FileText, Eye, Users, TrendingUp, PlusCircle, Clock, ImageIcon } from "lucide-react";
 import { mongoApi } from "@/lib/mongoApi";
 import { toast } from "sonner";
@@ -43,10 +44,10 @@ const statCards = [
 ];
 
 const quickActions = [
-  { label: "New Article", icon: FileText, color: "bg-primary text-primary-foreground hover:bg-primary/90" },
-  { label: "Add Author", icon: Users, color: "bg-secondary text-secondary-foreground hover:bg-secondary/90" },
-  { label: "Breaking News", icon: PlusCircle, color: "bg-destructive text-destructive-foreground hover:bg-destructive/90" },
-  { label: "Schedule Post", icon: Clock, color: "bg-muted text-foreground hover:bg-muted/80" },
+  { label: "New Article", icon: FileText, color: "bg-primary text-primary-foreground hover:bg-primary/90", path: "/admin/articles/create" },
+  { label: "Add Author", icon: Users, color: "bg-secondary text-secondary-foreground hover:bg-secondary/90", path: "/admin/authors" },
+  { label: "Breaking News", icon: PlusCircle, color: "bg-destructive text-destructive-foreground hover:bg-destructive/90", path: "/admin/breaking" },
+  { label: "Schedule Post", icon: Clock, color: "bg-muted text-foreground hover:bg-muted/80", path: "/admin/schedule" },
 ];
 
 const recentActivity = [
@@ -60,6 +61,7 @@ const recentActivity = [
 const AdminDashboard = () => {
   const [connectionStatus, setConnectionStatus] = useState<"connected" | "testing">("connected");
   const [migrating, setMigrating] = useState(false);
+  const navigate = useNavigate();
 
   const testConnection = () => {
     setConnectionStatus("testing");
@@ -125,6 +127,7 @@ const AdminDashboard = () => {
             {quickActions.map((action) => (
               <button
                 key={action.label}
+                onClick={() => navigate(action.path)}
                 className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-body font-semibold transition-colors ${action.color}`}
               >
                 <action.icon className="h-4 w-4" />
