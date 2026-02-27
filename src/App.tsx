@@ -22,6 +22,7 @@ import DynamicPage from "./pages/DynamicPage";
 import AdminPagesPage from "./pages/admin/AdminPagesPage";
 import AdminBreakingNewsPage from "./pages/admin/AdminBreakingNewsPage";
 import AdminTagsPage from "./pages/admin/AdminTagsPage";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +50,7 @@ const App = () => (
             <Route path="pages" element={<AdminPagesPage />} />
             <Route path="breaking" element={<AdminBreakingNewsPage />} />
             <Route path="tags" element={<AdminTagsPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
