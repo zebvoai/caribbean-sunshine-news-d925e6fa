@@ -217,7 +217,7 @@ const CreateArticlePage = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl">
+    <div className="p-4 sm:p-6 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-heading font-bold text-foreground">Create Article</h1>
         <p className="text-sm text-muted-foreground mt-1">Fill in all details below. Fields marked * are required.</p>
@@ -299,7 +299,7 @@ const CreateArticlePage = () => {
 
         {/* Author & Categories */}
         <Section title="Author & Categories">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className={LABEL_CLASSES}>Author</label>
               <select
@@ -413,7 +413,7 @@ const CreateArticlePage = () => {
             />
           </div>
 
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-2">
             <button
               type="button"
               onClick={handleSaveDraft}

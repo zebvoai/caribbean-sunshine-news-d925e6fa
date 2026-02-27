@@ -85,7 +85,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="p-8 max-w-6xl">
+    <div className="p-4 sm:p-8 max-w-6xl">
       <div className="mb-6">
         <h1 className="text-2xl font-heading font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-1">Welcome back! Here's what's happening with your news site...</p>
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {statCards.map((stat) => (
           <div key={stat.label} className="border border-border rounded-lg p-5 bg-card flex items-start justify-between gap-3">
             <div>
