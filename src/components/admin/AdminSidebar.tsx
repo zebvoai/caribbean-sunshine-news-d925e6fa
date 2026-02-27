@@ -95,7 +95,7 @@ const AdminSidebar = ({ collapsed, onToggle }: AdminSidebarProps) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     navigate("/admin/login");
   };
 

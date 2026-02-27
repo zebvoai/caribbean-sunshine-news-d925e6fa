@@ -5,6 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
 import { mongoApi } from "@/lib/mongoApi";
+import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import {
   Calendar,
   User,
@@ -101,7 +102,7 @@ const RelatedCard = ({ article }: { article: RelatedArticle }) => (
     <div className="aspect-[16/9] overflow-hidden bg-muted">
       {article.cover_image_url ? (
         <img
-          src={article.cover_image_url}
+          src={getProxiedAssetUrl(article.cover_image_url)}
           alt={article.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
@@ -467,7 +468,7 @@ const ArticlePage = () => {
         {article.cover_image_url && (
           <figure className="mb-6 rounded-xl overflow-hidden shadow-card animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
             <img
-              src={article.cover_image_url}
+              src={getProxiedAssetUrl(article.cover_image_url)}
               alt={article.cover_image_alt || article.title}
               referrerPolicy="no-referrer"
               onError={(e) => {
@@ -566,7 +567,7 @@ const ArticlePage = () => {
               <div className="shrink-0">
                 {article.authors.avatar_url ? (
                   <img
-                    src={article.authors.avatar_url}
+                    src={getProxiedAssetUrl(article.authors.avatar_url)}
                     alt={article.authors.full_name}
                     referrerPolicy="no-referrer"
                     onError={(e) => {

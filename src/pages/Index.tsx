@@ -5,6 +5,7 @@ import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
+import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
 
 const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
@@ -20,7 +21,7 @@ const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
         day: "numeric",
       })
     : "",
-  image: a.cover_image_url || "",
+  image: getProxiedAssetUrl(a.cover_image_url || ""),
   slug: a.slug,
 });
 
@@ -29,7 +30,7 @@ const toBreakingArticle = (a: MongoArticle) => ({
   title: a.title,
   excerpt: a.excerpt,
   slug: a.slug,
-  cover_image_url: a.cover_image_url,
+  cover_image_url: getProxiedAssetUrl(a.cover_image_url || ""),
   published_at: a.published_at,
 });
 

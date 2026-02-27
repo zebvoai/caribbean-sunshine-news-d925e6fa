@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { canUseSameOriginProxy } from "@/lib/networkProxy";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
@@ -16,13 +17,49 @@ const AdminLoginPage = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError("Invalid credentials");
+
+    try {
+      const direct = await supabase.auth.signInWithPassword({ email, password });
+      if (!direct.error) {
+        navigate("/admin");
+        return;
+      }
+
+      const looksLikeNetworkIssue = /failed to fetch|networkerror|load failed/i.test(
+        direct.error.message || ""
+      );
+
+      if (!looksLikeNetworkIssue || !canUseSameOriginProxy()) {
+        setError("Invalid credentials");
+        return;
+      }
+
+      const response = await fetch("/api/auth/token?grant_type=password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload?.access_token || !payload?.refresh_token) {
+        setError("Invalid credentials");
+        return;
+      }
+
+      await supabase.auth.setSession({
+        access_token: payload.access_token,
+        refresh_token: payload.refresh_token,
+      });
+
+      navigate("/admin");
+    } catch {
+      setError("Network blocked on this connection. Please retry from your company domain.");
+    } finally {
       setLoading(false);
-      return;
     }
-    navigate("/admin");
   };
 
   return (
@@ -64,3 +101,4 @@ const AdminLoginPage = () => {
 };
 
 export default AdminLoginPage;
+
