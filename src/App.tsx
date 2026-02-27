@@ -25,7 +25,7 @@ import AdminTagsPage from "./pages/admin/AdminTagsPage";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
 import AdminLiveUpdatesPage from "./pages/admin/AdminLiveUpdatesPage";
-
+import AdminSchedulePage from "./pages/admin/AdminSchedulePage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -55,6 +55,7 @@ const App = () => (
             <Route path="live" element={<AdminLiveUpdatesPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="analytics" element={<AdminAnalyticsPage />} />
+            <Route path="schedule" element={<AdminSchedulePage />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
