@@ -44,13 +44,13 @@ const NavBar = () => {
   };
 
   const linkBase =
-    "relative px-4 py-3.5 text-[11px] font-body font-semibold uppercase tracking-[0.12em] transition-all whitespace-nowrap flex-shrink-0";
-  const activeClass = "text-primary after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2.5px] after:bg-primary after:rounded-full";
-  const inactiveClass = "text-foreground/60 hover:text-primary";
+    "relative px-4 py-4 text-[10.5px] font-body font-bold uppercase tracking-[0.14em] transition-all whitespace-nowrap flex-shrink-0";
+  const activeClass = "text-primary after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-primary after:rounded-full";
+  const inactiveClass = "text-foreground/55 hover:text-primary";
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-border/50 shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-center gap-0 px-4 overflow-x-auto scrollbar-hide">
+    <nav className="sticky top-0 z-50 glass border-b border-border/30 shadow-sm">
+      <div className="max-w-7xl mx-auto flex items-center justify-center gap-0.5 px-4 overflow-x-auto scrollbar-hide">
         <Link
           to="/"
           onMouseEnter={() => prefetch(null)}
@@ -74,8 +74,8 @@ const NavBar = () => {
           to="/live"
           className={`${linkBase} flex items-center gap-1.5 ${
             isLiveActive
-              ? "text-destructive after:absolute after:bottom-0 after:left-2 after:right-2 after:h-[2.5px] after:bg-destructive after:rounded-full"
-              : "text-foreground/60 hover:text-destructive"
+              ? "text-destructive after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-destructive after:rounded-full"
+              : "text-foreground/55 hover:text-destructive"
           }`}
         >
           <span className="relative flex items-center">
