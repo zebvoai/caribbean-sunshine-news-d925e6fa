@@ -957,11 +957,13 @@ Deno.serve(async (req) => {
         return jsonResponse({ success: true });
       }
 
-      // GET single by id
+      // GET single by id or slug
       const id = url.searchParams.get("id");
-      if (id) {
+      const luSlug = url.searchParams.get("slug");
+      if (id || luSlug) {
         try {
-          const doc = await db.collection("liveupdates").findOne({ _id: new ObjectId(id) });
+          const query = id ? { _id: new ObjectId(id) } : { slug: luSlug };
+          const doc = await db.collection("liveupdates").findOne(query);
           if (!doc) return jsonError("Not found", 404);
           return jsonResponse({
             id: doc._id.toString(),

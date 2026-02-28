@@ -471,6 +471,11 @@ export const mongoApi = {
     return get<MongoLiveUpdate>({ resource: "liveupdates", id });
   },
 
+  /** Get a single live update by slug (includes body) */
+  getLiveUpdateBySlug(slug: string): Promise<MongoLiveUpdate> {
+    return get<MongoLiveUpdate>({ resource: "liveupdates", slug });
+  },
+
   /** Create a new live update */
   createLiveUpdate(payload: CreateLiveUpdatePayload): Promise<{ id: string }> {
     return post<{ id: string }>({ resource: "liveupdates" }, payload);
