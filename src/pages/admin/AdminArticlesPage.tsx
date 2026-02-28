@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { PlusCircle, Eye, Edit, Trash2, Search } from "lucide-react";
+import { PlusCircle, Eye, Edit, Trash2, Search, ArrowRight, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,17 +61,23 @@ const AdminArticlesPage = () => {
     }
   };
 
+  const statusConfig = {
+    published: { dot: "bg-primary", label: "Published" },
+    draft: { dot: "bg-muted-foreground/40", label: "Drafts" },
+    scheduled: { dot: "bg-secondary", label: "Scheduled" },
+  };
+
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-5 sm:p-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-xl sm:text-2xl font-heading font-bold text-foreground">Articles</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Manage all news articles</p>
+          <h1 className="text-xl font-heading font-bold text-foreground tracking-tight">Articles</h1>
+          <p className="text-[13px] text-muted-foreground/70 mt-1 font-body">Manage all news articles</p>
         </div>
         <Link
           to="/admin/articles/create"
-          className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors w-full sm:w-auto"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-[13px] font-semibold hover:bg-primary/90 transition-all shadow-sm hover:shadow-md w-full sm:w-auto"
         >
           <PlusCircle className="h-4 w-4" />
           Create Article
@@ -78,25 +85,24 @@ const AdminArticlesPage = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 sm:gap-2 mt-5 mb-5 border-b border-border overflow-x-auto">
+      <div className="flex items-center gap-1 mb-6 bg-muted/30 rounded-xl p-1 w-fit">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-semibold capitalize transition-colors border-b-2 -mb-px whitespace-nowrap ${
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 text-[13px] font-semibold font-body rounded-lg transition-all duration-200",
               activeTab === tab
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
-            }`}
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
           >
-            {tab === "published" && <span className="w-2 h-2 rounded-full bg-primary inline-block" />}
-            {tab === "draft" && <span className="inline-flex items-center justify-center w-4 h-4"><svg viewBox="0 0 16 16" className="h-3.5 w-3.5 opacity-60"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none"/></svg></span>}
-            {tab === "scheduled" && <span className="inline-flex items-center justify-center w-4 h-4"><svg viewBox="0 0 16 16" className="h-3.5 w-3.5 opacity-60"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" fill="none"/><path d="M8 5v3l2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg></span>}
-            <span className="hidden sm:inline">{tab.charAt(0).toUpperCase() + tab.slice(1)}</span>
-            <span className="sm:hidden">{tab.charAt(0).toUpperCase() + tab.slice(1).slice(0, 3)}</span>
-            <span className={`ml-0.5 sm:ml-1 text-xs font-bold px-1.5 py-0.5 rounded-full ${
-              activeTab === tab ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-            }`}>
+            <span className={cn("w-2 h-2 rounded-full", statusConfig[tab].dot)} />
+            {statusConfig[tab].label}
+            <span className={cn(
+              "text-[11px] font-bold px-1.5 py-0.5 rounded-md ml-0.5",
+              activeTab === tab ? "bg-primary/10 text-primary" : "bg-muted/60 text-muted-foreground/60"
+            )}>
               {counts[tab]}
             </span>
           </button>
@@ -104,14 +110,14 @@ const AdminArticlesPage = () => {
       </div>
 
       {/* Search */}
-      <div className="relative max-w-sm mb-5">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="relative max-w-sm mb-6">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search articles..."
-          className="w-full pl-9 pr-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          className="w-full pl-10 pr-4 py-2.5 border border-border/60 rounded-xl text-[13px] font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 bg-muted/20 hover:bg-muted/30 transition-colors"
         />
       </div>
 
@@ -119,14 +125,17 @@ const AdminArticlesPage = () => {
       {loading ? (
         <div className="space-y-3">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-border p-5 bg-card animate-pulse h-28" />
+            <div key={i} className="rounded-2xl border border-border/40 p-6 skeleton-shimmer h-28" />
           ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground font-body">
-          <p className="text-lg mb-3">No {activeTab} articles found.</p>
-          <Link to="/admin/articles/create" className="text-primary hover:underline text-sm">
-            Create your first article →
+          <div className="w-14 h-14 rounded-2xl bg-muted/40 flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-6 w-6 text-muted-foreground/30" />
+          </div>
+          <p className="text-base mb-3 font-heading">No {activeTab} articles found.</p>
+          <Link to="/admin/articles/create" className="text-primary hover:underline text-sm inline-flex items-center gap-1">
+            Create your first article <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       ) : (
@@ -134,55 +143,65 @@ const AdminArticlesPage = () => {
           {filtered.map((article) => (
             <div
               key={article.id}
-              className="border border-border rounded-xl p-5 bg-card hover:border-primary/30 transition-colors"
+              className="border border-border/40 rounded-2xl p-5 bg-card hover:border-primary/20 hover:shadow-sm transition-all duration-200 group"
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   {/* Title + badges */}
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className="font-heading font-bold text-base text-foreground leading-snug">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h3
+                      className="font-heading font-bold text-[15px] text-foreground leading-snug cursor-pointer group-hover:text-primary transition-colors"
+                      onClick={() => navigate(`/admin/articles/edit/${article.id}`)}
+                    >
                       {article.title}
                     </h3>
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary capitalize">
+                    <span className={cn(
+                      "inline-block px-2.5 py-0.5 rounded-lg text-[10px] font-bold capitalize border",
+                      article.publication_status === "published"
+                        ? "bg-primary/8 text-primary border-primary/15"
+                        : article.publication_status === "scheduled"
+                        ? "bg-secondary/8 text-secondary border-secondary/15"
+                        : "bg-muted text-muted-foreground border-border/40"
+                    )}>
                       {article.publication_status}
                     </span>
                     {article.is_breaking && (
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-destructive text-destructive-foreground">
+                      <span className="inline-block px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-destructive/10 text-destructive border border-destructive/15">
                         Breaking
                       </span>
                     )}
                     {article.is_featured && (
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-secondary/10 text-secondary">
+                      <span className="inline-block px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-secondary/8 text-secondary border border-secondary/15">
                         Featured
                       </span>
                     )}
                     {article.is_pinned && (
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
+                      <span className="inline-block px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-muted text-muted-foreground border border-border/40">
                         Pinned
                       </span>
                     )}
                   </div>
 
                   {/* Meta */}
-                  <p className="text-xs text-muted-foreground font-body mb-2 flex items-center gap-1.5">
+                  <p className="text-[12px] text-muted-foreground/60 font-body mb-2 flex items-center gap-2">
                     <span>Dominica News</span>
-                    <span>•</span>
+                    <span className="w-1 h-1 rounded-full bg-border" />
                     <span>
                       {article.published_at
-                        ? new Date(article.published_at).toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" })
+                        ? new Date(article.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                         : article.created_at
-                        ? new Date(article.created_at).toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" })
+                        ? new Date(article.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                         : "—"}
                     </span>
-                    <span>•</span>
+                    <span className="w-1 h-1 rounded-full bg-border" />
                     <span className="flex items-center gap-1">
                       <Eye className="h-3 w-3" />
-                      {article.view_count} views
+                      {article.view_count}
                     </span>
                   </p>
 
                   {/* Excerpt */}
-                  <p className="text-sm text-muted-foreground font-body line-clamp-2 leading-relaxed">
+                  <p className="text-[13px] text-muted-foreground/70 font-body line-clamp-2 leading-relaxed">
                     {article.excerpt}
                   </p>
                 </div>
@@ -191,17 +210,17 @@ const AdminArticlesPage = () => {
                 <div className="flex items-center gap-1 flex-shrink-0 self-end sm:self-start">
                   <button
                     onClick={() => navigate(`/admin/articles/edit/${article.id}`)}
-                    className="p-2 hover:bg-muted rounded-lg transition-colors"
+                    className="p-2.5 hover:bg-muted/60 rounded-xl transition-all text-muted-foreground/60 hover:text-foreground"
                     title="Edit"
                   >
-                    <Edit className="h-4 w-4 text-muted-foreground" />
+                    <Edit className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setDeleteTarget(article)}
-                    className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
+                    className="p-2.5 hover:bg-destructive/8 rounded-xl transition-all text-muted-foreground/40 hover:text-destructive"
                     title="Delete"
                   >
-                    <Trash2 className="h-4 w-4 text-destructive" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -212,17 +231,17 @@ const AdminArticlesPage = () => {
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this article?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="font-heading">Delete this article?</AlertDialogTitle>
+            <AlertDialogDescription className="font-body">
               "{deleteTarget?.title}" will be moved to the recycle bin.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-xl"
               onClick={() => deleteTarget && deleteArticle(deleteTarget)}
             >
               Delete

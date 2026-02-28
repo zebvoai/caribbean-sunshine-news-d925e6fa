@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   FileText, Eye, Users, TrendingUp, PlusCircle, Clock,
   ArrowUpRight, Activity, Zap, Radio, Calendar, BarChart2,
+  Sparkles, ArrowRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mongoApi } from "@/lib/mongoApi";
@@ -58,17 +59,17 @@ const AdminDashboard = () => {
   const formatViews = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}K` : String(v);
 
   const statCards = [
-    { label: "Articles", value: String(totalArticles), icon: FileText, color: "text-secondary" },
-    { label: "Total Views", value: formatViews(totalViews), icon: Eye, color: "text-primary" },
-    { label: "Authors", value: String(totalAuthors), icon: Users, color: "text-violet-500" },
-    { label: "Published", value: String(publishedCount), icon: TrendingUp, color: "text-amber-500" },
+    { label: "Total Articles", value: String(totalArticles), icon: FileText, color: "text-secondary", bgColor: "bg-secondary/8", borderColor: "border-secondary/15" },
+    { label: "Total Views", value: formatViews(totalViews), icon: Eye, color: "text-primary", bgColor: "bg-primary/8", borderColor: "border-primary/15" },
+    { label: "Authors", value: String(totalAuthors), icon: Users, color: "text-violet-600", bgColor: "bg-violet-50", borderColor: "border-violet-200/50" },
+    { label: "Published", value: String(publishedCount), icon: TrendingUp, color: "text-amber-600", bgColor: "bg-amber-50", borderColor: "border-amber-200/50" },
   ];
 
   const quickActions = [
-    { label: "New Article", icon: FileText, path: "/admin/articles/create", accent: true },
-    { label: "Breaking News", icon: Zap, path: "/admin/breaking" },
-    { label: "Live Update", icon: Radio, path: "/admin/live" },
-    { label: "Schedule", icon: Calendar, path: "/admin/schedule" },
+    { label: "New Article", description: "Write & publish", icon: FileText, path: "/admin/articles/create", accent: true },
+    { label: "Breaking News", description: "Set alerts", icon: Zap, path: "/admin/breaking" },
+    { label: "Live Update", description: "Real-time coverage", icon: Radio, path: "/admin/live" },
+    { label: "Schedule", description: "Queue articles", icon: Calendar, path: "/admin/schedule" },
   ];
 
   const { data: recentActivity = [] } = useQuery({
@@ -106,102 +107,115 @@ const AdminDashboard = () => {
   });
 
   const typeColors: Record<string, string> = {
-    publish: "bg-primary/15 text-primary",
-    edit: "bg-muted text-muted-foreground",
-    scheduled: "bg-secondary/15 text-secondary",
-    breaking: "bg-destructive/15 text-destructive",
+    publish: "bg-primary/10 text-primary border border-primary/15",
+    edit: "bg-muted text-muted-foreground border border-border/60",
+    scheduled: "bg-secondary/10 text-secondary border border-secondary/15",
+    breaking: "bg-destructive/10 text-destructive border border-destructive/15",
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1200px]">
+    <div className="p-5 sm:p-8 max-w-[1200px]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-lg font-heading font-bold text-foreground">Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Overview of your editorial operations</p>
+          <h1 className="text-xl font-heading font-bold text-foreground tracking-tight">Dashboard</h1>
+          <p className="text-[13px] text-muted-foreground/70 mt-1 font-body">Overview of your editorial operations</p>
         </div>
         <button
           onClick={() => navigate("/admin/articles/create")}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded hover:bg-primary/90 transition-colors"
+          className="hidden sm:flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground text-[13px] font-semibold rounded-xl hover:bg-primary/90 transition-all shadow-sm hover:shadow-md"
         >
-          <PlusCircle className="h-3.5 w-3.5" />
+          <PlusCircle className="h-4 w-4" />
           New Article
         </button>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statCards.map((stat) => (
           <div
             key={stat.label}
-            className="bg-card border border-border rounded-lg px-4 py-3 flex items-center gap-3"
+            className={cn(
+              "bg-card border rounded-2xl px-5 py-4 flex items-center gap-4 transition-all hover:shadow-sm",
+              stat.borderColor
+            )}
           >
-            <div className={cn("p-2 rounded-md bg-muted/60", stat.color)}>
-              <stat.icon className="h-4 w-4" />
+            <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", stat.bgColor)}>
+              <stat.icon className={cn("h-[18px] w-[18px]", stat.color)} />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] text-muted-foreground font-medium truncate">{stat.label}</p>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-lg font-heading font-bold text-foreground leading-tight">{stat.value}</span>
-              </div>
+              <p className="text-[11px] text-muted-foreground/60 font-body font-medium truncate uppercase tracking-wide">{stat.label}</p>
+              <span className="text-2xl font-heading font-bold text-foreground leading-tight tabular-nums">{stat.value}</span>
             </div>
           </div>
         ))}
       </div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Quick Actions */}
-        <div className="bg-card border border-border rounded-lg p-4">
-          <h2 className="text-xs font-heading font-bold text-foreground uppercase tracking-wide mb-3 flex items-center gap-1.5">
-            <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+        <div className="bg-card border border-border/60 rounded-2xl p-5">
+          <h2 className="text-[11px] font-body font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-4 flex items-center gap-2">
+            <Activity className="h-3.5 w-3.5" />
             Quick Actions
           </h2>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             {quickActions.map((action) => (
               <button
                 key={action.label}
                 onClick={() => navigate(action.path)}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2.5 rounded-md text-xs font-semibold transition-colors border",
+                  "flex flex-col items-start gap-1.5 px-4 py-3.5 rounded-xl text-left transition-all duration-200 border group",
                   action.accent
-                    ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
-                    : "bg-background text-foreground border-border hover:bg-muted/60"
+                    ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90 shadow-sm"
+                    : "bg-muted/20 text-foreground border-border/40 hover:bg-muted/50 hover:border-border"
                 )}
               >
-                <action.icon className="h-3.5 w-3.5" />
-                {action.label}
+                <action.icon className={cn("h-4 w-4", action.accent ? "" : "text-muted-foreground")} />
+                <div>
+                  <span className="text-[13px] font-semibold font-body block leading-tight">{action.label}</span>
+                  <span className={cn(
+                    "text-[10px] font-body leading-tight",
+                    action.accent ? "opacity-70" : "text-muted-foreground/60"
+                  )}>{action.description}</span>
+                </div>
               </button>
             ))}
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-heading font-bold text-foreground uppercase tracking-wide flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+        <div className="lg:col-span-2 bg-card border border-border/60 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[11px] font-body font-bold text-muted-foreground/50 uppercase tracking-[0.15em] flex items-center gap-2">
+              <Clock className="h-3.5 w-3.5" />
               Recent Activity
             </h2>
-            <button onClick={() => navigate("/admin/articles")} className="text-[10px] text-muted-foreground hover:text-foreground font-medium flex items-center gap-0.5">
-              View all <ArrowUpRight className="h-2.5 w-2.5" />
+            <button onClick={() => navigate("/admin/articles")} className="text-[11px] text-primary hover:text-primary/80 font-semibold font-body flex items-center gap-1 transition-colors">
+              View all <ArrowUpRight className="h-3 w-3" />
             </button>
           </div>
           {recentActivity.length === 0 ? (
-            <p className="text-xs text-muted-foreground py-4 text-center">No recent activity</p>
+            <div className="py-12 text-center">
+              <Sparkles className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground/50 font-body">No recent activity</p>
+            </div>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="space-y-0">
               {recentActivity.map((item) => (
                 <div
                   key={item.id}
-                  className="flex items-center gap-3 py-2 first:pt-0 last:pb-0 cursor-pointer hover:bg-muted/30 -mx-1 px-1 rounded transition-colors"
+                  className="flex items-center gap-3 py-2.5 cursor-pointer hover:bg-muted/20 -mx-2 px-2 rounded-xl transition-all duration-200 group"
                   onClick={() => navigate(`/admin/articles/edit/${item.id}`)}
                 >
-                  <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap", typeColors[item.type] || "bg-muted text-muted-foreground")}>
+                  <span className={cn("text-[10px] font-bold px-2 py-1 rounded-lg whitespace-nowrap", typeColors[item.type] || "bg-muted text-muted-foreground")}>
                     {item.action}
                   </span>
-                  <p className="text-xs text-foreground truncate flex-1 min-w-0">{item.subject}</p>
-                  <span className="text-[10px] text-muted-foreground flex-shrink-0 tabular-nums">{item.time}</span>
+                  <p className="text-[13px] text-foreground truncate flex-1 min-w-0 font-body font-medium group-hover:text-primary transition-colors">{item.subject}</p>
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-[11px] text-muted-foreground/50 tabular-nums font-body">{item.time}</span>
+                    <ArrowRight className="h-3 w-3 text-muted-foreground/20 group-hover:text-primary/50 transition-colors" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -211,53 +225,53 @@ const AdminDashboard = () => {
 
       {/* Recent articles preview */}
       {articles.length > 0 && (
-        <div className="mt-4 bg-card border border-border rounded-lg p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-heading font-bold text-foreground uppercase tracking-wide flex items-center gap-1.5">
-              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+        <div className="mt-5 bg-card border border-border/60 rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[11px] font-body font-bold text-muted-foreground/50 uppercase tracking-[0.15em] flex items-center gap-2">
+              <FileText className="h-3.5 w-3.5" />
               Latest Articles
             </h2>
             <button
               onClick={() => navigate("/admin/articles")}
-              className="text-[10px] text-muted-foreground hover:text-foreground font-medium flex items-center gap-0.5"
+              className="text-[11px] text-primary hover:text-primary/80 font-semibold font-body flex items-center gap-1 transition-colors"
             >
-              Manage <ArrowUpRight className="h-2.5 w-2.5" />
+              Manage <ArrowUpRight className="h-3 w-3" />
             </button>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-xs">
+            <table className="w-full text-[13px] font-body">
               <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-left py-1.5 pr-4 font-medium">Title</th>
-                  <th className="text-left py-1.5 pr-4 font-medium hidden sm:table-cell">Status</th>
-                  <th className="text-left py-1.5 pr-4 font-medium hidden md:table-cell">Category</th>
-                  <th className="text-right py-1.5 font-medium">Views</th>
+                <tr className="border-b border-border/40 text-muted-foreground/50">
+                  <th className="text-left py-2.5 pr-4 font-semibold text-[11px] uppercase tracking-wide">Title</th>
+                  <th className="text-left py-2.5 pr-4 font-semibold text-[11px] uppercase tracking-wide hidden sm:table-cell">Status</th>
+                  <th className="text-left py-2.5 pr-4 font-semibold text-[11px] uppercase tracking-wide hidden md:table-cell">Category</th>
+                  <th className="text-right py-2.5 font-semibold text-[11px] uppercase tracking-wide">Views</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody>
                 {articles.slice(0, 5).map((article: any) => (
                   <tr
                     key={article.id || article._id}
-                    className="hover:bg-muted/30 cursor-pointer transition-colors"
+                    className="hover:bg-muted/20 cursor-pointer transition-colors border-b border-border/20 last:border-b-0 group"
                     onClick={() => navigate(`/admin/articles/edit/${article.id || article._id}`)}
                   >
-                    <td className="py-2 pr-4 text-foreground font-medium truncate max-w-[250px]">{article.title}</td>
-                    <td className="py-2 pr-4 hidden sm:table-cell">
+                    <td className="py-3 pr-4 text-foreground font-medium truncate max-w-[250px] group-hover:text-primary transition-colors">{article.title}</td>
+                    <td className="py-3 pr-4 hidden sm:table-cell">
                       <span className={cn(
-                        "text-[10px] font-bold px-1.5 py-0.5 rounded",
+                        "text-[10px] font-bold px-2 py-1 rounded-lg border",
                         article.publication_status === "published"
-                          ? "bg-primary/15 text-primary"
+                          ? "bg-primary/8 text-primary border-primary/15"
                           : article.publication_status === "scheduled"
-                          ? "bg-secondary/15 text-secondary"
-                          : "bg-muted text-muted-foreground"
+                          ? "bg-secondary/8 text-secondary border-secondary/15"
+                          : "bg-muted text-muted-foreground border-border/40"
                       )}>
                         {article.publication_status || "draft"}
                       </span>
                     </td>
-                    <td className="py-2 pr-4 text-muted-foreground hidden md:table-cell truncate max-w-[120px]">
+                    <td className="py-3 pr-4 text-muted-foreground/60 hidden md:table-cell truncate max-w-[120px]">
                       {article.primary_category?.name || "—"}
                     </td>
-                    <td className="py-2 text-right tabular-nums text-muted-foreground">
+                    <td className="py-3 text-right tabular-nums text-muted-foreground/60">
                       {(article.view_count || 0).toLocaleString()}
                     </td>
                   </tr>
