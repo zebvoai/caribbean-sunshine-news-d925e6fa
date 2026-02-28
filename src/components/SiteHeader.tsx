@@ -37,25 +37,25 @@ const SiteHeader = () => {
       </div>
 
       {/* Main header */}
-      <header className="bg-card border-b border-border">
-        <div className="flex items-center justify-between px-4 sm:px-6 py-5 max-w-7xl mx-auto">
+      <header className="bg-card border-b border-border relative">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 md:py-5 max-w-7xl mx-auto">
           <div className="flex-1" />
-          <Link to="/" className="text-center group">
+          <Link to="/" className="text-center group relative">
             <img
               src={logoImg}
               alt="DominicaNews.DM"
-              className="h-12 md:h-16 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+              className="h-10 md:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03]"
             />
           </Link>
           <div className="flex-1 flex justify-end">
             {searchOpen ? (
-              <form onSubmit={handleSearch} className="flex items-center gap-2">
+              <form onSubmit={handleSearch} className="flex items-center gap-2 animate-fade-in">
                 <Input
                   type="search"
                   placeholder="Search articles…"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="h-9 w-40 sm:w-56 text-sm rounded-full"
+                  className="h-9 w-40 sm:w-56 text-sm rounded-full bg-muted/50 border-border/50 focus:bg-card"
                   autoFocus
                 />
                 <button
@@ -70,7 +70,7 @@ const SiteHeader = () => {
             ) : (
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-all"
+                className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded-full transition-all"
                 aria-label="Search articles"
               >
                 <Search className="h-5 w-5" />

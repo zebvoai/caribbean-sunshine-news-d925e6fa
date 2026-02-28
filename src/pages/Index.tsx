@@ -5,6 +5,8 @@ import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
+import BreakingTicker from "@/components/BreakingTicker";
+import TrendingSidebar from "@/components/TrendingSidebar";
 import { mongoApi, MongoArticle, MongoLiveUpdate } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
@@ -55,7 +57,7 @@ const Index = () => {
 
   const { data: breakingRaw = [], isLoading: loadingBreaking } = useQuery({
     queryKey: ["articles", "breaking"],
-    queryFn: () => mongoApi.getArticles({ status: "published", limit: 2, is_breaking: true }),
+    queryFn: () => mongoApi.getArticles({ status: "published", limit: 5, is_breaking: true }),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     enabled: !activeCat,
@@ -94,29 +96,36 @@ const Index = () => {
     ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1)
     : "Latest News";
 
-  // First article for hero, rest for grid
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
   const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
+  // Trending: use last few articles from the grid
+  const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <NavBar />
+
+      {/* Breaking Ticker */}
+      {!activeCat && breakingArticles.length > 0 && (
+        <BreakingTicker items={breakingArticles} />
+      )}
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-10">
 
-        {/* Live Updates Section — only on home */}
+        {/* Live Updates Section */}
         {!activeCat && (loadingLive ? (
           <section className="space-y-3">
             <SectionHeader title="Live Updates" variant="live" loading />
             <div className="h-20 bg-muted animate-pulse rounded-xl" />
           </section>
         ) : activeLiveUpdates.length > 0 ? (
-          <section>
+          <section className="animate-fade-in-up">
             <SectionHeader title="Live Updates" variant="live" />
             <div className="space-y-3">
               {activeLiveUpdates.map((u) => (
                 <Link key={u.id} to={`/live/${u.slug}`} className="block group">
-                  <div className="flex gap-4 items-start bg-card rounded-xl p-4 border border-destructive/20 hover:border-destructive/40 hover:shadow-card-hover transition-all duration-200">
+                  <div className="flex gap-4 items-start bg-card rounded-2xl p-4 border border-destructive/15 hover:border-destructive/30 hover:shadow-card-hover transition-all duration-300 card-lift">
                     {u.cover_image_url && (
                       <img
                         src={getProxiedAssetUrl(u.cover_image_url)}
@@ -129,21 +138,18 @@ const Index = () => {
                           img.dataset.fallbackApplied = "true";
                           img.src = "/placeholder.svg";
                         }}
-                        className="w-36 h-24 object-cover rounded-lg flex-shrink-0 group-hover:opacity-90 transition-opacity"
+                        className="w-36 h-24 object-cover rounded-xl flex-shrink-0 group-hover:opacity-90 transition-opacity"
                       />
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="inline-flex items-center gap-1 bg-destructive text-destructive-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
+                        <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
                           <span className="w-1.5 h-1.5 rounded-full bg-destructive-foreground animate-pulse" />
                           LIVE
                         </span>
                         {u.updated_at && (
                           <span className="text-xs text-muted-foreground">
-                            Updated {new Date(u.updated_at).toLocaleTimeString("en-US", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            Updated {new Date(u.updated_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                           </span>
                         )}
                       </div>
@@ -161,60 +167,6 @@ const Index = () => {
           </section>
         ) : null)}
 
-        {/* Breaking News Section — only on home */}
-        {!activeCat && (loadingBreaking ? (
-          <section className="space-y-3">
-            <SectionHeader title="Breaking News" variant="breaking" loading />
-            <div className="h-28 bg-muted animate-pulse rounded-xl" />
-          </section>
-        ) : breakingArticles.length > 0 ? (
-          <section>
-            <SectionHeader title="Breaking News" variant="breaking" />
-            <div className="space-y-3">
-              {breakingArticles.map((a) => (
-                <Link key={a.id} to={`/news/${a.slug}`} className="block group">
-                  <div className="flex gap-4 items-start bg-card rounded-xl p-4 border border-destructive/20 hover:border-destructive/40 hover:shadow-card-hover transition-all duration-200">
-                    {a.cover_image_url && (
-                      <img
-                        src={a.cover_image_url}
-                        alt={a.title}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          const img = e.currentTarget;
-                          if (img.dataset.fallbackApplied === "true") { img.style.display = "none"; return; }
-                          img.dataset.fallbackApplied = "true";
-                          img.src = "/placeholder.svg";
-                        }}
-                        className="w-36 h-24 object-cover rounded-lg flex-shrink-0 group-hover:opacity-90 transition-opacity"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="inline-block bg-destructive text-destructive-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                          Breaking
-                        </span>
-                        {a.published_at && (
-                          <span className="text-xs text-muted-foreground">
-                            {new Date(a.published_at).toLocaleTimeString("en-US", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="font-heading font-bold text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">
-                        {a.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2 font-body">{a.excerpt}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null)}
-
         {/* Articles Section */}
         <section>
           <SectionHeader title={sectionTitle} variant="default" />
@@ -222,7 +174,7 @@ const Index = () => {
           {loadingArticles ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-xl bg-muted animate-pulse h-80" />
+                <div key={i} className="rounded-2xl bg-muted animate-pulse h-80" />
               ))}
             </div>
           ) : mappedArticles.length === 0 ? (
@@ -233,26 +185,37 @@ const Index = () => {
               </Link>
             </div>
           ) : (
-            <div className="space-y-8">
-              {/* Hero card for first article on home */}
+            <div className="space-y-10">
+              {/* Hero card */}
               {heroArticle && (
-                <Link to={`/news/${heroArticle.slug}`} className="block">
+                <Link to={`/news/${heroArticle.slug}`} className="block animate-fade-in-up">
                   <NewsCard article={heroArticle} isBreaking={heroArticle.is_breaking} variant="hero" />
                 </Link>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Ended live updates shown first */}
-                {!activeCat && endedLiveAsCards.map((card) => (
-                  <Link key={`live-${card.slug}`} to={`/live/${card.slug}`} className="block">
-                    <NewsCard article={card} isLiveEnded />
-                  </Link>
-                ))}
-                {gridArticles.map((article) => (
-                  <Link key={article.slug} to={`/news/${article.slug}`} className="block">
-                    <NewsCard article={article} isBreaking={article.is_breaking} />
-                  </Link>
-                ))}
+              {/* Main grid + Trending sidebar */}
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 stagger-children">
+                  {!activeCat && endedLiveAsCards.map((card) => (
+                    <Link key={`live-${card.slug}`} to={`/live/${card.slug}`} className="block">
+                      <NewsCard article={card} isLiveEnded />
+                    </Link>
+                  ))}
+                  {gridArticles.map((article) => (
+                    <Link key={article.slug} to={`/news/${article.slug}`} className="block">
+                      <NewsCard article={article} isBreaking={article.is_breaking} />
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Trending sidebar - only on home */}
+                {!activeCat && trendingArticles.length > 0 && (
+                  <div className="hidden lg:block animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+                    <div className="sticky top-16">
+                      <TrendingSidebar articles={trendingArticles} />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -293,13 +256,14 @@ const SectionHeader = ({
             {title}
           </h2>
         </div>
-        <div className="h-px bg-destructive/30" />
+        <div className="h-px bg-destructive/20" />
       </div>
     );
   }
 
   return (
     <div className="flex items-center gap-4 mb-6">
+      <div className="w-1 h-6 bg-primary rounded-full" />
       <h2 className="text-2xl font-heading font-bold text-foreground">{title}</h2>
       <div className="flex-1 h-px bg-border" />
     </div>
