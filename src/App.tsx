@@ -18,9 +18,6 @@ import ArticlePage from "./pages/ArticlePage";
 import LiveUpdatePage from "./pages/LiveUpdatePage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminAuthGuard from "./components/admin/AdminAuthGuard";
-import AboutPage from "./pages/AboutPage";
-import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
-import TermsOfServicePage from "./pages/TermsOfServicePage";
 import DynamicPage from "./pages/DynamicPage";
 import AdminPagesPage from "./pages/admin/AdminPagesPage";
 import AdminBreakingNewsPage from "./pages/admin/AdminBreakingNewsPage";
@@ -47,9 +44,6 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/news/:slug" element={<ArticlePage />} />
             <Route path="/live/:slug" element={<LiveUpdatePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms-of-service" element={<TermsOfServicePage />} />
             <Route path="/page/:slug" element={<DynamicPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminAuthGuard><AdminLayout /></AdminAuthGuard>}>

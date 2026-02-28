@@ -47,16 +47,6 @@ const SiteFooter = () => {
                     </Link>
                   </li>
                 ))}
-              <li>
-                <Link to="/privacy-policy" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link to="/terms-of-service" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
-                  Terms of Service
-                </Link>
-              </li>
             </ul>
           </div>
 
