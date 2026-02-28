@@ -37,26 +37,42 @@ const ImageUploader = ({
 
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop();
+      const ext = file.name.split(".").pop() || "jpg";
       const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-      const uploadPromise = supabase.storage
+      console.log("[ImageUploader] Starting upload:", { name: file.name, size: file.size, type: file.type, path });
+
+      const { data, error: uploadError } = await supabase.storage
         .from("article-images")
-        .upload(path, file, { cacheControl: "3600", upsert: false });
+        .upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
 
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Upload timed out after 30 seconds")), 30000)
-      );
+      if (uploadError) {
+        console.error("[ImageUploader] Upload error:", uploadError);
+        throw new Error(uploadError.message || "Upload failed");
+      }
 
-      const { error: uploadError } = await Promise.race([uploadPromise, timeoutPromise]);
-      if (uploadError) throw uploadError;
+      console.log("[ImageUploader] Upload success:", data);
 
-      const { data } = supabase.storage.from("article-images").getPublicUrl(path);
-      onImageUrlChange(data.publicUrl);
+      const { data: urlData } = supabase.storage.from("article-images").getPublicUrl(path);
+      console.log("[ImageUploader] Public URL:", urlData.publicUrl);
+      onImageUrlChange(urlData.publicUrl);
       toast.success("Image uploaded successfully");
     } catch (err: any) {
-      console.error("Image upload error:", err);
-      toast.error(err.message || "Upload failed — check connection or try a smaller image");
+      console.error("[ImageUploader] Error:", err);
+      const message = err?.message || "Upload failed";
+      if (message.includes("Failed to fetch") || message.includes("NetworkError")) {
+        toast.error("Network error — check your connection and try again");
+      } else if (message.includes("Payload too large")) {
+        toast.error("Image is too large. Please use an image under 10MB");
+      } else if (message.includes("mime") || message.includes("type")) {
+        toast.error("Invalid file type. Use JPG, PNG, GIF, or WebP");
+      } else {
+        toast.error(`Upload failed: ${message}`);
+      }
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
