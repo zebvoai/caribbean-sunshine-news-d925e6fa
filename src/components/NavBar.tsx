@@ -16,6 +16,15 @@ const NavBar = () => {
     gcTime: 60 * 60 * 1000,
   });
 
+  const { data: liveUpdates = [] } = useQuery({
+    queryKey: ["live-updates-home"],
+    queryFn: () => mongoApi.getLiveUpdates(),
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  const hasActiveLive = liveUpdates.some((u) => u.is_live);
+
   const isHomeActive = location.pathname === "/" && !activeCat;
   const isLiveActive = location.pathname === "/live";
 
@@ -73,7 +82,15 @@ const NavBar = () => {
               : "text-foreground border-transparent hover:text-destructive hover:border-destructive/40"
           }`}
         >
-          <Radio className="h-3.5 w-3.5" />
+          <span className="relative flex items-center">
+            <Radio className="h-3.5 w-3.5" />
+            {hasActiveLive && (
+              <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive" />
+              </span>
+            )}
+          </span>
           Live
         </Link>
       </div>
