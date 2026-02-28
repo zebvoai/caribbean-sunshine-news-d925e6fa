@@ -192,6 +192,7 @@ export interface MongoLiveUpdate {
   title: string;
   slug: string;
   excerpt: string;
+  summary: string;
   body?: string;
   cover_image_url: string | null;
   cover_image_alt?: string | null;
@@ -202,10 +203,22 @@ export interface MongoLiveUpdate {
   meta_description?: string | null;
   tags?: string[];
   view_count: number;
+  entries_count: number;
+  entries?: LiveBlogEntry[];
   author_id?: string | null;
   primary_category_id?: string | null;
   created_at: string | null;
   updated_at: string | null;
+}
+
+export interface LiveBlogEntry {
+  id: string;
+  content: string;
+  image_url: string | null;
+  image_alt: string | null;
+  author_name: string | null;
+  created_at: string;
+  is_pinned: boolean;
 }
 
 export interface CreateLiveUpdatePayload {
@@ -213,6 +226,7 @@ export interface CreateLiveUpdatePayload {
   slug?: string;
   excerpt?: string;
   body?: string;
+  summary?: string;
   cover_image_url?: string | null;
   cover_image_alt?: string | null;
   is_live?: boolean;
@@ -496,6 +510,57 @@ export const mongoApi = {
   /** Delete a live update */
   deleteLiveUpdate(id: string): Promise<{ success: boolean }> {
     return del<{ success: boolean }>({ resource: "liveupdates", id });
+  },
+
+  // ─── Live Blog Entries ──────────────────────────────────────────────────
+
+  /** Add an entry to a live update */
+  addLiveEntry(liveUpdateId: string, payload: {
+    content: string;
+    image_url?: string | null;
+    image_alt?: string | null;
+    author_name?: string | null;
+    is_pinned?: boolean;
+  }): Promise<{ success: boolean; entry: LiveBlogEntry }> {
+    return post<{ success: boolean; entry: LiveBlogEntry }>(
+      { resource: "liveupdates/entries", id: liveUpdateId },
+      payload
+    );
+  },
+
+  /** Delete an entry from a live update */
+  deleteLiveEntry(liveUpdateId: string, entryId: string): Promise<{ success: boolean }> {
+    return del<{ success: boolean }>({ resource: "liveupdates/entries", id: liveUpdateId, entry_id: entryId });
+  },
+
+  /** Update an entry */
+  updateLiveEntry(liveUpdateId: string, entryId: string, payload: Partial<{
+    content: string;
+    image_url: string | null;
+    image_alt: string | null;
+    is_pinned: boolean;
+  }>): Promise<{ success: boolean }> {
+    return requestWithFallback<{ success: boolean }>(
+      { resource: "liveupdates/entries", id: liveUpdateId, entry_id: entryId },
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+  },
+
+  /** Poll for new entries (for auto-refresh) */
+  pollLiveEntries(liveUpdateId: string, after?: string): Promise<{
+    entries: LiveBlogEntry[];
+    is_live: boolean;
+    updated_at: string | null;
+    summary: string;
+    title: string;
+  }> {
+    const params: Record<string, string> = { resource: "liveupdates/entries", id: liveUpdateId };
+    if (after) params.after = after;
+    return get<{ entries: LiveBlogEntry[]; is_live: boolean; updated_at: string | null; summary: string; title: string }>(params);
   },
 
   // ─── Trash ──────────────────────────────────────────────────────────────────

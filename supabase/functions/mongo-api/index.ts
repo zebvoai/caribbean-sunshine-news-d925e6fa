@@ -881,6 +881,48 @@ Deno.serve(async (req) => {
     }
 
     // ── LIVE UPDATES ─────────────────────────────────────────────────────────
+
+    // Helper to normalize a live-blog entry
+    const normEntry = (e: any) => ({
+      id: e.id || e._id?.toString() || crypto.randomUUID(),
+      content: e.content || "",
+      image_url: sanitizeImageUrl(e.image_url || e.imageUrl),
+      image_alt: e.image_alt || e.imageAlt || null,
+      author_name: e.author_name || e.authorName || null,
+      created_at: e.createdAt ? new Date(e.createdAt).toISOString() : new Date().toISOString(),
+      is_pinned: e.isPinned || false,
+    });
+
+    const normLiveUpdate = (doc: any, includeEntries = false) => {
+      const base: any = {
+        id: doc._id.toString(),
+        title: doc.title || "",
+        slug: doc.slug || "",
+        excerpt: doc.excerpt || "",
+        summary: doc.summary || "",
+        cover_image_url: sanitizeImageUrl(doc.featuredImage),
+        cover_image_alt: doc.featuredImageAlt || null,
+        is_live: doc.isLive !== false,
+        publication_status: doc.status || "published",
+        published_at: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
+        meta_title: doc.seo?.metaTitle || null,
+        meta_description: doc.seo?.metaDescription || null,
+        tags: doc.tags || [],
+        view_count: doc.views || 0,
+        entries_count: (doc.entries || []).length,
+        author_id: doc.author?.toString() || null,
+        primary_category_id: doc.category?.toString() || null,
+        created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
+        updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
+      };
+      if (includeEntries) {
+        base.entries = (doc.entries || []).map(normEntry).sort(
+          (a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+      }
+      return base;
+    };
+
     if (resource === "liveupdates") {
       // DELETE
       if (req.method === "DELETE") {
@@ -898,6 +940,7 @@ Deno.serve(async (req) => {
           title: body.title,
           slug: body.slug || body.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
           content: body.body || "",
+          summary: body.summary || "",
           excerpt: body.excerpt || "",
           featuredImage: body.cover_image_url || null,
           featuredImageAlt: body.cover_image_alt || null,
@@ -909,6 +952,7 @@ Deno.serve(async (req) => {
             metaDescription: body.meta_description || null,
           },
           tags: body.tags || [],
+          entries: [],
           views: 0,
           createdAt: now,
           updatedAt: now,
@@ -932,6 +976,7 @@ Deno.serve(async (req) => {
         if (body.title !== undefined) update.title = body.title;
         if (body.slug !== undefined) update.slug = body.slug;
         if (body.body !== undefined) update.content = body.body;
+        if (body.summary !== undefined) update.summary = body.summary;
         if (body.excerpt !== undefined) update.excerpt = body.excerpt;
         if (body.cover_image_url !== undefined) update.featuredImage = body.cover_image_url;
         if (body.cover_image_alt !== undefined) update.featuredImageAlt = body.cover_image_alt;
@@ -965,26 +1010,7 @@ Deno.serve(async (req) => {
           const query = id ? { _id: new ObjectId(id) } : { slug: luSlug };
           const doc = await db.collection("liveupdates").findOne(query);
           if (!doc) return jsonError("Not found", 404);
-          return jsonResponse({
-            id: doc._id.toString(),
-            title: doc.title || "",
-            slug: doc.slug || "",
-            excerpt: doc.excerpt || "",
-            body: doc.content || doc.body || "",
-            cover_image_url: sanitizeImageUrl(doc.featuredImage),
-            cover_image_alt: doc.featuredImageAlt || null,
-            is_live: doc.isLive !== false,
-            publication_status: doc.status || "published",
-            published_at: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
-            meta_title: doc.seo?.metaTitle || null,
-            meta_description: doc.seo?.metaDescription || null,
-            tags: doc.tags || [],
-            view_count: doc.views || 0,
-            author_id: doc.author?.toString() || null,
-            primary_category_id: doc.category?.toString() || null,
-            created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
-            updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
-          });
+          return jsonResponse(normLiveUpdate(doc, true));
         } catch {
           return jsonError("Invalid id", 400);
         }
@@ -992,20 +1018,85 @@ Deno.serve(async (req) => {
 
       // GET list
       const docs = await db.collection("liveupdates").find({}).sort({ updatedAt: -1, createdAt: -1 }).toArray();
-      return jsonResponse(docs.map((doc: any) => ({
-        id: doc._id.toString(),
-        title: doc.title || "",
-        slug: doc.slug || "",
-        excerpt: doc.excerpt || "",
-        cover_image_url: sanitizeImageUrl(doc.featuredImage),
+      return jsonResponse(docs.map((d: any) => normLiveUpdate(d, false)));
+    }
+
+    // ── LIVE UPDATE ENTRIES (sub-resource) ────────────────────────────────────
+    if (resource === "liveupdates/entries") {
+      const parentId = url.searchParams.get("id");
+      if (!parentId) return jsonError("id (live update id) required", 400);
+
+      // POST — add a new entry
+      if (req.method === "POST") {
+        const body = await req.json();
+        const now = new Date();
+        const entry = {
+          id: crypto.randomUUID(),
+          content: body.content || "",
+          imageUrl: body.image_url || null,
+          imageAlt: body.image_alt || null,
+          authorName: body.author_name || null,
+          isPinned: body.is_pinned || false,
+          createdAt: now,
+        };
+        await db.collection("liveupdates").updateOne(
+          { _id: new ObjectId(parentId) },
+          { $push: { entries: entry }, $set: { updatedAt: now } }
+        );
+        return jsonResponse({ success: true, entry: normEntry(entry) });
+      }
+
+      // DELETE — remove an entry by entry id
+      if (req.method === "DELETE") {
+        const entryId = url.searchParams.get("entry_id");
+        if (!entryId) return jsonError("entry_id required", 400);
+        await db.collection("liveupdates").updateOne(
+          { _id: new ObjectId(parentId) },
+          { $pull: { entries: { id: entryId } }, $set: { updatedAt: new Date() } }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // PATCH — update an entry
+      if (req.method === "PATCH") {
+        const entryId = url.searchParams.get("entry_id");
+        if (!entryId) return jsonError("entry_id required", 400);
+        const body = await req.json();
+        const setFields: any = { updatedAt: new Date() };
+        if (body.content !== undefined) setFields["entries.$.content"] = body.content;
+        if (body.image_url !== undefined) setFields["entries.$.imageUrl"] = body.image_url;
+        if (body.image_alt !== undefined) setFields["entries.$.imageAlt"] = body.image_alt;
+        if (body.is_pinned !== undefined) setFields["entries.$.isPinned"] = body.is_pinned;
+        await db.collection("liveupdates").updateOne(
+          { _id: new ObjectId(parentId), "entries.id": entryId },
+          { $set: setFields }
+        );
+        return jsonResponse({ success: true });
+      }
+
+      // GET — list entries (supports ?after= for polling)
+      const after = url.searchParams.get("after");
+      const doc = await db.collection("liveupdates").findOne(
+        { _id: new ObjectId(parentId) },
+        { projection: { entries: 1, isLive: 1, updatedAt: 1, summary: 1, title: 1 } }
+      );
+      if (!doc) return jsonError("Not found", 404);
+
+      let entries = (doc.entries || []).map(normEntry);
+      entries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      if (after) {
+        const afterDate = new Date(after).getTime();
+        entries = entries.filter((e: any) => new Date(e.created_at).getTime() > afterDate);
+      }
+
+      return jsonResponse({
+        entries,
         is_live: doc.isLive !== false,
-        publication_status: doc.status || "published",
-        published_at: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : null,
-        tags: doc.tags || [],
-        view_count: doc.views || 0,
-        created_at: doc.createdAt ? new Date(doc.createdAt).toISOString() : null,
         updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
-      })));
+        summary: doc.summary || "",
+        title: doc.title || "",
+      });
     }
 
     // ── SETTINGS ──────────────────────────────────────────────────────────────
