@@ -69,9 +69,30 @@ const Index = () => {
   });
 
   const activeLiveUpdates = liveUpdates.filter((u) => u.is_live);
+  const endedLiveUpdates = liveUpdates.filter((u) => !u.is_live);
 
   const mappedArticles = articles.map((a) => ({ ...toNewsArticle(a), is_breaking: a.is_breaking }));
   const breakingArticles = breakingRaw.filter((a) => a.is_breaking).map(toBreakingArticle);
+
+  // Mix ended live updates into the articles grid as article-like cards
+  const endedLiveAsCards = endedLiveUpdates.map((u) => ({
+    id: 0,
+    title: u.title,
+    excerpt: u.excerpt || "",
+    category: "Live Update",
+    source: "Dominica News",
+    date: u.updated_at
+      ? new Date(u.updated_at).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "",
+    image: getProxiedAssetUrl(u.cover_image_url || ""),
+    slug: u.slug,
+    is_breaking: false,
+    is_live_update: true,
+  }));
 
   const sectionTitle = activeCat
     ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1)
@@ -245,6 +266,12 @@ const Index = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Ended live updates shown first */}
+              {!activeCat && endedLiveAsCards.map((card) => (
+                <Link key={`live-${card.slug}`} to={`/live/${card.slug}`} className="block">
+                  <NewsCard article={card} isLiveEnded />
+                </Link>
+              ))}
               {mappedArticles.map((article) => (
                 <Link key={article.slug} to={`/news/${article.slug}`} className="block">
                   <NewsCard article={article} isBreaking={article.is_breaking} />

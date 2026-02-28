@@ -1,5 +1,6 @@
 import { Link, useSearchParams, useLocation } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Radio } from "lucide-react";
 import { mongoApi } from "@/lib/mongoApi";
 
 const NavBar = () => {
@@ -16,6 +17,7 @@ const NavBar = () => {
   });
 
   const isHomeActive = location.pathname === "/" && !activeCat;
+  const isLiveActive = location.pathname === "/live";
 
   const prefetch = (slug: string | null) => {
     const key = slug || "home";
@@ -62,6 +64,18 @@ const NavBar = () => {
             {cat.name}
           </Link>
         ))}
+
+        <Link
+          to="/live"
+          className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 flex items-center gap-1.5 ${
+            isLiveActive
+              ? "text-destructive border-destructive"
+              : "text-foreground border-transparent hover:text-destructive hover:border-destructive/40"
+          }`}
+        >
+          <Radio className="h-3.5 w-3.5" />
+          Live
+        </Link>
       </div>
     </nav>
   );

@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import type { NewsArticle } from "@/data/newsData";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 
-interface NewsCardProps {
+export interface NewsCardProps {
   article: NewsArticle;
   isBreaking?: boolean;
+  isLiveEnded?: boolean;
 }
 
-const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
+const NewsCard = ({ article, isBreaking, isLiveEnded }: NewsCardProps) => {
   const [imgError, setImgError] = useState(false);
   const safeImageSrc = getProxiedAssetUrl(article.image?.trim() ?? "");
 
@@ -41,6 +42,11 @@ const NewsCard = ({ article, isBreaking }: NewsCardProps) => {
           {isBreaking && (
             <span className="bg-destructive text-destructive-foreground text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider">
               Breaking
+            </span>
+          )}
+          {isLiveEnded && (
+            <span className="bg-muted text-muted-foreground text-[10px] font-bold px-2.5 py-1 rounded uppercase tracking-wider">
+              Live · Ended
             </span>
           )}
           <span className="bg-primary text-primary-foreground text-[10px] font-body font-bold px-2.5 py-1 rounded uppercase tracking-wider">
