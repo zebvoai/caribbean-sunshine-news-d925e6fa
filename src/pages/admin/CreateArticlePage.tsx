@@ -9,10 +9,10 @@ import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp } fr
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
 
-const SECTION_CLASSES = "bg-card border border-border rounded-xl p-6 space-y-4";
-const LABEL_CLASSES = "block text-sm font-semibold text-foreground mb-1.5";
+const SECTION_CLASSES = "bg-card border border-border/60 rounded-2xl p-6 space-y-5";
+const LABEL_CLASSES = "block text-[13px] font-semibold text-foreground mb-2 font-body";
 const INPUT_CLASSES =
-  "w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-background";
+  "w-full border border-border/60 rounded-xl px-4 py-2.5 text-[13px] font-body focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 bg-muted/20 hover:bg-muted/30 transition-colors";
 
 const Section = ({
   title,
@@ -27,7 +27,7 @@ const Section = ({
   return (
     <div className={SECTION_CLASSES}>
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-heading font-bold text-foreground">{title}</h3>
+        <h3 className="text-[15px] font-heading font-bold text-foreground">{title}</h3>
         {collapsible && (
           <button
             type="button"
@@ -38,7 +38,7 @@ const Section = ({
           </button>
         )}
       </div>
-      {open && <div className="space-y-4">{children}</div>}
+      {open && <div className="space-y-5">{children}</div>}
     </div>
   );
 };
@@ -67,8 +67,8 @@ const Toggle = ({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative w-10 h-6 rounded-full transition-colors",
-        checked ? colorClass : "bg-muted"
+        "relative w-11 h-6 rounded-full transition-all duration-300",
+        checked ? colorClass : "bg-muted/60"
       )}
     >
       <span
@@ -221,13 +221,13 @@ const CreateArticlePage = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-heading font-bold text-foreground">Create Article</h1>
-        <p className="text-sm text-muted-foreground mt-1">Fill in all details below. Fields marked * are required.</p>
+    <div className="p-5 sm:p-8 max-w-4xl">
+      <div className="mb-8">
+        <h1 className="text-xl font-heading font-bold text-foreground tracking-tight">Create Article</h1>
+        <p className="text-[13px] text-muted-foreground/70 mt-1 font-body">Fill in all details below. Fields marked * are required.</p>
       </div>
 
-      <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+      <form className="space-y-7" onSubmit={(e) => e.preventDefault()}>
         {/* Cover Image */}
         <Section title="Cover Image">
           <ImageUploader
@@ -447,12 +447,12 @@ const CreateArticlePage = () => {
             />
           </div>
 
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-3">
             <button
               type="button"
               onClick={handleSaveDraft}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 border border-border rounded-lg text-sm font-semibold hover:bg-muted transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 px-5 py-2.5 border border-border/60 rounded-xl text-[13px] font-semibold font-body hover:bg-muted/50 transition-all disabled:opacity-60"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Save as Draft
@@ -462,7 +462,7 @@ const CreateArticlePage = () => {
               type="button"
               onClick={handlePublish}
               disabled={publishing}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-[13px] font-semibold font-body hover:bg-primary/90 transition-all shadow-sm hover:shadow-md disabled:opacity-60"
             >
               {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               Publish Now
@@ -472,7 +472,7 @@ const CreateArticlePage = () => {
               type="button"
               onClick={handleSchedule}
               disabled={scheduling || !scheduledFor}
-              className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-secondary-foreground rounded-lg text-sm font-semibold hover:bg-secondary/90 transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 px-5 py-2.5 bg-secondary text-secondary-foreground rounded-xl text-[13px] font-semibold font-body hover:bg-secondary/90 transition-all disabled:opacity-60"
             >
               {scheduling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
               Schedule

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Bell, Search, Menu, X, FileText, Tag, Users, FolderOpen, Settings, LayoutDashboard, Zap, Radio, Calendar, Trash2, BarChart3, BookOpen } from "lucide-react";
+import { Bell, Search, Menu, X, FileText, Tag, Users, FolderOpen, Settings, LayoutDashboard, Zap, Radio, Calendar, Trash2, BarChart3, BookOpen, ArrowRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface AdminTopBarProps {
@@ -27,22 +27,23 @@ interface SearchItem {
   path: string;
   icon: React.ElementType;
   keywords: string[];
+  group: string;
 }
 
 const searchItems: SearchItem[] = [
-  { label: "Dashboard", path: "/admin", icon: LayoutDashboard, keywords: ["home", "overview"] },
-  { label: "Articles", path: "/admin/articles", icon: FileText, keywords: ["posts", "content", "news"] },
-  { label: "Create Article", path: "/admin/articles/create", icon: FileText, keywords: ["new", "write", "compose"] },
-  { label: "Categories", path: "/admin/categories", icon: FolderOpen, keywords: ["topics", "sections"] },
-  { label: "Authors", path: "/admin/authors", icon: Users, keywords: ["writers", "contributors", "team"] },
-  { label: "Pages", path: "/admin/pages", icon: BookOpen, keywords: ["static", "about", "contact"] },
-  { label: "Breaking News", path: "/admin/breaking", icon: Zap, keywords: ["urgent", "alert"] },
-  { label: "Live Updates", path: "/admin/live", icon: Radio, keywords: ["blog", "realtime"] },
-  { label: "Tags", path: "/admin/tags", icon: Tag, keywords: ["labels", "organize"] },
-  { label: "Site Settings", path: "/admin/settings", icon: Settings, keywords: ["config", "preferences"] },
-  { label: "Analytics", path: "/admin/analytics", icon: BarChart3, keywords: ["stats", "views", "traffic"] },
-  { label: "Schedule", path: "/admin/schedule", icon: Calendar, keywords: ["publish", "queue"] },
-  { label: "Recycle Bin", path: "/admin/trash", icon: Trash2, keywords: ["deleted", "restore"] },
+  { label: "Dashboard", path: "/admin", icon: LayoutDashboard, keywords: ["home", "overview"], group: "Editorial" },
+  { label: "Articles", path: "/admin/articles", icon: FileText, keywords: ["posts", "content", "news"], group: "Editorial" },
+  { label: "Create Article", path: "/admin/articles/create", icon: FileText, keywords: ["new", "write", "compose"], group: "Editorial" },
+  { label: "Categories", path: "/admin/categories", icon: FolderOpen, keywords: ["topics", "sections"], group: "Editorial" },
+  { label: "Authors", path: "/admin/authors", icon: Users, keywords: ["writers", "contributors", "team"], group: "Editorial" },
+  { label: "Pages", path: "/admin/pages", icon: BookOpen, keywords: ["static", "about", "contact"], group: "Content" },
+  { label: "Breaking News", path: "/admin/breaking", icon: Zap, keywords: ["urgent", "alert"], group: "Content" },
+  { label: "Live Updates", path: "/admin/live", icon: Radio, keywords: ["blog", "realtime"], group: "Content" },
+  { label: "Tags", path: "/admin/tags", icon: Tag, keywords: ["labels", "organize"], group: "Content" },
+  { label: "Site Settings", path: "/admin/settings", icon: Settings, keywords: ["config", "preferences"], group: "System" },
+  { label: "Analytics", path: "/admin/analytics", icon: BarChart3, keywords: ["stats", "views", "traffic"], group: "System" },
+  { label: "Schedule", path: "/admin/schedule", icon: Calendar, keywords: ["publish", "queue"], group: "System" },
+  { label: "Recycle Bin", path: "/admin/trash", icon: Trash2, keywords: ["deleted", "restore"], group: "System" },
 ];
 
 const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
@@ -75,7 +76,6 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
     setQuery("");
   }, []);
 
-  // ⌘K / Ctrl+K shortcut
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -91,7 +91,6 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
     return () => window.removeEventListener("keydown", handler);
   }, [searchOpen, openSearch, closeSearch]);
 
-  // Focus input when search opens
   useEffect(() => {
     if (searchOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -117,23 +116,23 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
 
   return (
     <>
-      <header className="h-11 flex items-center justify-between border-b border-border bg-card px-4 gap-3 flex-shrink-0">
+      <header className="h-14 flex items-center justify-between border-b border-border/60 bg-card px-4 md:px-6 gap-4 flex-shrink-0">
         {/* Mobile hamburger */}
         <button
           onClick={onMenuToggle}
-          className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground md:hidden"
+          className="p-1.5 rounded-lg hover:bg-muted/60 transition-colors text-muted-foreground md:hidden"
           aria-label="Toggle menu"
         >
           <Menu className="h-4 w-4" />
         </button>
 
         {/* Breadcrumb / title */}
-        <div className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground">
-          <span className="font-medium">Admin</span>
+        <div className="hidden md:flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground/60 font-body">Admin</span>
           {title && (
             <>
-              <span>/</span>
-              <span className="text-foreground font-semibold">{title}</span>
+              <span className="text-muted-foreground/30">/</span>
+              <span className="text-foreground font-semibold font-body">{title}</span>
             </>
           )}
         </div>
@@ -142,24 +141,24 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
         <div className="flex items-center flex-1 max-w-xs ml-auto mr-2">
           <button
             onClick={openSearch}
-            className="hidden sm:flex items-center gap-1.5 w-full border border-border rounded px-2.5 py-1 text-xs text-muted-foreground bg-background hover:border-ring/40 transition-colors cursor-pointer"
+            className="hidden sm:flex items-center gap-2 w-full border border-border/60 rounded-xl px-3.5 py-2 text-[13px] text-muted-foreground/60 bg-muted/20 hover:bg-muted/40 hover:border-border transition-all duration-200 cursor-pointer"
           >
-            <Search className="h-3 w-3 flex-shrink-0" />
+            <Search className="h-3.5 w-3.5 flex-shrink-0" />
             <span className="flex-1 text-left">Search...</span>
-            <kbd className="text-[10px] bg-muted border border-border rounded px-1 py-0.5 font-mono">⌘K</kbd>
+            <kbd className="text-[10px] bg-card border border-border/60 rounded-md px-1.5 py-0.5 font-mono text-muted-foreground/50">⌘K</kbd>
           </button>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <button
             onClick={openSearch}
-            className="sm:hidden p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground"
+            className="sm:hidden p-1.5 rounded-lg hover:bg-muted/60 transition-colors text-muted-foreground"
             aria-label="Search"
           >
-            <Search className="h-3.5 w-3.5" />
+            <Search className="h-4 w-4" />
           </button>
-          <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center text-[10px] font-bold text-primary ml-1">
+          <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center text-[11px] font-bold text-primary border border-primary/10">
             A
           </div>
         </div>
@@ -167,15 +166,13 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
 
       {/* Search Modal */}
       {searchOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40" onClick={closeSearch} />
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh]">
+          <div className="absolute inset-0 bg-foreground/20 backdrop-blur-sm" onClick={closeSearch} />
 
-          {/* Dialog */}
-          <div className="relative w-full max-w-md mx-4 bg-card border border-border rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div className="relative w-full max-w-lg mx-4 bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Search input */}
-            <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-              <Search className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-border/60">
+              <Search className="h-4 w-4 text-muted-foreground/60 flex-shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
@@ -183,21 +180,21 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
                 onChange={(e) => { setQuery(e.target.value); setSelectedIdx(0); }}
                 onKeyDown={handleKeyDown}
                 placeholder="Search pages, settings..."
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 outline-none font-body"
               />
               <button
                 onClick={closeSearch}
-                className="p-0.5 rounded hover:bg-muted transition-colors text-muted-foreground"
+                className="p-1 rounded-lg hover:bg-muted/60 transition-colors text-muted-foreground/60"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
             {/* Results */}
-            <div className="max-h-72 overflow-y-auto py-1">
+            <div className="max-h-80 overflow-y-auto py-2">
               {filtered.length === 0 ? (
-                <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-                  No results found
+                <div className="px-5 py-10 text-center text-sm text-muted-foreground/60 font-body">
+                  No results found for "{query}"
                 </div>
               ) : (
                 filtered.map((item, idx) => {
@@ -208,18 +205,28 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
                       key={item.path}
                       onClick={() => handleSelect(item.path)}
                       onMouseEnter={() => setSelectedIdx(idx)}
-                      className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                      className={`w-full flex items-center gap-3 px-5 py-2.5 text-sm transition-all duration-150 ${
                         idx === selectedIdx
-                          ? "bg-primary/10 text-primary"
-                          : "text-foreground hover:bg-muted"
+                          ? "bg-primary/8 text-primary"
+                          : "text-foreground hover:bg-muted/40"
                       }`}
                     >
-                      <Icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="flex-1 text-left font-medium">{item.label}</span>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                        idx === selectedIdx ? "bg-primary/10" : "bg-muted/50"
+                      }`}>
+                        <Icon className="h-3.5 w-3.5" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <span className="font-medium font-body">{item.label}</span>
+                        <span className="text-[10px] text-muted-foreground/50 ml-2 font-body">{item.group}</span>
+                      </div>
                       {isActive && (
-                        <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-semibold">
+                        <span className="text-[9px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold tracking-wide uppercase">
                           Current
                         </span>
+                      )}
+                      {idx === selectedIdx && (
+                        <ArrowRight className="h-3 w-3 text-primary/50" />
                       )}
                     </button>
                   );
@@ -228,10 +235,10 @@ const AdminTopBar = ({ onMenuToggle }: AdminTopBarProps) => {
             </div>
 
             {/* Footer */}
-            <div className="flex items-center gap-3 px-4 py-2 border-t border-border text-[10px] text-muted-foreground">
-              <span><kbd className="bg-muted border border-border rounded px-1 py-0.5 font-mono">↑↓</kbd> Navigate</span>
-              <span><kbd className="bg-muted border border-border rounded px-1 py-0.5 font-mono">↵</kbd> Select</span>
-              <span><kbd className="bg-muted border border-border rounded px-1 py-0.5 font-mono">Esc</kbd> Close</span>
+            <div className="flex items-center gap-4 px-5 py-3 border-t border-border/40 text-[10px] text-muted-foreground/40 font-body">
+              <span><kbd className="bg-muted/60 border border-border/40 rounded-md px-1.5 py-0.5 font-mono">↑↓</kbd> Navigate</span>
+              <span><kbd className="bg-muted/60 border border-border/40 rounded-md px-1.5 py-0.5 font-mono">↵</kbd> Select</span>
+              <span><kbd className="bg-muted/60 border border-border/40 rounded-md px-1.5 py-0.5 font-mono">Esc</kbd> Close</span>
             </div>
           </div>
         </div>

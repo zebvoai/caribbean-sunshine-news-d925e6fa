@@ -8,11 +8,11 @@ const AdminLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-muted/30 font-body">
+    <div className="flex h-screen w-full overflow-hidden bg-background font-body">
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 md:hidden backdrop-blur-[1px]"
+          className="fixed inset-0 bg-foreground/20 z-40 md:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -21,7 +21,7 @@ const AdminLayout = () => {
       <div
         className={`
           fixed inset-y-0 left-0 z-50 md:relative md:z-auto
-          transition-transform duration-200 md:translate-x-0
+          transition-all duration-300 ease-out md:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
         `}
       >
@@ -34,7 +34,7 @@ const AdminLayout = () => {
 
       <div className="flex flex-col flex-1 overflow-hidden min-w-0">
         <AdminTopBar onMenuToggle={() => setMobileOpen((o) => !o)} />
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-muted/20">
           <Outlet />
         </main>
       </div>
