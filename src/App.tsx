@@ -13,6 +13,7 @@ import AdminAuthorsPage from "./pages/admin/AdminAuthorsPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import EditArticlePage from "./pages/admin/EditArticlePage";
 import ArticlePage from "./pages/ArticlePage";
+import LiveUpdatePage from "./pages/LiveUpdatePage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminAuthGuard from "./components/admin/AdminAuthGuard";
 import AboutPage from "./pages/AboutPage";
@@ -38,6 +39,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/news/:slug" element={<ArticlePage />} />
+          <Route path="/live/:slug" element={<LiveUpdatePage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />

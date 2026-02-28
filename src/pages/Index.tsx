@@ -96,7 +96,7 @@ const Index = () => {
             <div className="border-b-2 border-destructive mb-4" />
             <div className="space-y-4">
               {activeLiveUpdates.map((u) => (
-                <Link key={u.id} to={`/news/${u.slug}`} className="block group">
+                <Link key={u.id} to={`/live/${u.slug}`} className="block group">
                   <div className="flex gap-4 items-start">
                     {u.cover_image_url && (
                       <img
