@@ -3,6 +3,16 @@ import { Users, FileText, UserCheck, Search, Eye, Edit, Trash2, X, Loader2 } fro
 import { toast } from "sonner";
 import { mongoApi, MongoAuthor } from "@/lib/mongoApi";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,6 +52,7 @@ const AdminAuthorsPage = () => {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAuthor, setEditingAuthor] = useState<MongoAuthor | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<MongoAuthor | null>(null);
   const [form, setForm] = useState<AuthorFormData>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
 
@@ -121,10 +132,10 @@ const AdminAuthorsPage = () => {
   };
 
   const handleDelete = async (author: MongoAuthor) => {
-    if (!confirm(`Delete "${author.full_name}"? This cannot be undone.`)) return;
     try {
       await mongoApi.deleteAuthor(author.id);
       toast.success("Author deleted");
+      setDeleteTarget(null);
       loadAuthors();
     } catch (err: any) {
       toast.error(err.message || "Failed to delete author");
@@ -237,7 +248,7 @@ const AdminAuthorsPage = () => {
                       <button onClick={() => openEdit(author)} className="p-1.5 hover:bg-muted rounded transition-colors" title="Edit">
                         <Edit className="h-4 w-4 text-muted-foreground" />
                       </button>
-                      <button onClick={() => handleDelete(author)} className="p-1.5 hover:bg-destructive/10 rounded transition-colors" title="Delete">
+                      <button onClick={() => setDeleteTarget(author)} className="p-1.5 hover:bg-destructive/10 rounded transition-colors" title="Delete">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </button>
                     </div>
@@ -284,7 +295,7 @@ const AdminAuthorsPage = () => {
                     <button onClick={() => openEdit(author)} className="p-1.5 hover:bg-muted rounded transition-colors" title="Edit">
                       <Edit className="h-4 w-4 text-muted-foreground" />
                     </button>
-                    <button onClick={() => handleDelete(author)} className="p-1.5 hover:bg-destructive/10 rounded transition-colors" title="Delete">
+                    <button onClick={() => setDeleteTarget(author)} className="p-1.5 hover:bg-destructive/10 rounded transition-colors" title="Delete">
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </button>
                   </div>
@@ -369,6 +380,27 @@ const AdminAuthorsPage = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{deleteTarget?.full_name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this author. Articles by this author will not be deleted but will lose their author assignment.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteTarget && handleDelete(deleteTarget)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
