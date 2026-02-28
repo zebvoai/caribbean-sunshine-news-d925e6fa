@@ -89,6 +89,11 @@ export default {
           "0%": { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        loader: {
+          "0%": { width: "0%", marginLeft: "0%" },
+          "50%": { width: "70%", marginLeft: "10%" },
+          "100%": { width: "0%", marginLeft: "100%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

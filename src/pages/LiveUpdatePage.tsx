@@ -5,6 +5,7 @@ import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
+import PageLoader from "@/components/PageLoader";
 import { Calendar, Clock, ChevronRight, Facebook, Twitter, Link2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -62,6 +63,7 @@ const LiveUpdatePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        <PageLoader />
         <SiteHeader />
         <NavBar />
         <main className="max-w-4xl mx-auto px-6 py-10">
