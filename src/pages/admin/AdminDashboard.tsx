@@ -5,6 +5,7 @@ import {
   FileText, Eye, Users, TrendingUp, PlusCircle, Clock,
   ArrowUpRight, Activity, Zap, Radio, Calendar, BarChart2,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { mongoApi } from "@/lib/mongoApi";
 import { cn } from "@/lib/utils";
 
@@ -17,11 +18,49 @@ const AdminDashboard = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: totalArticles = 0 } = useQuery({
+    queryKey: ["dashboard-total-articles"],
+    queryFn: async () => {
+      const { count } = await supabase.from("articles").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const { data: totalViews = 0 } = useQuery({
+    queryKey: ["dashboard-total-views"],
+    queryFn: async () => {
+      const { data } = await supabase.from("articles").select("view_count");
+      return data?.reduce((sum, a) => sum + (a.view_count || 0), 0) ?? 0;
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const { data: totalAuthors = 0 } = useQuery({
+    queryKey: ["dashboard-total-authors"],
+    queryFn: async () => {
+      const { count } = await supabase.from("authors").select("*", { count: "exact", head: true });
+      return count ?? 0;
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const { data: publishedCount = 0 } = useQuery({
+    queryKey: ["dashboard-published-count"],
+    queryFn: async () => {
+      const { count } = await supabase.from("articles").select("*", { count: "exact", head: true }).eq("publication_status", "published");
+      return count ?? 0;
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const formatViews = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}K` : String(v);
+
   const statCards = [
-    { label: "Articles", value: "248", change: "+12", trend: "up", icon: FileText, color: "text-secondary" },
-    { label: "Views (30d)", value: "24.5K", change: "+8%", trend: "up", icon: Eye, color: "text-primary" },
-    { label: "Authors", value: "7", change: "+2", trend: "up", icon: Users, color: "text-violet-500" },
-    { label: "Avg. Read", value: "3.2m", change: "+5%", trend: "up", icon: TrendingUp, color: "text-amber-500" },
+    { label: "Articles", value: String(totalArticles), icon: FileText, color: "text-secondary" },
+    { label: "Total Views", value: formatViews(totalViews), icon: Eye, color: "text-primary" },
+    { label: "Authors", value: String(totalAuthors), icon: Users, color: "text-violet-500" },
+    { label: "Published", value: String(publishedCount), icon: TrendingUp, color: "text-amber-500" },
   ];
 
   const quickActions = [
@@ -77,7 +116,6 @@ const AdminDashboard = () => {
               <p className="text-[11px] text-muted-foreground font-medium truncate">{stat.label}</p>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-lg font-heading font-bold text-foreground leading-tight">{stat.value}</span>
-                <span className="text-[10px] font-semibold text-primary">{stat.change}</span>
               </div>
             </div>
           </div>
