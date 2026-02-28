@@ -8,6 +8,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { mongoApi } from "@/lib/mongoApi";
 import { cn } from "@/lib/utils";
+import { formatDistanceToNow } from "date-fns";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -70,19 +71,45 @@ const AdminDashboard = () => {
     { label: "Schedule", icon: Calendar, path: "/admin/schedule" },
   ];
 
-  const recentActivity = [
-    { action: "Published", subject: "Chester 'Daddy Chess' Letang Crowned...", time: "2m", type: "publish" },
-    { action: "Updated", subject: "Dominica Launches Minimum Wage Hotline...", time: "14m", type: "edit" },
-    { action: "New author", subject: "Marcus James joined as contributor", time: "1h", type: "user" },
-    { action: "Breaking", subject: "Tropical Storm Watch Issued...", time: "3h", type: "breaking" },
-    { action: "Published", subject: "Agro-Processing Facility Opens...", time: "5h", type: "publish" },
-  ];
+  const { data: recentActivity = [] } = useQuery({
+    queryKey: ["dashboard-recent-activity"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("articles")
+        .select("id, title, publication_status, is_breaking, updated_at, published_at")
+        .order("updated_at", { ascending: false })
+        .limit(8);
+
+      return (data || []).map((a) => {
+        const type = a.is_breaking
+          ? "breaking"
+          : a.publication_status === "published"
+          ? "publish"
+          : a.publication_status === "scheduled"
+          ? "scheduled"
+          : "edit";
+
+        const action = a.is_breaking
+          ? "Breaking"
+          : a.publication_status === "published"
+          ? "Published"
+          : a.publication_status === "scheduled"
+          ? "Scheduled"
+          : "Draft";
+
+        const time = formatDistanceToNow(new Date(a.updated_at), { addSuffix: false });
+
+        return { id: a.id, action, subject: a.title, time, type };
+      });
+    },
+    staleTime: 30 * 1000,
+  });
 
   const typeColors: Record<string, string> = {
     publish: "bg-primary/15 text-primary",
-    edit: "bg-secondary/15 text-secondary",
-    user: "bg-violet-100 text-violet-600",
-    breaking: "bg-accent/15 text-accent",
+    edit: "bg-muted text-muted-foreground",
+    scheduled: "bg-secondary/15 text-secondary",
+    breaking: "bg-destructive/15 text-destructive",
   };
 
   return (
@@ -156,21 +183,29 @@ const AdminDashboard = () => {
               <Clock className="h-3.5 w-3.5 text-muted-foreground" />
               Recent Activity
             </h2>
-            <button className="text-[10px] text-muted-foreground hover:text-foreground font-medium flex items-center gap-0.5">
+            <button onClick={() => navigate("/admin/articles")} className="text-[10px] text-muted-foreground hover:text-foreground font-medium flex items-center gap-0.5">
               View all <ArrowUpRight className="h-2.5 w-2.5" />
             </button>
           </div>
-          <div className="divide-y divide-border">
-            {recentActivity.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 py-2 first:pt-0 last:pb-0">
-                <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded", typeColors[item.type] || "bg-muted text-muted-foreground")}>
-                  {item.action}
-                </span>
-                <p className="text-xs text-foreground truncate flex-1 min-w-0">{item.subject}</p>
-                <span className="text-[10px] text-muted-foreground flex-shrink-0 tabular-nums">{item.time}</span>
-              </div>
-            ))}
-          </div>
+          {recentActivity.length === 0 ? (
+            <p className="text-xs text-muted-foreground py-4 text-center">No recent activity</p>
+          ) : (
+            <div className="divide-y divide-border">
+              {recentActivity.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 py-2 first:pt-0 last:pb-0 cursor-pointer hover:bg-muted/30 -mx-1 px-1 rounded transition-colors"
+                  onClick={() => navigate(`/admin/articles/edit/${item.id}`)}
+                >
+                  <span className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded whitespace-nowrap", typeColors[item.type] || "bg-muted text-muted-foreground")}>
+                    {item.action}
+                  </span>
+                  <p className="text-xs text-foreground truncate flex-1 min-w-0">{item.subject}</p>
+                  <span className="text-[10px] text-muted-foreground flex-shrink-0 tabular-nums">{item.time}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
