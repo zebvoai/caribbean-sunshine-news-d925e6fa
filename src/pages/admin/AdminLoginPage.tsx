@@ -41,7 +41,7 @@ const AdminLoginPage = () => {
       >
         <div className="text-center space-y-1">
           <h1 className="text-xl font-heading font-bold text-primary">Admin Login</h1>
-          <p className="text-sm text-muted-foreground font-body">Dominica News Online</p>
+          <p className="text-sm text-muted-foreground font-body">Dominica News DM</p>
         </div>
         {error && (
           <p className="text-sm text-destructive text-center font-body">{error}</p>
