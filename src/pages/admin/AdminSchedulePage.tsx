@@ -24,6 +24,16 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
@@ -99,6 +109,8 @@ const AdminSchedulePage = () => {
   const [scheduledFor, setScheduledFor] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<MongoArticle | null>(null);
+  const [publishTarget, setPublishTarget] = useState<MongoArticle | null>(null);
 
   const [categories, setCategories] = useState<MongoCategory[]>([]);
   const [authors, setAuthors] = useState<MongoAuthor[]>([]);
@@ -213,14 +225,14 @@ const AdminSchedulePage = () => {
     }
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm("Delete this scheduled article?")) return;
-    deleteMutation.mutate(id);
+  const handleDelete = (article: MongoArticle) => {
+    deleteMutation.mutate(article.id);
+    setDeleteTarget(null);
   };
 
-  const handlePublishNow = (id: string) => {
-    if (!confirm("Publish this article immediately?")) return;
-    publishNowMutation.mutate(id);
+  const handlePublishNow = (article: MongoArticle) => {
+    publishNowMutation.mutate(article.id);
+    setPublishTarget(null);
   };
 
   const getTimeUntil = (dateStr: string) => {
@@ -504,7 +516,7 @@ const AdminSchedulePage = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handlePublishNow(article.id)}
+                      onClick={() => setPublishTarget(article)}
                       disabled={publishNowMutation.isPending}
                       className="gap-1.5 text-xs"
                     >
@@ -519,7 +531,7 @@ const AdminSchedulePage = () => {
                       <Edit className="h-3.5 w-3.5" /> Edit
                     </Button>
                     <button
-                      onClick={() => handleDelete(article.id)}
+                      onClick={() => setDeleteTarget(article)}
                       className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
                       title="Delete"
                     >
@@ -532,6 +544,45 @@ const AdminSchedulePage = () => {
           })}
         </div>
       )}
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete scheduled article?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{deleteTarget?.title}". This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteTarget && handleDelete(deleteTarget)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Publish Now Confirmation */}
+      <AlertDialog open={!!publishTarget} onOpenChange={(open) => { if (!open) setPublishTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publish immediately?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will publish "{publishTarget?.title}" right now instead of at the scheduled time.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => publishTarget && handlePublishNow(publishTarget)}>
+              Publish Now
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
