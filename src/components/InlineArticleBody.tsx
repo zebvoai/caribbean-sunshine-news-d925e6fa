@@ -12,17 +12,25 @@ interface InlineArticleBodyProps {
  * Splits the body at `<div data-embed-platform="...">` placeholders
  * and renders SocialEmbedRenderer components inline between text chunks.
  */
+const PLATFORM_NAMES = ["instagram", "twitter", "youtube", "tiktok", "spotify", "facebook"];
+
 const InlineArticleBody = ({ html, className, style }: InlineArticleBodyProps) => {
   const segments = useMemo(() => {
     if (!html) return [{ type: "html" as const, content: "" }];
-
-    // Match any div that contains data-embed-platform (attribute order independent)
-    const embedRegex = /<div[^>]*data-embed-platform="[^"]*"[^>]*>[\s\S]*?<\/div>/gi;
 
     const extractAttr = (tag: string, name: string): string => {
       const m = tag.match(new RegExp(`${name}="([^"]*)"`));
       return m ? m[1] : "";
     };
+
+    // Pattern 1: div with data-embed-platform attribute (ideal format)
+    const attrPattern = `<div[^>]*data-embed-platform="[^"]*"[^>]*>[\\s\\S]*?<\\/div>`;
+
+    // Pattern 2: TipTap-stripped plain-text format (p or div containing 📎 <strong>PLATFORM</strong> embed: URL)
+    const platformAlts = PLATFORM_NAMES.join("|");
+    const plainPattern = `<p[^>]*>\\s*📎\\s*<strong>(${platformAlts})<\\/strong>\\s*embed:\\s*(https?:\\/\\/[^<\\s]+)\\s*<\\/p>`;
+
+    const combinedRegex = new RegExp(`(?:${attrPattern})|(?:${plainPattern})`, "gi");
 
     const result: Array<
       | { type: "html"; content: string }
@@ -32,33 +40,47 @@ const InlineArticleBody = ({ html, className, style }: InlineArticleBodyProps) =
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
-    while ((match = embedRegex.exec(html)) !== null) {
-      // Add HTML before this embed
+    while ((match = combinedRegex.exec(html)) !== null) {
       if (match.index > lastIndex) {
         result.push({ type: "html", content: html.slice(lastIndex, match.index) });
       }
 
       const tag = match[0];
-      const platform = extractAttr(tag, "data-embed-platform");
-      const url = (extractAttr(tag, "data-embed-url") || "").replace(/&quot;/g, '"');
+      let platform = "";
+      let url = "";
       let code = "";
-      try {
-        const rawCode = extractAttr(tag, "data-embed-code");
-        code = rawCode ? atob(rawCode) : "";
-      } catch {
-        code = "";
+
+      if (tag.includes("data-embed-platform")) {
+        // Pattern 1: data-attribute based
+        platform = extractAttr(tag, "data-embed-platform");
+        url = (extractAttr(tag, "data-embed-url") || "").replace(/&quot;/g, '"');
+        try {
+          const rawCode = extractAttr(tag, "data-embed-code");
+          code = rawCode ? atob(rawCode) : "";
+        } catch {
+          code = "";
+        }
+      } else {
+        // Pattern 2: plain-text fallback — captured groups from the plain pattern
+        // Re-extract since combined regex groups may shift
+        const plainMatch = tag.match(new RegExp(`<strong>(${platformAlts})<\\/strong>\\s*embed:\\s*(https?:\\/\\/[^<\\s]+)`, "i"));
+        if (plainMatch) {
+          platform = plainMatch[1].toLowerCase();
+          url = plainMatch[2];
+        }
       }
 
-      result.push({ type: "embed", platform, url, code });
+      if (platform) {
+        result.push({ type: "embed", platform, url, code });
+      }
+
       lastIndex = match.index + match[0].length;
     }
 
-    // Add remaining HTML after last embed
     if (lastIndex < html.length) {
       result.push({ type: "html", content: html.slice(lastIndex) });
     }
 
-    // If no embeds found, return the full HTML as a single segment
     if (result.length === 0) {
       result.push({ type: "html", content: html });
     }
