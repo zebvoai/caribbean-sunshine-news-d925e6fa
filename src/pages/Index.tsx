@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
+import { ArrowRight } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
@@ -98,7 +99,6 @@ const Index = () => {
 
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
   const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
-  // Trending: use last few articles from the grid
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   return (
@@ -111,13 +111,13 @@ const Index = () => {
         <BreakingTicker items={breakingArticles} />
       )}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
 
         {/* Live Updates Section */}
         {!activeCat && (loadingLive ? (
-          <section className="space-y-3">
+          <section className="space-y-4">
             <SectionHeader title="Live Updates" variant="live" loading />
-            <div className="h-20 bg-muted animate-pulse rounded-xl" />
+            <div className="h-24 skeleton-shimmer rounded-2xl" />
           </section>
         ) : activeLiveUpdates.length > 0 ? (
           <section className="animate-fade-in-up">
@@ -125,7 +125,7 @@ const Index = () => {
             <div className="space-y-3">
               {activeLiveUpdates.map((u) => (
                 <Link key={u.id} to={`/live/${u.slug}`} className="block group">
-                  <div className="flex gap-4 items-start bg-card rounded-2xl p-4 border border-destructive/15 hover:border-destructive/30 hover:shadow-card-hover transition-all duration-300 card-lift">
+                  <div className="flex gap-5 items-start bg-card rounded-2xl p-5 border border-destructive/10 hover:border-destructive/25 hover:shadow-card-hover transition-all duration-500 card-lift">
                     {u.cover_image_url && (
                       <img
                         src={getProxiedAssetUrl(u.cover_image_url)}
@@ -138,28 +138,32 @@ const Index = () => {
                           img.dataset.fallbackApplied = "true";
                           img.src = "/placeholder.svg";
                         }}
-                        className="w-36 h-24 object-cover rounded-xl flex-shrink-0 group-hover:opacity-90 transition-opacity"
+                        className="w-40 h-28 object-cover rounded-xl flex-shrink-0 group-hover:opacity-90 transition-opacity shadow-sm"
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                          <span className="w-1.5 h-1.5 rounded-full bg-destructive-foreground animate-pulse" />
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[9px] font-bold px-3 py-1.5 rounded-full uppercase tracking-[0.15em]">
+                          <span className="relative flex h-1.5 w-1.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive-foreground opacity-75" />
+                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-destructive-foreground" />
+                          </span>
                           LIVE
                         </span>
                         {u.updated_at && (
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground font-body">
                             Updated {new Date(u.updated_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                           </span>
                         )}
                       </div>
-                      <h3 className="font-heading font-bold text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">
+                      <h3 className="font-heading font-bold text-lg leading-[1.3] text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2 mb-2">
                         {u.title}
                       </h3>
                       {u.excerpt && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 font-body">{u.excerpt}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-2 font-body leading-relaxed">{u.excerpt}</p>
                       )}
                     </div>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary flex-shrink-0 mt-2 transition-colors" />
                   </div>
                 </Link>
               ))}
@@ -174,18 +178,21 @@ const Index = () => {
           {loadingArticles ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl bg-muted animate-pulse h-80" />
+                <div key={i} className="rounded-2xl skeleton-shimmer h-80" />
               ))}
             </div>
           ) : mappedArticles.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground font-body">
-              <p className="text-lg mb-3">No articles in this category yet.</p>
-              <Link to="/admin/articles/create" className="text-primary hover:underline text-sm">
-                Publish the first article →
+            <div className="text-center py-24 text-muted-foreground font-body">
+              <div className="w-16 h-16 rounded-2xl bg-muted/60 flex items-center justify-center mx-auto mb-5">
+                <span className="text-2xl">📰</span>
+              </div>
+              <p className="text-lg mb-3 font-heading">No articles in this category yet.</p>
+              <Link to="/admin/articles/create" className="text-primary hover:underline text-sm font-body inline-flex items-center gap-1">
+                Publish the first article <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           ) : (
-            <div className="space-y-10">
+            <div className="space-y-12">
               {/* Hero card */}
               {heroArticle && (
                 <Link to={`/news/${heroArticle.slug}`} className="block animate-fade-in-up">
@@ -194,8 +201,8 @@ const Index = () => {
               )}
 
               {/* Main grid + Trending sidebar */}
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 stagger-children">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-7 stagger-children">
                   {!activeCat && endedLiveAsCards.map((card) => (
                     <Link key={`live-${card.slug}`} to={`/live/${card.slug}`} className="block">
                       <NewsCard article={card} isLiveEnded />
@@ -210,8 +217,8 @@ const Index = () => {
 
                 {/* Trending sidebar - only on home */}
                 {!activeCat && trendingArticles.length > 0 && (
-                  <div className="hidden lg:block animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-                    <div className="sticky top-16">
+                  <div className="hidden lg:block animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+                    <div className="sticky top-20">
                       <TrendingSidebar articles={trendingArticles} />
                     </div>
                   </div>
@@ -240,32 +247,35 @@ const SectionHeader = ({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 mb-4">
-        <span className="inline-block w-2.5 h-2.5 rounded-full bg-muted animate-pulse" />
-        <div className="h-5 w-36 bg-muted animate-pulse rounded" />
+      <div className="flex items-center gap-2 mb-5">
+        <span className="inline-block w-2.5 h-2.5 rounded-full skeleton-shimmer" />
+        <div className="h-5 w-36 skeleton-shimmer rounded" />
       </div>
     );
   }
 
   if (isAlert) {
     return (
-      <div className="mb-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="inline-block w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
-          <h2 className="text-sm font-heading font-bold text-destructive uppercase tracking-widest">
+      <div className="mb-5">
+        <div className="flex items-center gap-2.5 mb-3">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
+          </span>
+          <h2 className="text-xs font-heading font-bold text-destructive uppercase tracking-[0.2em]">
             {title}
           </h2>
         </div>
-        <div className="h-px bg-destructive/20" />
+        <div className="h-px bg-gradient-to-r from-destructive/30 to-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-4 mb-6">
-      <div className="w-1 h-6 bg-primary rounded-full" />
-      <h2 className="text-2xl font-heading font-bold text-foreground">{title}</h2>
-      <div className="flex-1 h-px bg-border" />
+    <div className="flex items-center gap-4 mb-8">
+      <div className="w-1 h-7 bg-primary rounded-full" />
+      <h2 className="text-2xl font-heading font-bold text-foreground tracking-tight">{title}</h2>
+      <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
     </div>
   );
 };

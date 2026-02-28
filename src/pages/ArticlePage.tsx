@@ -383,10 +383,10 @@ const ArticlePage = () => {
       <SiteHeader />
       <NavBar />
 
-      <main ref={articleRef} className="max-w-4xl mx-auto px-4 md:px-6 py-8">
+      <main ref={articleRef} className="max-w-4xl mx-auto px-4 md:px-6 py-10">
         {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
-        <nav aria-label="breadcrumb" className="mb-6 animate-fade-in-up">
-          <ol className="flex items-center gap-1.5 text-sm text-muted-foreground font-body flex-wrap">
+        <nav aria-label="breadcrumb" className="mb-8 animate-fade-in-up">
+          <ol className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-body flex-wrap">
             <li>
               <Link to="/" className="hover:text-primary transition-colors">Home</Link>
             </li>
@@ -402,15 +402,15 @@ const ArticlePage = () => {
         </nav>
 
         {/* ── Badges ──────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-2 mb-5 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
+        <div className="flex flex-wrap items-center gap-2.5 mb-6 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
           {article.is_breaking && (
-            <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[9px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
               <Zap className="h-3 w-3" />
               Breaking News
             </span>
           )}
           {article.is_featured && (
-            <span className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground text-[9px] font-bold px-3.5 py-1.5 rounded-full uppercase tracking-[0.15em]">
               <Star className="h-3 w-3" />
               Featured
             </span>
@@ -418,7 +418,7 @@ const ArticlePage = () => {
           {article.categories && (
             <Link
               to={`/?cat=${categorySlug}`}
-              className="inline-block bg-primary/10 text-primary text-[10px] font-semibold px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors uppercase tracking-wider"
+              className="inline-block bg-primary/8 text-primary text-[9px] font-semibold px-3.5 py-1.5 rounded-full hover:bg-primary/15 transition-colors uppercase tracking-[0.15em] border border-primary/15"
             >
               {categoryName}
             </Link>
@@ -427,19 +427,19 @@ const ArticlePage = () => {
 
         {/* ── Title ───────────────────────────────────────────────────────── */}
         <h1
-          className="text-[1.75rem] md:text-[2.75rem] font-heading font-bold text-foreground leading-[1.12] mb-5 animate-fade-in-up"
+          className="text-[1.85rem] md:text-[3rem] font-heading font-extrabold text-foreground leading-[1.08] mb-6 animate-fade-in-up tracking-tight"
           style={{ animationDelay: "0.1s" }}
         >
           {article.title}
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
-        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-6 leading-relaxed border-l-4 border-primary/30 pl-5 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-8 leading-[1.7] border-l-4 border-primary/25 pl-6 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
           {article.excerpt}
         </p>
 
         {/* ── Meta Row ────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground font-body mb-8 pb-6 border-b border-border animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-muted-foreground font-body mb-10 pb-7 border-b border-border/60 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <span className="font-semibold text-foreground">Dominica News</span>
           <span className="w-1 h-1 rounded-full bg-border" />
           {pubDate && (
@@ -471,7 +471,7 @@ const ArticlePage = () => {
 
         {/* ── Cover Image ─────────────────────────────────────────────────── */}
         {article.cover_image_url && (
-          <figure className="mb-10 -mx-4 md:mx-0 md:rounded-2xl overflow-hidden shadow-card animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
+          <figure className="mb-12 -mx-4 md:mx-0 md:rounded-2xl overflow-hidden shadow-card-hover animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
             <img
               src={getProxiedAssetUrl(article.cover_image_url)}
               alt={article.cover_image_alt || article.title}
@@ -482,10 +482,10 @@ const ArticlePage = () => {
                 img.dataset.fallbackApplied = "true";
                 img.src = "/placeholder.svg";
               }}
-              className="w-full max-h-[540px] object-cover"
+              className="w-full max-h-[560px] object-cover"
             />
             {article.cover_image_alt && (
-              <figcaption className="text-[11px] text-muted-foreground text-center py-2.5 px-4 bg-muted/30 font-body">
+              <figcaption className="text-[11px] text-muted-foreground text-center py-3 px-4 bg-muted/20 font-body italic">
                 {article.cover_image_alt}
               </figcaption>
             )}
@@ -493,15 +493,15 @@ const ArticlePage = () => {
         )}
 
         {/* ── Share Bar ───────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2.5 mb-10 py-4 border-y border-border/60 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-          <span className="text-xs font-semibold font-body text-muted-foreground mr-1 uppercase tracking-wider flex items-center gap-1">
+        <div className="flex items-center gap-3 mb-12 py-5 border-y border-border/40 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+          <span className="text-[10px] font-bold font-body text-muted-foreground mr-1 uppercase tracking-[0.15em] flex items-center gap-1.5">
             <Share2 className="h-3.5 w-3.5" />
             Share
           </span>
           <button
             onClick={shareFacebook}
             aria-label="Share on Facebook"
-            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-secondary text-secondary-foreground hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-[11px] font-body font-semibold px-4 py-2.5 rounded-xl bg-secondary text-secondary-foreground hover:opacity-90 hover:shadow-md transition-all duration-300"
           >
             <Facebook className="h-3.5 w-3.5" />
             Facebook
@@ -509,7 +509,7 @@ const ArticlePage = () => {
           <button
             onClick={shareTwitter}
             aria-label="Share on Twitter"
-            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-foreground/80 text-background hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-[11px] font-body font-semibold px-4 py-2.5 rounded-xl bg-foreground/85 text-background hover:opacity-90 hover:shadow-md transition-all duration-300"
           >
             <Twitter className="h-3.5 w-3.5" />
             Twitter
@@ -517,7 +517,7 @@ const ArticlePage = () => {
           <button
             onClick={handleShare}
             aria-label="Share"
-            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full border border-border text-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 text-[11px] font-body font-semibold px-4 py-2.5 rounded-xl border border-border/60 text-foreground hover:bg-muted/60 hover:shadow-sm transition-all duration-300"
           >
             <Link2 className="h-3.5 w-3.5" />
             Copy Link
@@ -550,7 +550,7 @@ const ArticlePage = () => {
 
         {/* ── About the Author ────────────────────────────────────────────── */}
         {article.authors && (
-          <section className="mb-12 p-6 md:p-8 border border-border/60 rounded-2xl bg-muted/15 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+          <section className="mb-14 p-7 md:p-10 border border-border/40 rounded-3xl bg-muted/10 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
             <h3 className="font-heading font-bold text-xs text-muted-foreground uppercase tracking-widest mb-5">
               About the Author
             </h3>
@@ -600,13 +600,13 @@ const ArticlePage = () => {
 
         {/* ── Related Articles ────────────────────────────────────────────── */}
         {related.length > 0 && (
-          <section className="mb-10 animate-fade-in-up" style={{ animationDelay: "0.45s" }}>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-1 h-6 bg-primary rounded-full" />
-              <h3 className="font-heading font-bold text-xl text-foreground">Related Articles</h3>
-              <div className="flex-1 h-px bg-border" />
+          <section className="mb-14 animate-fade-in-up" style={{ animationDelay: "0.45s" }}>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-1 h-7 bg-primary rounded-full" />
+              <h3 className="font-heading font-bold text-xl text-foreground tracking-tight">Related Articles</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
               {related.map((rel) => (
                 <RelatedCard key={rel.id} article={rel} />
               ))}
