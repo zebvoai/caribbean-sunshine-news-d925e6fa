@@ -1,11 +1,10 @@
-import { Facebook, Twitter, Instagram, Youtube, Mail } from "lucide-react";
+import { Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+
 import { useQuery } from "@tanstack/react-query";
 import { mongoApi } from "@/lib/mongoApi";
 
 const SiteFooter = () => {
-  const [email, setEmail] = useState("");
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: () => mongoApi.getCategories(),
@@ -21,7 +20,7 @@ const SiteFooter = () => {
   return (
     <footer className="bg-foreground text-background mt-0">
       <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
 
           {/* About Us */}
           <div className="lg:col-span-1">
@@ -93,26 +92,6 @@ const SiteFooter = () => {
             </p>
           </div>
 
-          {/* Newsletter */}
-          <div>
-            <h3 className="font-heading font-bold text-base mb-1 flex items-center gap-2">
-              <Mail className="h-4 w-4" /> Newsletter
-            </h3>
-            <p className="text-sm opacity-90 font-body mb-3">
-              Get daily news updates delivered to your inbox
-            </p>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              className="w-full px-3 py-2 text-sm text-foreground bg-background rounded mb-2 focus:outline-none focus:ring-2 focus:ring-secondary"
-            />
-            <button className="w-full py-2 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-sm rounded transition-colors">
-              Subscribe
-            </button>
-            <p className="text-xs opacity-70 mt-2 font-body">Join 10,000+ readers. Unsubscribe anytime.</p>
-          </div>
         </div>
       </div>
 
