@@ -4,7 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
-import { mongoApi, MongoArticle } from "@/lib/mongoApi";
+import { mongoApi, MongoArticle, MongoLiveUpdate } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
 
@@ -60,6 +60,16 @@ const Index = () => {
     enabled: !activeCat,
   });
 
+  const { data: liveUpdates = [] } = useQuery({
+    queryKey: ["live-updates-home"],
+    queryFn: () => mongoApi.getLiveUpdates(),
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    enabled: !activeCat,
+  });
+
+  const activeLiveUpdates = liveUpdates.filter((u) => u.is_live);
+
   const mappedArticles = articles.map((a) => ({ ...toNewsArticle(a), is_breaking: a.is_breaking }));
   const breakingArticles = breakingRaw.filter((a) => a.is_breaking).map(toBreakingArticle);
 
@@ -73,6 +83,67 @@ const Index = () => {
       <SiteHeader />
       <NavBar />
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        {/* Live Updates Section — only on home */}
+        {!activeCat && activeLiveUpdates.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
+              <h2 className="text-lg font-heading font-bold text-destructive uppercase tracking-wider">
+                Live Updates
+              </h2>
+            </div>
+            <div className="border-b-2 border-destructive mb-4" />
+            <div className="space-y-4">
+              {activeLiveUpdates.map((u) => (
+                <Link key={u.id} to={`/news/${u.slug}`} className="block group">
+                  <div className="flex gap-4 items-start">
+                    {u.cover_image_url && (
+                      <img
+                        src={getProxiedAssetUrl(u.cover_image_url)}
+                        alt={u.cover_image_alt || u.title}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const img = e.currentTarget;
+                          if (img.dataset.fallbackApplied === "true") {
+                            img.style.display = "none";
+                            return;
+                          }
+                          img.dataset.fallbackApplied = "true";
+                          img.src = "/placeholder.svg";
+                        }}
+                        className="w-40 h-28 object-cover rounded-lg flex-shrink-0 group-hover:opacity-90 transition-opacity"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="inline-flex items-center gap-1 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                          <span className="w-1.5 h-1.5 rounded-full bg-destructive-foreground animate-pulse" />
+                          LIVE
+                        </span>
+                        {u.updated_at && (
+                          <span className="text-xs text-muted-foreground">
+                            Updated {new Date(u.updated_at).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        )}
+                      </div>
+                      <h3 className="font-heading font-bold text-lg leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-1">
+                        {u.title}
+                      </h3>
+                      {u.excerpt && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 font-body">{u.excerpt}</p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Breaking News Section — only on home */}
         {!activeCat && !loadingArticles && breakingArticles.length > 0 && (
