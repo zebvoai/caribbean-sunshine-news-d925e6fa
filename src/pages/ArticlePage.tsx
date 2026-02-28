@@ -8,6 +8,7 @@ import { mongoApi } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import PageLoader from "@/components/PageLoader";
 import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
+import InlineArticleBody from "@/components/InlineArticleBody";
 import {
   Calendar,
   User,
@@ -522,11 +523,11 @@ const ArticlePage = () => {
           </button>
         </div>
 
-        {/* ── Article Body ────────────────────────────────────────────────── */}
-        <div
-          className="news-prose text-justify max-w-none mb-10 animate-fade-in-up"
+        {/* ── Article Body (with inline embeds) ────────────────────────── */}
+        <InlineArticleBody
+          html={article.body}
+          className="news-prose text-justify max-w-none"
           style={{ animationDelay: "0.35s" }}
-          dangerouslySetInnerHTML={{ __html: article.body }}
         />
 
         {/* ── Social Embeds ───────────────────────────────────────────────── */}
