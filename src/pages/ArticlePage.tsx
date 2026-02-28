@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { mongoApi } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import PageLoader from "@/components/PageLoader";
+import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
 import {
   Calendar,
   User,
@@ -535,26 +536,12 @@ const ArticlePage = () => {
               Related Content
             </h3>
             {article.social_embeds.map((embed, idx) => (
-              <div
+              <SocialEmbedRenderer
                 key={idx}
-                className="border border-border rounded-lg p-4 bg-muted/30"
-              >
-                {embed.embed_code ? (
-                  <div dangerouslySetInnerHTML={{ __html: embed.embed_code }} />
-                ) : (
-                  <a
-                    href={embed.embed_url || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-primary hover:underline font-body"
-                  >
-                    <span className="uppercase font-bold text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-                      {embed.platform}
-                    </span>
-                    <span className="truncate">{embed.embed_url}</span>
-                  </a>
-                )}
-              </div>
+                platform={embed.platform}
+                embed_url={embed.embed_url}
+                embed_code={embed.embed_code}
+              />
             ))}
           </section>
         )}
