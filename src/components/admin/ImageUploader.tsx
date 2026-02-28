@@ -40,9 +40,17 @@ const ImageUploader = ({
     try {
       const ext = file.name.split(".").pop();
       const path = `articles/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
+
+      // Use a timeout to prevent hanging forever
+      const uploadPromise = supabase.storage
         .from("article-images")
         .upload(path, file, { cacheControl: "3600", upsert: false });
+
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Upload timed out after 30 seconds")), 30000)
+      );
+
+      const { error: uploadError } = await Promise.race([uploadPromise, timeoutPromise]);
 
       if (uploadError) throw uploadError;
 
@@ -50,9 +58,12 @@ const ImageUploader = ({
       onImageUrlChange(data.publicUrl);
       toast.success("Image uploaded successfully");
     } catch (err: any) {
-      toast.error(err.message || "Upload failed");
+      console.error("Image upload error:", err);
+      toast.error(err.message || "Upload failed — check connection or try a smaller image");
     } finally {
       setUploading(false);
+      // Reset file input so same file can be re-selected
+      if (fileRef.current) fileRef.current.value = "";
     }
   };
 
@@ -130,13 +141,21 @@ const ImageUploader = ({
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="w-full border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-2 hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer"
+            className="w-full border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center gap-2 hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <ImageIcon className="h-8 w-8 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">
-              {uploading ? "Uploading..." : "Click to upload image"}
-            </span>
-            <span className="text-xs text-muted-foreground">JPG, PNG, GIF, WebP — max 10MB</span>
+            {uploading ? (
+              <>
+                <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-medium text-foreground">Uploading… please wait</span>
+                <span className="text-xs text-muted-foreground">This may take a few seconds</span>
+              </>
+            ) : (
+              <>
+                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Click to upload image</span>
+                <span className="text-xs text-muted-foreground">JPG, PNG, GIF, WebP — max 10MB</span>
+              </>
+            )}
           </button>
         </div>
       ) : (
