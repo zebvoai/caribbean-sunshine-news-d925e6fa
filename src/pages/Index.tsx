@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
@@ -82,11 +83,7 @@ const Index = () => {
     category: "Live Update",
     source: "Dominica News",
     date: u.updated_at
-      ? new Date(u.updated_at).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })
+      ? `Ended ${formatDistanceToNow(new Date(u.updated_at), { addSuffix: true })}`
       : "",
     image: getProxiedAssetUrl(u.cover_image_url || ""),
     slug: u.slug,
