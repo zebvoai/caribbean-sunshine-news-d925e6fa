@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 import { useParams, Link, useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
@@ -20,6 +20,7 @@ import {
   Twitter,
   Link2,
   ChevronRight,
+  Share2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -100,22 +101,19 @@ const truncate = (str: string, max: number) =>
 const RelatedCard = ({ article }: { article: RelatedArticle }) => (
   <Link
     to={`/news/${article.slug}`}
-    className="group flex flex-col bg-card border border-border rounded-lg overflow-hidden hover:shadow-card-hover transition-shadow duration-200"
+    className="group flex flex-col bg-card border border-border/60 rounded-2xl overflow-hidden hover:shadow-card-hover transition-all duration-300 card-lift"
   >
     <div className="aspect-[16/9] overflow-hidden bg-muted">
       {article.cover_image_url ? (
         <img
           src={getProxiedAssetUrl(article.cover_image_url)}
           alt={article.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
           loading="lazy"
           referrerPolicy="no-referrer"
           onError={(e) => {
             const img = e.currentTarget;
-            if (img.dataset.fallbackApplied === "true") {
-              img.style.display = "none";
-              return;
-            }
+            if (img.dataset.fallbackApplied === "true") { img.style.display = "none"; return; }
             img.dataset.fallbackApplied = "true";
             img.src = "/placeholder.svg";
           }}
@@ -128,7 +126,7 @@ const RelatedCard = ({ article }: { article: RelatedArticle }) => (
     </div>
     <div className="p-4 flex flex-col gap-2 flex-1">
       {article.categories && (
-        <span className="text-xs font-semibold font-body uppercase tracking-wide text-primary">
+        <span className="text-[10px] font-semibold font-body uppercase tracking-wider text-primary">
           {article.categories.name}
         </span>
       )}
@@ -138,11 +136,11 @@ const RelatedCard = ({ article }: { article: RelatedArticle }) => (
       <p className="text-xs text-muted-foreground font-body line-clamp-2 flex-1">
         {article.excerpt}
       </p>
-      <div className="flex items-center gap-2 text-xs text-muted-foreground font-body mt-auto pt-2 border-t border-border">
+      <div className="flex items-center gap-2 text-[11px] text-muted-foreground font-body mt-auto pt-2 border-t border-border/50">
         {article.authors && <span>{article.authors.full_name}</span>}
         {article.published_at && (
           <>
-            {article.authors && <span>·</span>}
+            {article.authors && <span className="w-1 h-1 rounded-full bg-border" />}
             <span>
               {new Date(article.published_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -165,7 +163,25 @@ const ArticlePage = () => {
   const [article, setArticle] = useState<Article | null>(null);
   const [related, setRelated] = useState<RelatedArticle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
   const viewCounted = useRef(false);
+  const articleRef = useRef<HTMLElement>(null);
+
+  // ── Reading progress ────────────────────────────────────────────
+  const handleScroll = useCallback(() => {
+    if (!articleRef.current) return;
+    const el = articleRef.current;
+    const rect = el.getBoundingClientRect();
+    const total = el.scrollHeight - window.innerHeight;
+    const scrolled = -rect.top;
+    const pct = Math.min(100, Math.max(0, (scrolled / total) * 100));
+    setProgress(pct);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   // ── Fetch article ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -187,7 +203,7 @@ const ArticlePage = () => {
     load();
   }, [slug, navigate]);
 
-  // ── Increment view count (debounced, once per slug per page load) ───────────
+  // ── Increment view count ───────────
   useEffect(() => {
     if (!article || viewCounted.current) return;
     const timer = setTimeout(() => {
@@ -204,7 +220,6 @@ const ArticlePage = () => {
     const fetchRelated = async () => {
       let results: RelatedArticle[] = [];
 
-      // First: same primary category
       if ((article as any).primary_category_id) {
         const data = await mongoApi.getArticles({
           status: "published",
@@ -215,7 +230,6 @@ const ArticlePage = () => {
         results = data as unknown as RelatedArticle[];
       }
 
-      // Fill up to 6 with latest if needed
       if (results.length < 6) {
         const existingIds = [(article as any).id, ...results.map((r) => r.id)];
         const fallback = await mongoApi.getArticles({ status: "published", limit: 20 }).catch(() => []);
@@ -261,7 +275,6 @@ const ArticlePage = () => {
     setMeta("twitter:description", description);
     setMeta("twitter:image", image);
 
-    // Canonical
     let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonical) {
       canonical = document.createElement("link") as HTMLLinkElement;
@@ -270,7 +283,6 @@ const ArticlePage = () => {
     }
     canonical.href = url;
 
-    // Article JSON-LD
     const schema = {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
@@ -337,9 +349,9 @@ const ArticlePage = () => {
         <NavBar />
         <div className="max-w-4xl mx-auto px-6 py-16 space-y-6 animate-pulse">
           <div className="h-4 bg-muted rounded w-48" />
-          <div className="h-8 bg-muted rounded w-3/4" />
+          <div className="h-10 bg-muted rounded w-3/4" />
           <div className="h-4 bg-muted rounded w-1/2" />
-          <div className="h-64 bg-muted rounded-xl" />
+          <div className="h-72 bg-muted rounded-2xl" />
           <div className="space-y-3">
             {[...Array(8)].map((_, i) => (
               <div key={i} className={`h-4 bg-muted rounded ${i % 3 === 2 ? "w-3/4" : "w-full"}`} />
@@ -365,51 +377,40 @@ const ArticlePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Reading progress bar */}
+      <div className="reading-progress" style={{ "--progress": `${progress}%` } as React.CSSProperties} />
+
       <SiteHeader />
       <NavBar />
 
-      <main className="max-w-4xl mx-auto px-4 md:px-6 py-6">
+      <main ref={articleRef} className="max-w-4xl mx-auto px-4 md:px-6 py-8">
         {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
-        <nav aria-label="breadcrumb" className="mb-5 animate-fade-in-up">
+        <nav aria-label="breadcrumb" className="mb-6 animate-fade-in-up">
           <ol className="flex items-center gap-1.5 text-sm text-muted-foreground font-body flex-wrap">
             <li>
-              <Link to="/" className="hover:text-primary transition-colors">
-                Home
-              </Link>
+              <Link to="/" className="hover:text-primary transition-colors">Home</Link>
             </li>
+            <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li>
-              <ChevronRight className="h-3.5 w-3.5" />
+              <Link to={`/?cat=${categorySlug}`} className="hover:text-primary transition-colors">{categoryName}</Link>
             </li>
-            <li>
-              <Link
-                to={`/?cat=${categorySlug}`}
-                className="hover:text-primary transition-colors"
-              >
-                {categoryName}
-              </Link>
-            </li>
-            <li>
-              <ChevronRight className="h-3.5 w-3.5" />
-            </li>
-            <li
-              className="text-foreground font-medium max-w-xs truncate"
-              aria-current="page"
-            >
+            <li><ChevronRight className="h-3.5 w-3.5" /></li>
+            <li className="text-foreground font-medium max-w-xs truncate" aria-current="page">
               {truncate(article.title, 50)}
             </li>
           </ol>
         </nav>
 
         {/* ── Badges ──────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-2 mb-4 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
+        <div className="flex flex-wrap items-center gap-2 mb-5 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
           {article.is_breaking && (
-            <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
               <Zap className="h-3 w-3" />
               Breaking News
             </span>
           )}
           {article.is_featured && (
-            <span className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
               <Star className="h-3 w-3" />
               Featured
             </span>
@@ -417,7 +418,7 @@ const ArticlePage = () => {
           {article.categories && (
             <Link
               to={`/?cat=${categorySlug}`}
-              className="inline-block bg-primary/10 text-primary text-[10px] font-semibold px-3 py-1 rounded-full hover:bg-primary/20 transition-colors uppercase tracking-wider"
+              className="inline-block bg-primary/10 text-primary text-[10px] font-semibold px-3 py-1.5 rounded-full hover:bg-primary/20 transition-colors uppercase tracking-wider"
             >
               {categoryName}
             </Link>
@@ -426,40 +427,40 @@ const ArticlePage = () => {
 
         {/* ── Title ───────────────────────────────────────────────────────── */}
         <h1
-          className="text-2xl md:text-[2.5rem] font-heading font-bold text-foreground leading-[1.15] mb-5 animate-fade-in-up"
+          className="text-[1.75rem] md:text-[2.75rem] font-heading font-bold text-foreground leading-[1.12] mb-5 animate-fade-in-up"
           style={{ animationDelay: "0.1s" }}
         >
           {article.title}
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
-        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-5 leading-relaxed border-l-4 border-primary/30 pl-4 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-6 leading-relaxed border-l-4 border-primary/30 pl-5 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
           {article.excerpt}
         </p>
 
         {/* ── Meta Row ────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground font-body mb-6 pb-6 border-b border-border animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground font-body mb-8 pb-6 border-b border-border animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <span className="font-semibold text-foreground">Dominica News</span>
-          <span className="text-border">•</span>
+          <span className="w-1 h-1 rounded-full bg-border" />
           {pubDate && (
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
               {pubDate}
             </span>
           )}
-          <span className="text-border">•</span>
+          <span className="w-1 h-1 rounded-full bg-border" />
           <span className="flex items-center gap-1">
             <Eye className="h-3.5 w-3.5" />
             {article.view_count.toLocaleString()} views
           </span>
-          <span className="text-border">•</span>
+          <span className="w-1 h-1 rounded-full bg-border" />
           <span className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
             {readTime} min read
           </span>
           {article.authors && (
             <>
-              <span className="text-border">•</span>
+              <span className="w-1 h-1 rounded-full bg-border" />
               <span className="flex items-center gap-1">
                 <User className="h-3.5 w-3.5" />
                 {article.authors.full_name}
@@ -470,7 +471,7 @@ const ArticlePage = () => {
 
         {/* ── Cover Image ─────────────────────────────────────────────────── */}
         {article.cover_image_url && (
-          <figure className="mb-8 -mx-4 md:mx-0 md:rounded-xl overflow-hidden shadow-card animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
+          <figure className="mb-10 -mx-4 md:mx-0 md:rounded-2xl overflow-hidden shadow-card animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
             <img
               src={getProxiedAssetUrl(article.cover_image_url)}
               alt={article.cover_image_alt || article.title}
@@ -481,10 +482,10 @@ const ArticlePage = () => {
                 img.dataset.fallbackApplied = "true";
                 img.src = "/placeholder.svg";
               }}
-              className="w-full max-h-[520px] object-cover"
+              className="w-full max-h-[540px] object-cover"
             />
             {article.cover_image_alt && (
-              <figcaption className="text-[11px] text-muted-foreground text-center py-2 px-4 bg-muted/40 font-body">
+              <figcaption className="text-[11px] text-muted-foreground text-center py-2.5 px-4 bg-muted/30 font-body">
                 {article.cover_image_alt}
               </figcaption>
             )}
@@ -492,12 +493,15 @@ const ArticlePage = () => {
         )}
 
         {/* ── Share Bar ───────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-2.5 mb-8 py-4 border-y border-border animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-          <span className="text-xs font-semibold font-body text-muted-foreground mr-1 uppercase tracking-wider">Share:</span>
+        <div className="flex items-center gap-2.5 mb-10 py-4 border-y border-border/60 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+          <span className="text-xs font-semibold font-body text-muted-foreground mr-1 uppercase tracking-wider flex items-center gap-1">
+            <Share2 className="h-3.5 w-3.5" />
+            Share
+          </span>
           <button
             onClick={shareFacebook}
             aria-label="Share on Facebook"
-            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-[hsl(221_44%_41%)] text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-secondary text-secondary-foreground hover:opacity-90 transition-opacity"
           >
             <Facebook className="h-3.5 w-3.5" />
             Facebook
@@ -505,7 +509,7 @@ const ArticlePage = () => {
           <button
             onClick={shareTwitter}
             aria-label="Share on Twitter"
-            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-[hsl(203_89%_53%)] text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-foreground/80 text-background hover:opacity-90 transition-opacity"
           >
             <Twitter className="h-3.5 w-3.5" />
             Twitter
@@ -516,7 +520,7 @@ const ArticlePage = () => {
             className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full border border-border text-foreground hover:bg-muted transition-colors"
           >
             <Link2 className="h-3.5 w-3.5" />
-            Share
+            Copy Link
           </button>
         </div>
 
@@ -546,11 +550,11 @@ const ArticlePage = () => {
 
         {/* ── About the Author ────────────────────────────────────────────── */}
         {article.authors && (
-          <section className="mb-10 p-6 border border-border rounded-xl bg-muted/20 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-            <h3 className="font-heading font-bold text-xs text-muted-foreground uppercase tracking-widest mb-4">
+          <section className="mb-12 p-6 md:p-8 border border-border/60 rounded-2xl bg-muted/15 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+            <h3 className="font-heading font-bold text-xs text-muted-foreground uppercase tracking-widest mb-5">
               About the Author
             </h3>
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-5">
               <div className="shrink-0">
                 {article.authors.avatar_url ? (
                   <img
@@ -559,14 +563,11 @@ const ArticlePage = () => {
                     referrerPolicy="no-referrer"
                     onError={(e) => {
                       const img = e.currentTarget;
-                      if (img.dataset.fallbackApplied === "true") {
-                        img.style.display = "none";
-                        return;
-                      }
+                      if (img.dataset.fallbackApplied === "true") { img.style.display = "none"; return; }
                       img.dataset.fallbackApplied = "true";
                       img.src = "/placeholder.svg";
                     }}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-border ring-2 ring-primary/10"
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center border-2 border-border">
@@ -575,11 +576,11 @@ const ArticlePage = () => {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
+                <div className="flex items-center gap-2 flex-wrap mb-1.5">
                   <span className="font-heading font-bold text-foreground text-base">
                     {article.authors.full_name}
                   </span>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary font-body">
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary font-body uppercase tracking-wider">
                     {authorRole}
                   </span>
                 </div>
@@ -600,10 +601,12 @@ const ArticlePage = () => {
         {/* ── Related Articles ────────────────────────────────────────────── */}
         {related.length > 0 && (
           <section className="mb-10 animate-fade-in-up" style={{ animationDelay: "0.45s" }}>
-            <h3 className="font-heading font-bold text-xl text-foreground border-b-2 border-primary pb-2 mb-6">
-              Related Articles
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-1 h-6 bg-primary rounded-full" />
+              <h3 className="font-heading font-bold text-xl text-foreground">Related Articles</h3>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children">
               {related.map((rel) => (
                 <RelatedCard key={rel.id} article={rel} />
               ))}

@@ -50,9 +50,12 @@
     --nav-active: 0 72% 50%;
     --nav-hover: 210 14% 93%;
     --card-shadow: 0 1px 3px 0 hsl(220 20% 12% / 0.06), 0 1px 2px -1px hsl(220 20% 12% / 0.06);
-    --card-shadow-hover: 0 4px 16px -2px hsl(220 20% 12% / 0.12);
+    --card-shadow-hover: 0 10px 40px -8px hsl(220 20% 12% / 0.12), 0 4px 12px -2px hsl(220 20% 12% / 0.08);
     --topbar-bg: 0 72% 50%;
     --topbar-fg: 0 0% 100%;
+
+    --glass-bg: hsl(0 0% 100% / 0.85);
+    --glass-border: hsl(214 18% 86% / 0.5);
   }
 
   .dark {
@@ -83,6 +86,9 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --glass-bg: hsl(222.2 84% 4.9% / 0.85);
+    --glass-border: hsl(217.2 32.6% 17.5% / 0.5);
   }
 }
 
@@ -103,8 +109,14 @@
   }
 }
 
-/* Professional news prose styling */
+/* Reading progress bar */
 @layer components {
+  .reading-progress {
+    @apply fixed top-0 left-0 h-[3px] bg-primary z-[100] transition-none;
+    width: var(--progress, 0%);
+  }
+
+  /* Professional news prose styling */
   .news-prose {
     @apply font-serif text-foreground;
     font-size: 1.125rem;
@@ -152,6 +164,40 @@
     @apply font-semibold text-foreground;
   }
 
+  /* Card lift effect */
+  .card-lift {
+    @apply transition-all duration-300;
+  }
+  .card-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Stagger children animation */
+  .stagger-children > * {
+    @apply animate-fade-in-up;
+  }
+  .stagger-children > *:nth-child(1) { animation-delay: 0s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.06s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.18s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.24s; }
+  .stagger-children > *:nth-child(6) { animation-delay: 0.30s; }
+  .stagger-children > *:nth-child(7) { animation-delay: 0.36s; }
+  .stagger-children > *:nth-child(8) { animation-delay: 0.42s; }
+  .stagger-children > *:nth-child(9) { animation-delay: 0.48s; }
+
+  /* Ticker scroll */
+  @keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .ticker-track {
+    animation: ticker-scroll 30s linear infinite;
+  }
+  .ticker-track:hover {
+    animation-play-state: paused;
+  }
+
   /* Hide scrollbars on nav */
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -159,5 +205,13 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Glass morphism */
+  .glass {
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    backdrop-filter: blur(16px) saturate(1.8);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8);
   }
 }
