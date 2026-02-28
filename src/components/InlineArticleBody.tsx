@@ -16,8 +16,13 @@ const InlineArticleBody = ({ html, className, style }: InlineArticleBodyProps) =
   const segments = useMemo(() => {
     if (!html) return [{ type: "html" as const, content: "" }];
 
-    // Match embed placeholder divs inserted by the editor
-    const embedRegex = /<div[^>]*data-embed-platform="([^"]*)"[^>]*data-embed-url="([^"]*)"[^>]*data-embed-code="([^"]*)"[^>]*>[\s\S]*?<\/div>/gi;
+    // Match any div that contains data-embed-platform (attribute order independent)
+    const embedRegex = /<div[^>]*data-embed-platform="[^"]*"[^>]*>[\s\S]*?<\/div>/gi;
+
+    const extractAttr = (tag: string, name: string): string => {
+      const m = tag.match(new RegExp(`${name}="([^"]*)"`));
+      return m ? m[1] : "";
+    };
 
     const result: Array<
       | { type: "html"; content: string }
@@ -33,12 +38,13 @@ const InlineArticleBody = ({ html, className, style }: InlineArticleBodyProps) =
         result.push({ type: "html", content: html.slice(lastIndex, match.index) });
       }
 
-      // Decode embed data
-      const platform = match[1];
-      const url = (match[2] || "").replace(/&quot;/g, '"');
+      const tag = match[0];
+      const platform = extractAttr(tag, "data-embed-platform");
+      const url = (extractAttr(tag, "data-embed-url") || "").replace(/&quot;/g, '"');
       let code = "";
       try {
-        code = match[3] ? atob(match[3]) : "";
+        const rawCode = extractAttr(tag, "data-embed-code");
+        code = rawCode ? atob(rawCode) : "";
       } catch {
         code = "";
       }
