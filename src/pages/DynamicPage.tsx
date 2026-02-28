@@ -4,6 +4,7 @@ import { mongoApi } from "@/lib/mongoApi";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
+import PageLoader from "@/components/PageLoader";
 
 const DynamicPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -16,10 +17,21 @@ const DynamicPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {isLoading && <PageLoader />}
       <SiteHeader />
       <NavBar />
       <main className="max-w-3xl mx-auto px-6 py-12 font-body animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
-        {isLoading && <p className="text-muted-foreground">Loading…</p>}
+        {isLoading && (
+          <div className="space-y-4 animate-pulse">
+            <div className="h-8 bg-muted rounded w-3/4" />
+            <div className="h-4 bg-muted rounded w-1/2" />
+            <div className="space-y-2 mt-8">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-4 bg-muted rounded" />
+              ))}
+            </div>
+          </div>
+        )}
         {error && <p className="text-destructive">Page not found.</p>}
         {page && (
           <>

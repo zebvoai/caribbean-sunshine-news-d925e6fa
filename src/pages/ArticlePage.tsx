@@ -6,6 +6,7 @@ import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
 import { mongoApi } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import PageLoader from "@/components/PageLoader";
 import {
   Calendar,
   User,
@@ -329,6 +330,7 @@ const ArticlePage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
+        <PageLoader />
         <SiteHeader />
         <NavBar />
         <div className="max-w-4xl mx-auto px-6 py-16 space-y-6 animate-pulse">
