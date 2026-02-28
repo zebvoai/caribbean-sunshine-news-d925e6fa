@@ -539,32 +539,49 @@ Deno.serve(async (req) => {
       const categorySlug = url.searchParams.get("category_slug");
       const excludeId = url.searchParams.get("exclude_id");
       const isBreaking = url.searchParams.get("is_breaking");
+      const searchQuery = url.searchParams.get("q");
 
       const filter: any = { deletedAt: { $in: [null, undefined] } };
       if (status && status !== "all") filter.status = status;
+
+      // Full-text search on title and excerpt
+      if (searchQuery && searchQuery.trim().length > 0) {
+        const escaped = searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        if (!filter.$and) filter.$and = [];
+        filter.$and.push({
+          $or: [
+            { title: { $regex: escaped, $options: "i" } },
+            { excerpt: { $regex: escaped, $options: "i" } },
+          ],
+        });
+      }
       if (isBreaking === "true") filter.isBreaking = true;
 
       // Resolve category by slug if provided
       if (categorySlug) {
         const catDoc = await db.collection("categories").findOne({ slug: categorySlug });
         if (catDoc) {
-          // Match articles where the category is either primary OR in the additional categories array
-          filter.$or = [
-            { category: catDoc._id },
-            { categories: catDoc._id },
-          ];
+          if (!filter.$and) filter.$and = [];
+          filter.$and.push({
+            $or: [
+              { category: catDoc._id },
+              { categories: catDoc._id },
+            ],
+          });
         } else {
-          // No category found with this slug — return empty
           return jsonResponse([]);
         }
       } else if (categoryId) {
         let catObjId: ObjectId | null = null;
         try { catObjId = new ObjectId(categoryId); } catch {}
         if (catObjId) {
-          filter.$or = [
-            { category: catObjId },
-            { categories: catObjId },
-          ];
+          if (!filter.$and) filter.$and = [];
+          filter.$and.push({
+            $or: [
+              { category: catObjId },
+              { categories: catObjId },
+            ],
+          });
         }
       }
 

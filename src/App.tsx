@@ -15,6 +15,7 @@ import AdminAuthorsPage from "./pages/admin/AdminAuthorsPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import EditArticlePage from "./pages/admin/EditArticlePage";
 import ArticlePage from "./pages/ArticlePage";
+import SearchPage from "./pages/SearchPage";
 import LiveUpdatePage from "./pages/LiveUpdatePage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminAuthGuard from "./components/admin/AdminAuthGuard";
@@ -43,6 +44,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/news/:slug" element={<ArticlePage />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="/live/:slug" element={<LiveUpdatePage />} />
             <Route path="/page/:slug" element={<DynamicPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
