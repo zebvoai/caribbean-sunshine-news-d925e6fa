@@ -48,11 +48,11 @@ const Index = () => {
       if (activeCat) params.category_slug = activeCat;
       return mongoApi.getArticles(params);
     },
-    staleTime: 5 * 60 * 1000, // 5 min cache — instant tab switch
+    staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
-  const { data: breakingRaw = [] } = useQuery({
+  const { data: breakingRaw = [], isLoading: loadingBreaking } = useQuery({
     queryKey: ["articles", "breaking"],
     queryFn: () => mongoApi.getArticles({ status: "published", limit: 2, is_breaking: true }),
     staleTime: 5 * 60 * 1000,
@@ -60,7 +60,7 @@ const Index = () => {
     enabled: !activeCat,
   });
 
-  const { data: liveUpdates = [] } = useQuery({
+  const { data: liveUpdates = [], isLoading: loadingLive } = useQuery({
     queryKey: ["live-updates-home"],
     queryFn: () => mongoApi.getLiveUpdates(),
     staleTime: 60 * 1000,
@@ -85,7 +85,17 @@ const Index = () => {
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
         {/* Live Updates Section — only on home */}
-        {!activeCat && activeLiveUpdates.length > 0 && (
+        {!activeCat && (loadingLive ? (
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-muted animate-pulse" />
+              <div className="h-5 w-32 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="border-b-2 border-muted mb-4" />
+            <div className="h-16 bg-muted animate-pulse rounded-lg" />
+            <div className="h-16 bg-muted animate-pulse rounded-lg" />
+          </section>
+        ) : activeLiveUpdates.length > 0 ? (
           <section>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-block w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
@@ -143,10 +153,20 @@ const Index = () => {
               ))}
             </div>
           </section>
-        )}
+        ) : null)}
 
         {/* Breaking News Section — only on home */}
-        {!activeCat && !loadingArticles && breakingArticles.length > 0 && (
+        {!activeCat && (loadingBreaking ? (
+          <section className="space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-muted animate-pulse" />
+              <div className="h-5 w-36 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="border-b-2 border-muted mb-4" />
+            <div className="h-28 bg-muted animate-pulse rounded-lg" />
+            <div className="h-28 bg-muted animate-pulse rounded-lg" />
+          </section>
+        ) : breakingArticles.length > 0 ? (
           <section>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-block w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
@@ -201,7 +221,7 @@ const Index = () => {
               ))}
             </div>
           </section>
-        )}
+        ) : null)}
 
         {/* Articles Section */}
         <section>
