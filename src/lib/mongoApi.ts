@@ -271,6 +271,7 @@ export const mongoApi = {
     category_slug?: string;
     exclude_id?: string;
     is_breaking?: boolean;
+    q?: string;
   } = {}): Promise<MongoArticle[]> {
     const p: Record<string, string> = { resource: "articles" };
     if (params.status) p.status = params.status;
@@ -279,6 +280,7 @@ export const mongoApi = {
     if (params.category_slug) p.category_slug = params.category_slug;
     if (params.exclude_id) p.exclude_id = params.exclude_id;
     if (params.is_breaking) p.is_breaking = "true";
+    if (params.q) p.q = params.q;
     return get<MongoArticle[]>(p);
   },
 
