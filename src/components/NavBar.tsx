@@ -24,7 +24,6 @@ const NavBar = () => {
   });
 
   const hasActiveLive = liveUpdates.some((u) => u.is_live);
-
   const isHomeActive = location.pathname === "/" && !activeCat;
   const isLiveActive = location.pathname === "/live";
 
@@ -44,17 +43,17 @@ const NavBar = () => {
     });
   };
 
+  const linkBase = "px-4 py-3 text-[12px] font-body font-semibold uppercase tracking-[0.1em] transition-all whitespace-nowrap flex-shrink-0 border-b-2";
+  const activeClass = "text-primary border-primary";
+  const inactiveClass = "text-foreground/70 border-transparent hover:text-primary hover:border-primary/30";
+
   return (
-    <nav className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-center gap-0 px-4 overflow-x-auto">
+    <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
+      <div className="max-w-7xl mx-auto flex items-center justify-center gap-0 px-4 overflow-x-auto scrollbar-hide">
         <Link
           to="/"
           onMouseEnter={() => prefetch(null)}
-          className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 ${
-            isHomeActive
-              ? "text-primary border-primary"
-              : "text-foreground border-transparent hover:text-primary hover:border-primary/40"
-          }`}
+          className={`${linkBase} ${isHomeActive ? activeClass : inactiveClass}`}
         >
           Home
         </Link>
@@ -64,11 +63,7 @@ const NavBar = () => {
             key={cat.id}
             to={`/?cat=${cat.slug}`}
             onMouseEnter={() => prefetch(cat.slug)}
-            className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 ${
-              activeCat === cat.slug
-                ? "text-primary border-primary"
-                : "text-foreground border-transparent hover:text-primary hover:border-primary/40"
-            }`}
+            className={`${linkBase} ${activeCat === cat.slug ? activeClass : inactiveClass}`}
           >
             {cat.name}
           </Link>
@@ -76,10 +71,10 @@ const NavBar = () => {
 
         <Link
           to="/live"
-          className={`px-4 py-3 text-[13px] font-body font-semibold uppercase tracking-wider transition-colors whitespace-nowrap flex-shrink-0 border-b-2 flex items-center gap-1.5 ${
+          className={`${linkBase} flex items-center gap-1.5 ${
             isLiveActive
               ? "text-destructive border-destructive"
-              : "text-foreground border-transparent hover:text-destructive hover:border-destructive/40"
+              : "text-foreground/70 border-transparent hover:text-destructive hover:border-destructive/30"
           }`}
         >
           <span className="relative flex items-center">
