@@ -3,6 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { PlusCircle, Eye, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const STATUS_TABS = ["published", "draft", "scheduled"] as const;
 type StatusTab = typeof STATUS_TABS[number];
@@ -13,6 +23,7 @@ const AdminArticlesPage = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<StatusTab>("published");
+  const [deleteTarget, setDeleteTarget] = useState<MongoArticle | null>(null);
 
   const loadArticles = async () => {
     setLoading(true);
@@ -38,11 +49,11 @@ const AdminArticlesPage = () => {
     .filter((a) => a.publication_status === activeTab)
     .filter((a) => a.title.toLowerCase().includes(search.toLowerCase()));
 
-  const deleteArticle = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this article?")) return;
+  const deleteArticle = async (article: MongoArticle) => {
     try {
-      await mongoApi.deleteArticle(id);
+      await mongoApi.deleteArticle(article.id);
       toast.success("Article deleted");
+      setDeleteTarget(null);
       loadArticles();
     } catch (err: any) {
       toast.error(err.message || "Failed to delete");
@@ -186,7 +197,7 @@ const AdminArticlesPage = () => {
                     <Edit className="h-4 w-4 text-muted-foreground" />
                   </button>
                   <button
-                    onClick={() => deleteArticle(article.id)}
+                    onClick={() => setDeleteTarget(article)}
                     className="p-2 hover:bg-destructive/10 rounded-lg transition-colors"
                     title="Delete"
                   >
@@ -198,6 +209,27 @@ const AdminArticlesPage = () => {
           ))}
         </div>
       )}
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this article?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{deleteTarget?.title}" will be moved to the recycle bin.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteTarget && deleteArticle(deleteTarget)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

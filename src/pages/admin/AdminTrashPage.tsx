@@ -2,6 +2,16 @@ import { useEffect, useState } from "react";
 import { Trash2, RotateCcw, AlertTriangle, Search } from "lucide-react";
 import { toast } from "sonner";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type TrashedArticle = MongoArticle & { deleted_at: string | null };
 
@@ -9,6 +19,8 @@ const AdminTrashPage = () => {
   const [articles, setArticles] = useState<TrashedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<TrashedArticle | null>(null);
+  const [emptyTrashOpen, setEmptyTrashOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -37,11 +49,11 @@ const AdminTrashPage = () => {
     }
   };
 
-  const permanentDelete = async (id: string) => {
-    if (!confirm("Permanently delete this article? This cannot be undone.")) return;
+  const permanentDelete = async (article: TrashedArticle) => {
     try {
-      await mongoApi.permanentlyDeleteArticle(id);
+      await mongoApi.permanentlyDeleteArticle(article.id);
       toast.success("Permanently deleted");
+      setDeleteTarget(null);
       load();
     } catch {
       toast.error("Failed to delete");
@@ -49,10 +61,10 @@ const AdminTrashPage = () => {
   };
 
   const emptyTrash = async () => {
-    if (!confirm(`Permanently delete all ${articles.length} trashed articles? This cannot be undone.`)) return;
     try {
       await Promise.all(articles.map((a) => mongoApi.permanentlyDeleteArticle(a.id)));
       toast.success("Trash emptied");
+      setEmptyTrashOpen(false);
       load();
     } catch {
       toast.error("Failed to empty trash");
@@ -73,7 +85,7 @@ const AdminTrashPage = () => {
         </div>
         {articles.length > 0 && (
           <button
-            onClick={emptyTrash}
+            onClick={() => setEmptyTrashOpen(true)}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg text-sm font-semibold hover:bg-destructive/90 transition-colors w-full sm:w-auto"
           >
             <Trash2 className="h-4 w-4" />
@@ -159,7 +171,7 @@ const AdminTrashPage = () => {
                     <span className="hidden sm:inline">Restore</span>
                   </button>
                   <button
-                    onClick={() => permanentDelete(article.id)}
+                    onClick={() => setDeleteTarget(article)}
                     className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
                     title="Delete permanently"
                   >
@@ -172,6 +184,48 @@ const AdminTrashPage = () => {
           ))}
         </div>
       )}
+
+      {/* Permanent Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete this article?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete "{deleteTarget?.title}". This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => deleteTarget && permanentDelete(deleteTarget)}
+            >
+              Delete Forever
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Empty Trash Confirmation */}
+      <AlertDialog open={emptyTrashOpen} onOpenChange={setEmptyTrashOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Empty entire trash?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all {articles.length} trashed article{articles.length !== 1 ? "s" : ""}. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={emptyTrash}
+            >
+              Empty Trash
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
