@@ -401,15 +401,15 @@ const ArticlePage = () => {
         </nav>
 
         {/* ── Badges ──────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-2 mb-3 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
+        <div className="flex flex-wrap items-center gap-2 mb-4 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
           {article.is_breaking && (
-            <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1 rounded uppercase tracking-wide">
+            <span className="inline-flex items-center gap-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               <Zap className="h-3 w-3" />
               Breaking News
             </span>
           )}
           {article.is_featured && (
-            <span className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground text-xs font-bold px-3 py-1 rounded uppercase tracking-wide">
+            <span className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
               <Star className="h-3 w-3" />
               Featured
             </span>
@@ -417,7 +417,7 @@ const ArticlePage = () => {
           {article.categories && (
             <Link
               to={`/?cat=${categorySlug}`}
-              className="inline-block bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded hover:bg-primary/20 transition-colors"
+              className="inline-block bg-primary/10 text-primary text-[10px] font-semibold px-3 py-1 rounded-full hover:bg-primary/20 transition-colors uppercase tracking-wider"
             >
               {categoryName}
             </Link>
@@ -426,19 +426,19 @@ const ArticlePage = () => {
 
         {/* ── Title ───────────────────────────────────────────────────────── */}
         <h1
-          className="text-2xl md:text-[2.25rem] font-heading font-bold text-foreground leading-tight mb-4 animate-fade-in-up"
+          className="text-2xl md:text-[2.5rem] font-heading font-bold text-foreground leading-[1.15] mb-5 animate-fade-in-up"
           style={{ animationDelay: "0.1s" }}
         >
           {article.title}
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
-        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-4 leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-5 leading-relaxed border-l-4 border-primary/30 pl-4 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
           {article.excerpt}
         </p>
 
         {/* ── Meta Row ────────────────────────────────────────────────────── */}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground font-body mb-5 pb-5 border-b border-border animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground font-body mb-6 pb-6 border-b border-border animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <span className="font-semibold text-foreground">Dominica News</span>
           <span className="text-border">•</span>
           {pubDate && (
@@ -470,24 +470,21 @@ const ArticlePage = () => {
 
         {/* ── Cover Image ─────────────────────────────────────────────────── */}
         {article.cover_image_url && (
-          <figure className="mb-6 rounded-xl overflow-hidden shadow-card animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
+          <figure className="mb-8 -mx-4 md:mx-0 md:rounded-xl overflow-hidden shadow-card animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
             <img
               src={getProxiedAssetUrl(article.cover_image_url)}
               alt={article.cover_image_alt || article.title}
               referrerPolicy="no-referrer"
               onError={(e) => {
                 const img = e.currentTarget;
-                if (img.dataset.fallbackApplied === "true") {
-                  img.style.display = "none";
-                  return;
-                }
+                if (img.dataset.fallbackApplied === "true") { img.style.display = "none"; return; }
                 img.dataset.fallbackApplied = "true";
                 img.src = "/placeholder.svg";
               }}
-              className="w-full max-h-[480px] object-cover"
+              className="w-full max-h-[520px] object-cover"
             />
             {article.cover_image_alt && (
-              <figcaption className="text-xs text-muted-foreground text-center py-2 px-4 bg-muted/50">
+              <figcaption className="text-[11px] text-muted-foreground text-center py-2 px-4 bg-muted/40 font-body">
                 {article.cover_image_alt}
               </figcaption>
             )}
@@ -495,12 +492,12 @@ const ArticlePage = () => {
         )}
 
         {/* ── Share Bar ───────────────────────────────────────────────────── */}
-        <div className="flex items-center gap-3 mb-8 py-4 border-y border-border animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
-          <span className="text-sm font-semibold font-body text-muted-foreground mr-1">Share:</span>
+        <div className="flex items-center gap-2.5 mb-8 py-4 border-y border-border animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+          <span className="text-xs font-semibold font-body text-muted-foreground mr-1 uppercase tracking-wider">Share:</span>
           <button
             onClick={shareFacebook}
             aria-label="Share on Facebook"
-            className="flex items-center gap-1.5 text-sm font-body font-semibold px-3 py-1.5 rounded bg-[hsl(221_44%_41%)] text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-[hsl(221_44%_41%)] text-white hover:opacity-90 transition-opacity"
           >
             <Facebook className="h-3.5 w-3.5" />
             Facebook
@@ -508,7 +505,7 @@ const ArticlePage = () => {
           <button
             onClick={shareTwitter}
             aria-label="Share on Twitter"
-            className="flex items-center gap-1.5 text-sm font-body font-semibold px-3 py-1.5 rounded bg-[hsl(203_89%_53%)] text-white hover:opacity-90 transition-opacity"
+            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full bg-[hsl(203_89%_53%)] text-white hover:opacity-90 transition-opacity"
           >
             <Twitter className="h-3.5 w-3.5" />
             Twitter
@@ -516,7 +513,7 @@ const ArticlePage = () => {
           <button
             onClick={handleShare}
             aria-label="Share"
-            className="flex items-center gap-1.5 text-sm font-body font-semibold px-3 py-1.5 rounded border border-border text-foreground hover:bg-muted transition-colors"
+            className="flex items-center gap-1.5 text-xs font-body font-semibold px-3.5 py-2 rounded-full border border-border text-foreground hover:bg-muted transition-colors"
           >
             <Link2 className="h-3.5 w-3.5" />
             Share
@@ -549,8 +546,8 @@ const ArticlePage = () => {
 
         {/* ── About the Author ────────────────────────────────────────────── */}
         {article.authors && (
-          <section className="mb-10 p-5 border border-border rounded-xl bg-muted/20 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-            <h3 className="font-heading font-bold text-base text-muted-foreground uppercase tracking-wide mb-4">
+          <section className="mb-10 p-6 border border-border rounded-xl bg-muted/20 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
+            <h3 className="font-heading font-bold text-xs text-muted-foreground uppercase tracking-widest mb-4">
               About the Author
             </h3>
             <div className="flex items-start gap-4">

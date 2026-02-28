@@ -112,7 +112,7 @@
   }
 
   .news-prose p {
-    @apply mb-5;
+    @apply mb-6;
   }
 
   .news-prose p:empty {
@@ -122,7 +122,7 @@
   .news-prose h2,
   .news-prose h3,
   .news-prose h4 {
-    @apply font-heading font-bold text-foreground mt-8 mb-4;
+    @apply font-heading font-bold text-foreground mt-10 mb-4;
   }
 
   .news-prose h2 { @apply text-2xl; }
@@ -133,15 +133,15 @@
   }
 
   .news-prose blockquote {
-    @apply border-l-4 border-accent pl-5 py-2 my-6 italic text-muted-foreground bg-muted/30 rounded-r-md;
+    @apply border-l-4 border-primary pl-5 py-3 my-8 italic text-muted-foreground bg-muted/30 rounded-r-md;
   }
 
   .news-prose img {
-    @apply rounded-md shadow-card my-6;
+    @apply rounded-lg shadow-card my-8;
   }
 
   .news-prose ul, .news-prose ol {
-    @apply pl-6 mb-5;
+    @apply pl-6 mb-6;
   }
 
   .news-prose li {
@@ -150,5 +150,14 @@
 
   .news-prose strong {
     @apply font-semibold text-foreground;
+  }
+
+  /* Hide scrollbars on nav */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
