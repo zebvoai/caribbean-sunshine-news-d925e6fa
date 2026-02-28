@@ -36,11 +36,7 @@ const SiteFooter = () => {
           <div>
             <h3 className="font-heading font-bold text-base mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm font-body">
-              <li>
-                <Link to="/about" className="opacity-90 hover:opacity-100 hover:underline transition-opacity">
-                  About Us
-                </Link>
-              </li>
+              
               {pages
                 .filter((p) => p.is_active && p.show_in_footer)
                 .sort((a, b) => a.display_order - b.display_order)
