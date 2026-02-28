@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { formatDistanceToNow } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
@@ -55,7 +56,9 @@ const LiveUpdateCard = ({ update }: { update: MongoLiveUpdate }) => (
           )}
           {update.updated_at && (
             <span className="text-xs text-muted-foreground">
-              {formatDate(update.updated_at)} · {formatTime(update.updated_at)}
+              {update.is_live
+                ? `Updated ${formatDistanceToNow(new Date(update.updated_at), { addSuffix: true })}`
+                : `Ended ${formatDistanceToNow(new Date(update.updated_at), { addSuffix: true })}`}
             </span>
           )}
         </div>
