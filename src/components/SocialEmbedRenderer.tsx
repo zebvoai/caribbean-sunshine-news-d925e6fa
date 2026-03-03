@@ -72,15 +72,17 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
     }
   }
 
-  // Facebook – use an iframe to the post
+  // Facebook – use an iframe to the post/video
   if (platform === "facebook" || url.includes("facebook.com")) {
+    const isVideo = url.includes("/videos/") || url.includes("/watch") || url.includes("/reel");
     return (
       <iframe
-        src={`https://www.facebook.com/plugins/post.php?href=${encodeURIComponent(url)}&show_text=true&width=500`}
+        src={`https://www.facebook.com/plugins/${isVideo ? "video" : "post"}.php?href=${encodeURIComponent(url)}&show_text=true&width=560`}
         width="100%"
-        height={500}
-        style={{ border: "none", overflow: "hidden" }}
+        height={isVideo ? 420 : 600}
+        style={{ border: "none", overflow: "hidden", minHeight: isVideo ? 420 : 400 }}
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        allowFullScreen
         loading="lazy"
         className="rounded-lg"
       />
@@ -159,7 +161,7 @@ const SocialEmbedRenderer = ({ platform, embed_url, embed_code }: SocialEmbedPro
   // URL-based embed
   if (embed_url && embed_url.trim()) {
     return (
-      <div className="border border-border rounded-lg p-4 bg-muted/30 overflow-hidden">
+      <div className="border border-border rounded-lg p-4 bg-muted/30">
         <UrlEmbed platform={platform} url={embed_url} />
       </div>
     );
