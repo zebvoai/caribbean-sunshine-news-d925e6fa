@@ -432,7 +432,7 @@ const CreateArticlePage = () => {
         <Section title="Publishing Options">
           <div className="divide-y divide-border">
             <Toggle checked={isPinned} onChange={setIsPinned} label="Pin Article" icon={Pin} />
-            <Toggle checked={isFeatured} onChange={setIsFeatured} label="Featured Story" icon={Star} colorClass="bg-secondary" />
+            <Toggle checked={isFeatured} onChange={setIsFeatured} label="Featured Story" icon={Star} />
             <Toggle checked={isBreaking} onChange={setIsBreaking} label="Breaking News" icon={Zap} colorClass="bg-destructive" />
           </div>
 
