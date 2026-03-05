@@ -19,9 +19,8 @@ const SiteFooter = () => {
   });
 
   const socials = [
-    { Icon: Facebook, href: "https://www.facebook.com/dominicanews", label: "Facebook" },
-    { Icon: Twitter, href: "https://www.facebook.com/dominicanews", label: "Twitter" },
-    { Icon: Instagram, href: "https://www.instagram.com/dominicanews", label: "Instagram" },
+    { Icon: Facebook, href: "https://www.facebook.com/people/Dominicanewsdm/61586888187152/", label: "Facebook" },
+    { Icon: Instagram, href: "https://www.instagram.com/dominicanews.dm/", label: "Instagram" },
     { Icon: Youtube, href: "https://www.youtube.com/channel/UCvtEDb_00XXqe9oFUAkJ9ww", label: "YouTube" },
   ];
 
