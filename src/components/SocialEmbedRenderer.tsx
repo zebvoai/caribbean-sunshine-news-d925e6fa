@@ -76,16 +76,18 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
   if (platform === "facebook" || url.includes("facebook.com")) {
     const isVideo = url.includes("/videos/") || url.includes("/watch") || url.includes("/reel");
     return (
-      <iframe
-        src={`https://www.facebook.com/plugins/${isVideo ? "video" : "post"}.php?href=${encodeURIComponent(url)}&show_text=true&width=560`}
-        width="100%"
-        height={isVideo ? 420 : 600}
-        style={{ border: "none", overflow: "hidden", minHeight: isVideo ? 420 : 400 }}
-        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        allowFullScreen
-        loading="lazy"
-        className="rounded-lg"
-      />
+      <div className="relative w-full" style={{ paddingBottom: isVideo ? "56.25%" : "75%", minHeight: isVideo ? 500 : 500 }}>
+        <iframe
+          src={`https://www.facebook.com/plugins/${isVideo ? "video" : "post"}.php?href=${encodeURIComponent(url)}&show_text=true&width=560`}
+          width="100%"
+          height="100%"
+          style={{ border: "none", overflow: "hidden", position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+          className="rounded-lg"
+        />
+      </div>
     );
   }
 
