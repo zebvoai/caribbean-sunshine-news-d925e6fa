@@ -403,6 +403,16 @@ const AdminAuthorsPage = () => {
                     )}
                     {uploadingAvatar ? "Uploading..." : "Upload photo"}
                   </button>
+                  {form.avatar_url && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, avatar_url: "" })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-destructive border border-destructive/30 rounded-md hover:bg-destructive/10 transition-colors"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Remove photo
+                    </button>
+                  )}
                   <span className="text-[10px] text-muted-foreground">JPG, PNG, WebP — max 5MB</span>
                 </div>
               </div>
