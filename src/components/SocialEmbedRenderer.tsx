@@ -32,6 +32,59 @@ const getSpotifyPath = (url: string): string | null => {
 };
 
 /**
+ * Facebook embed using the JS SDK for proper responsive rendering.
+ */
+const FacebookEmbed = ({ url, pluginType }: { url: string; pluginType: "video" | "post" }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Load Facebook SDK if not already loaded
+    if (!(window as any).FB) {
+      const existingScript = document.getElementById("facebook-jssdk");
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.id = "facebook-jssdk";
+        script.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v21.0";
+        script.async = true;
+        script.defer = true;
+        script.crossOrigin = "anonymous";
+        document.body.appendChild(script);
+      }
+
+      // Wait for SDK to load, then parse
+      const interval = setInterval(() => {
+        if ((window as any).FB) {
+          clearInterval(interval);
+          (window as any).FB.XFBML.parse(containerRef.current);
+        }
+      }, 200);
+
+      return () => clearInterval(interval);
+    } else {
+      // SDK already loaded, just parse
+      setTimeout(() => {
+        (window as any).FB?.XFBML?.parse(containerRef.current);
+      }, 100);
+    }
+  }, [url]);
+
+  const dataAttr = pluginType === "video" ? "data-href" : "data-href";
+  const className = pluginType === "video" ? "fb-video" : "fb-post";
+
+  return (
+    <div ref={containerRef}>
+      <div
+        className={className}
+        data-href={url}
+        data-width="auto"
+        data-show-text="true"
+        {...(pluginType === "video" ? { "data-allowfullscreen": "true", "data-autoplay": "false" } : {})}
+      />
+    </div>
+  );
+};
+
+/**
  * Renders a URL-based embed for supported platforms using iframes.
  */
 const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
@@ -75,18 +128,9 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
   // Facebook – use an iframe to the post/video
   if (platform === "facebook" || url.includes("facebook.com")) {
     const isVideo = url.includes("/videos/") || url.includes("/watch") || url.includes("/reel");
-    return (
-      <iframe
-        src={`https://www.facebook.com/plugins/${isVideo ? "video" : "post"}.php?href=${encodeURIComponent(url)}&show_text=true&width=560`}
-        width="100%"
-        height={isVideo ? 700 : 700}
-        style={{ border: "none", overflow: "hidden" }}
-        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        allowFullScreen
-        loading="lazy"
-        className="rounded-lg"
-      />
-    );
+    const pluginType = isVideo ? "video" : "post";
+    // Use the Facebook SDK approach for better responsive rendering
+    return <FacebookEmbed url={url} pluginType={pluginType} />;
   }
 
   // TikTok – link only (TikTok embeds require JS SDK)
