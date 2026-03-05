@@ -146,7 +146,7 @@ const AdminAuthorsPage = () => {
           role: form.role.trim() || "Reporter",
           location: form.location.trim() || undefined,
           is_active: form.is_active,
-          avatar_url: form.avatar_url.trim() || undefined,
+          avatar_url: form.avatar_url.trim() || "",
         });
         toast.success("Author updated");
       } else {
