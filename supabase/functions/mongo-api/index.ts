@@ -680,20 +680,21 @@ Deno.serve(async (req) => {
         const now = new Date();
         const doc: any = {
           name: body.full_name || body.name,
-          email: body.email || null,
-          bio: body.bio || null,
           title: body.role || "Reporter",
           avatarUrl: body.avatar_url || null,
           isActive: body.is_active !== false,
           expertise: body.expertise || [],
           specialization: body.specialization || [],
-          location: body.location || null,
           slug: body.slug || null,
           articlesCount: 0,
           createdAt: now,
           updatedAt: now,
           __v: 0,
         };
+        // Only include optional fields with unique indexes when they have actual values
+        if (body.email) doc.email = body.email;
+        if (body.bio) doc.bio = body.bio;
+        if (body.location) doc.location = body.location;
         const result = await db.collection("authors").insertOne(doc);
         return jsonResponse({ id: result.insertedId.toString() });
       }
