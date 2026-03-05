@@ -111,15 +111,16 @@ const AdminAuthorsPage = () => {
         });
         toast.success("Author updated");
       } else {
-        await mongoApi.createAuthor({
+        const authorPayload: Record<string, any> = {
           full_name: form.full_name.trim(),
-          email: form.email.trim() || undefined,
-          bio: form.bio.trim() || undefined,
           role: form.role.trim() || "Reporter",
-          location: form.location.trim() || undefined,
           is_active: form.is_active,
           slug: generateSlug(form.full_name),
-        });
+        };
+        if (form.email.trim()) authorPayload.email = form.email.trim();
+        if (form.bio.trim()) authorPayload.bio = form.bio.trim();
+        if (form.location.trim()) authorPayload.location = form.location.trim();
+        await mongoApi.createAuthor(authorPayload as any);
         toast.success("Author created");
       }
       setDialogOpen(false);
