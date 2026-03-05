@@ -72,11 +72,11 @@ const FacebookEmbed = ({ url, pluginType }: { url: string; pluginType: "video" |
   const className = pluginType === "video" ? "fb-video" : "fb-post";
 
   return (
-    <div ref={containerRef} className="max-w-xs mx-auto">
+    <div ref={containerRef} className="mx-auto" style={{ maxWidth: 200 }}>
       <div
         className={className}
         data-href={url}
-        data-width="280"
+        data-width="200"
         data-show-text="true"
         {...(pluginType === "video" ? { "data-allowfullscreen": "true", "data-autoplay": "false" } : {})}
       />
