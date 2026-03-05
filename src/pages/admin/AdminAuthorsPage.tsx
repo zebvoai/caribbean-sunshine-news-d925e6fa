@@ -367,6 +367,9 @@ const AdminAuthorsPage = () => {
                         src={getProxiedAssetUrl(form.avatar_url)}
                         alt="Author photo"
                         className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
                       />
                       <button
                         type="button"
