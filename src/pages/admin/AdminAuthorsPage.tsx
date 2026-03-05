@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
-import { Users, FileText, UserCheck, Search, Eye, Edit, Trash2, X, Loader2 } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Users, FileText, UserCheck, Search, Eye, Edit, Trash2, X, Loader2, Upload, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { mongoApi, MongoAuthor } from "@/lib/mongoApi";
+import { supabase } from "@/integrations/supabase/client";
+import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -35,6 +37,7 @@ interface AuthorFormData {
   role: string;
   location: string;
   is_active: boolean;
+  avatar_url: string;
 }
 
 const emptyForm: AuthorFormData = {
@@ -44,6 +47,7 @@ const emptyForm: AuthorFormData = {
   role: "Reporter",
   location: "",
   is_active: true,
+  avatar_url: "",
 };
 
 const AdminAuthorsPage = () => {
@@ -55,6 +59,8 @@ const AdminAuthorsPage = () => {
   const [deleteTarget, setDeleteTarget] = useState<MongoAuthor | null>(null);
   const [form, setForm] = useState<AuthorFormData>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarFileRef = useRef<HTMLInputElement>(null);
 
   const loadAuthors = () => {
     setLoading(true);
@@ -91,8 +97,40 @@ const AdminAuthorsPage = () => {
       role: author.role || "Reporter",
       location: author.location || "",
       is_active: author.is_active,
+      avatar_url: author.avatar_url || "",
     });
     setDialogOpen(true);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPG, PNG, GIF, and WebP images are allowed");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Photo must be under 5MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("article-images")
+        .upload(path, file, { cacheControl: "3600", upsert: false, contentType: file.type });
+      if (uploadError) throw new Error(uploadError.message);
+      const { data: urlData } = supabase.storage.from("article-images").getPublicUrl(path);
+      setForm((prev) => ({ ...prev, avatar_url: urlData.publicUrl }));
+      toast.success("Photo uploaded");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarFileRef.current) avatarFileRef.current.value = "";
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,6 +146,7 @@ const AdminAuthorsPage = () => {
           role: form.role.trim() || "Reporter",
           location: form.location.trim() || undefined,
           is_active: form.is_active,
+          avatar_url: form.avatar_url.trim() || undefined,
         });
         toast.success("Author updated");
       } else {
@@ -120,6 +159,7 @@ const AdminAuthorsPage = () => {
         if (form.email.trim()) authorPayload.email = form.email.trim();
         if (form.bio.trim()) authorPayload.bio = form.bio.trim();
         if (form.location.trim()) authorPayload.location = form.location.trim();
+        if (form.avatar_url.trim()) authorPayload.avatar_url = form.avatar_url.trim();
         await mongoApi.createAuthor(authorPayload as any);
         toast.success("Author created");
       }
@@ -316,6 +356,58 @@ const AdminAuthorsPage = () => {
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Avatar Photo */}
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">Photo</label>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  {form.avatar_url ? (
+                    <div className="relative">
+                      <img
+                        src={getProxiedAssetUrl(form.avatar_url)}
+                        alt="Author photo"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, avatar_url: "" })}
+                        className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 hover:bg-destructive/90 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center border-2 border-dashed border-border">
+                      <Camera className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <input
+                    ref={avatarFileRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => avatarFileRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-border rounded-md hover:bg-muted transition-colors disabled:opacity-50"
+                  >
+                    {uploadingAvatar ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Upload className="h-3 w-3" />
+                    )}
+                    {uploadingAvatar ? "Uploading..." : "Upload photo"}
+                  </button>
+                  <span className="text-[10px] text-muted-foreground">JPG, PNG, WebP — max 5MB</span>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-foreground mb-1">Full Name *</label>
               <Input
