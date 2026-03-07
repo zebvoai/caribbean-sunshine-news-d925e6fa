@@ -1,4 +1,4 @@
-import { Facebook, Instagram, ArrowUp, Heart } from "lucide-react";
+import { Facebook, Instagram, Twitter, ArrowUp, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { mongoApi } from "@/lib/mongoApi";
