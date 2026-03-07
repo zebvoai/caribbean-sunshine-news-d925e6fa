@@ -1,4 +1,4 @@
-import { Facebook, Instagram, ArrowUp, Heart } from "lucide-react";
+import { Facebook, Instagram, Twitter, ArrowUp, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { mongoApi } from "@/lib/mongoApi";
@@ -21,6 +21,7 @@ const SiteFooter = () => {
   const socials = [
     { Icon: Facebook, href: "https://www.facebook.com/people/Dominicanewsdm/61586888187152/", label: "Facebook" },
     { Icon: Instagram, href: "https://www.instagram.com/dominicanews.dm/", label: "Instagram" },
+    { Icon: Twitter, href: "https://x.com/Dominicanewsdm", label: "X (Twitter)" },
   ];
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
