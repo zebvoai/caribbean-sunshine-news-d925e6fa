@@ -1196,10 +1196,14 @@ Deno.serve(async (req) => {
 <meta property="og:title" content="${m.title}"/>
 <meta property="og:description" content="${m.desc}"/>
 <meta property="og:image" content="${esc(m.image)}"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:type" content="image/jpeg"/>
 <meta property="og:url" content="${esc(m.url)}"/>
 ${m.date ? `<meta property="article:published_time" content="${esc(m.date)}"/>` : ""}
 ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""}
 <meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content="@Dominicanewsdm"/>
 <meta name="twitter:title" content="${m.title}"/>
 <meta name="twitter:description" content="${m.desc}"/>
 <meta name="twitter:image" content="${esc(m.image)}"/>
