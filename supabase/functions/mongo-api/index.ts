@@ -1212,7 +1212,27 @@ ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""
 </head><body><p><a href="${esc(m.url)}">${m.title}</a></p></body></html>`;
 
       const pageUrl = `${SITE_URL}/news/${slug}`;
-      const htmlHeaders = { ...corsHeaders, "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, s-maxage=300, max-age=60" };
+      const htmlHeaders = new Headers({
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, s-maxage=300, max-age=60",
+        ...corsHeaders,
+      });
+
+      // Ensure image URL is permanently accessible (not an expiring CDN link)
+      const resolveOgImage = (url: string): string => {
+        if (!url || url.startsWith("data:")) return DEFAULT_IMAGE;
+        // Facebook CDN URLs expire — fall back to default
+        if (url.includes("fbcdn.net") || url.includes("facebook.com")) return DEFAULT_IMAGE;
+        // Proxy Supabase storage URLs through production domain for reliability
+        const storageMarker = "/storage/v1/object/public/";
+        const idx = url.indexOf(storageMarker);
+        if (idx !== -1) {
+          const objectPath = url.slice(idx + storageMarker.length);
+          return `${SITE_URL}/api/storage/${objectPath}`;
+        }
+        return url;
+      };
+
       const fallback = () => new Response(buildHtml({ title: SITE_NAME, desc: DEFAULT_DESC, image: DEFAULT_IMAGE, url: pageUrl }), { status: 200, headers: htmlHeaders });
 
       try {
@@ -1226,7 +1246,7 @@ ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""
         const title = esc(doc.seo?.metaTitle || doc.title || SITE_NAME);
         const desc = esc(doc.seo?.metaDescription || doc.excerpt || DEFAULT_DESC);
         const rawImg = doc.featuredImage || doc.cover_image_url || "";
-        const ogImage = rawImg && !rawImg.startsWith("data:") ? rawImg : DEFAULT_IMAGE;
+        const ogImage = resolveOgImage(rawImg);
 
         let authorName = "";
         if (doc.author) {
