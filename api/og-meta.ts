@@ -1,7 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
+// Call the dedicated og-proxy edge function (NOT mongo-api)
+// because Supabase forces Content-Type: text/plain on all edge function responses.
+// This Vercel function re-serves the HTML with the correct Content-Type: text/html.
 const EDGE_FN_URL =
-  "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/mongo-api";
+  "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/og-proxy";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const slug = req.query.slug as string | undefined;
@@ -12,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const upstream = await fetch(
-      `${EDGE_FN_URL}?resource=og-meta&slug=${encodeURIComponent(slug)}`
+      `${EDGE_FN_URL}?slug=${encodeURIComponent(slug)}`
     );
     const html = await upstream.text();
 
