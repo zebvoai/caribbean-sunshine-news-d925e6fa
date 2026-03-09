@@ -1246,7 +1246,7 @@ ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""
         const title = esc(doc.seo?.metaTitle || doc.title || SITE_NAME);
         const desc = esc(doc.seo?.metaDescription || doc.excerpt || DEFAULT_DESC);
         const rawImg = doc.featuredImage || doc.cover_image_url || "";
-        const ogImage = rawImg && !rawImg.startsWith("data:") ? rawImg : DEFAULT_IMAGE;
+        const ogImage = resolveOgImage(rawImg);
 
         let authorName = "";
         if (doc.author) {
