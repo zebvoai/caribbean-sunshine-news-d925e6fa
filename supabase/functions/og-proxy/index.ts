@@ -30,9 +30,6 @@ function esc(s: string): string {
 /** Resolve the image URL for OG tags — must be a direct, permanent, publicly accessible URL */
 function resolveOgImage(url: string | null | undefined): string {
   if (!url || url.startsWith("data:")) return DEFAULT_IMAGE;
-  // Facebook CDN URLs expire quickly — use default instead
-  if (url.includes("fbcdn.net") || url.includes("facebook.com")) return DEFAULT_IMAGE;
-  // Direct Supabase storage URLs are publicly accessible — use as-is
   return url;
 }
 
