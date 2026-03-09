@@ -1223,13 +1223,8 @@ ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""
         if (!url || url.startsWith("data:")) return DEFAULT_IMAGE;
         // Facebook CDN URLs expire — fall back to default
         if (url.includes("fbcdn.net") || url.includes("facebook.com")) return DEFAULT_IMAGE;
-        // Proxy Supabase storage URLs through production domain for reliability
-        const storageMarker = "/storage/v1/object/public/";
-        const idx = url.indexOf(storageMarker);
-        if (idx !== -1) {
-          const objectPath = url.slice(idx + storageMarker.length);
-          return `${SITE_URL}/api/storage/${objectPath}`;
-        }
+        // Use direct Supabase storage URLs for OG images — crawlers can access them directly
+        // (the /api/storage/ proxy doesn't reliably serve binary content to bots)
         return url;
       };
 
