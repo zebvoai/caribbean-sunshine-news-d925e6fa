@@ -20,7 +20,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `${EDGE_FN_URL}?slug=${encodeURIComponent(slug)}`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          Authorization: `Bearer ${ANON_KEY}`,
         },
       }
     );
