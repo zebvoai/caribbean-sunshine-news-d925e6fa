@@ -125,24 +125,49 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
     }
   }
 
-  // Facebook – use iframe plugin endpoint (more reliable than JS SDK which often
-  // shows "post is no longer available" due to privacy/URL format issues)
+  // Facebook – only standard post/video URLs work with the embed plugin.
+  // Short share links (/share/p/...) and other non-canonical formats fail silently.
   if (platform === "facebook" || url.includes("facebook.com")) {
-    const isVideo = url.includes("/videos/") || url.includes("/watch") || url.includes("/reel");
-    const pluginType = isVideo ? "video" : "post";
-    const pluginUrl = `https://www.facebook.com/plugins/${pluginType}.php?href=${encodeURIComponent(url)}&show_text=true&width=500`;
+    const isEmbeddable = /facebook\.com\/(?:[\w.]+\/(?:posts|videos|photos)|permalink\.php|watch\/)/.test(url);
+    
+    if (isEmbeddable) {
+      const isVideo = url.includes("/videos/") || url.includes("/watch");
+      const pluginType = isVideo ? "video" : "post";
+      const pluginUrl = `https://www.facebook.com/plugins/${pluginType}.php?href=${encodeURIComponent(url)}&show_text=true&width=500`;
+      return (
+        <div className="flex justify-center">
+          <iframe
+            src={pluginUrl}
+            width="500"
+            height={isVideo ? 600 : 500}
+            style={{ border: "none", overflow: "hidden", maxWidth: "100%" }}
+            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+          />
+        </div>
+      );
+    }
+
+    // Non-embeddable Facebook URL — show a styled card with link
     return (
-      <div className="flex justify-center">
-        <iframe
-          src={pluginUrl}
-          width="500"
-          height={isVideo ? 600 : 500}
-          style={{ border: "none", overflow: "hidden", maxWidth: "100%" }}
-          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-          allowFullScreen
-          loading="lazy"
-        />
-      </div>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-3 text-sm hover:no-underline font-body p-4 rounded-lg transition-colors border border-border bg-muted/30 hover:bg-muted/50"
+      >
+        <span className="flex items-center justify-center w-10 h-10 rounded-full bg-[#1877F2] text-white flex-shrink-0">
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </span>
+        <div className="flex flex-col min-w-0">
+          <span className="font-heading font-semibold text-foreground">View on Facebook</span>
+          <span className="text-xs text-muted-foreground truncate">{url}</span>
+        </div>
+        <svg className="h-4 w-4 ml-auto flex-shrink-0 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
     );
   }
 
