@@ -15,7 +15,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const upstream = await fetch(
-      `${EDGE_FN_URL}?slug=${encodeURIComponent(slug)}`
+      `${EDGE_FN_URL}?slug=${encodeURIComponent(slug)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+      }
     );
     const html = await upstream.text();
 
