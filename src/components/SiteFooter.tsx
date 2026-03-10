@@ -27,11 +27,8 @@ const SiteFooter = () => {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer className="bg-foreground text-background relative overflow-x-hidden overflow-y-visible">
-      {/* Decorative top edge */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
-
-      {/* Back to top */}
+    <div className="relative">
+      {/* Back to top — outside footer to avoid overflow clipping */}
       <button
         onClick={scrollToTop}
         className="absolute -top-5 right-6 w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 z-10"
@@ -39,6 +36,10 @@ const SiteFooter = () => {
       >
         <ArrowUp className="h-4 w-4" />
       </button>
+
+    <footer className="bg-foreground text-background relative overflow-hidden">
+      {/* Decorative top edge */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
@@ -131,6 +132,7 @@ const SiteFooter = () => {
         </div>
       </div>
     </footer>
+    </div>
   );
 };
 
