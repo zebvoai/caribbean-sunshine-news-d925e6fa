@@ -132,6 +132,7 @@ const SiteFooter = () => {
         </div>
       </div>
     </footer>
+    </div>
   );
 };
 
