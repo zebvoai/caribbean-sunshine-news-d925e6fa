@@ -27,7 +27,7 @@ const SiteFooter = () => {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer className="bg-foreground text-background relative overflow-hidden">
+    <footer className="bg-foreground text-background relative overflow-x-hidden overflow-y-visible">
       {/* Decorative top edge */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-secondary to-primary" />
 
