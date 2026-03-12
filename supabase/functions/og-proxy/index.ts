@@ -33,6 +33,25 @@ function resolveOgImage(url: string | null | undefined): string {
   return url;
 }
 
+function isTemporarySocialCdn(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    return hostname.includes("fbcdn.net") || hostname.includes("cdninstagram.com");
+  } catch {
+    return false;
+  }
+}
+
+function getReliableOgImage(url: string | null | undefined): string {
+  const resolved = resolveOgImage(url);
+  if (resolved === DEFAULT_IMAGE) return resolved;
+
+  // Facebook/Instagram CDN URLs are signed and expire; avoid broken social previews.
+  if (isTemporarySocialCdn(resolved)) return DEFAULT_IMAGE;
+
+  return resolved;
+}
+
 function buildHtml(m: {
   title: string;
   desc: string;
