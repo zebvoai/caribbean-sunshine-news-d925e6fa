@@ -33,6 +33,25 @@ function resolveOgImage(url: string | null | undefined): string {
   return url;
 }
 
+function isTemporarySocialCdn(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    return hostname.includes("fbcdn.net") || hostname.includes("cdninstagram.com");
+  } catch {
+    return false;
+  }
+}
+
+function getReliableOgImage(url: string | null | undefined): string {
+  const resolved = resolveOgImage(url);
+  if (resolved === DEFAULT_IMAGE) return resolved;
+
+  // Facebook/Instagram CDN URLs are signed and expire; avoid broken social previews.
+  if (isTemporarySocialCdn(resolved)) return DEFAULT_IMAGE;
+
+  return resolved;
+}
+
 function buildHtml(m: {
   title: string;
   desc: string;
@@ -53,9 +72,9 @@ function buildHtml(m: {
 <meta property="og:title" content="${m.title}"/>
 <meta property="og:description" content="${m.desc}"/>
 <meta property="og:image" content="${esc(m.image)}"/>
+<meta property="og:image:secure_url" content="${esc(m.image)}"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
-<meta property="og:image:type" content="image/jpeg"/>
 <meta property="og:url" content="${esc(m.url)}"/>
 ${m.date ? `<meta property="article:published_time" content="${esc(m.date)}"/>` : ""}
 ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""}
@@ -111,7 +130,7 @@ Deno.serve(async (req) => {
 
     const title = esc(doc.seo?.metaTitle || doc.title || SITE_NAME);
     const desc = esc(doc.seo?.metaDescription || doc.excerpt || DEFAULT_DESC);
-    const ogImage = resolveOgImage(doc.featuredImage || doc.cover_image_url);
+    const ogImage = getReliableOgImage(doc.featuredImage || doc.cover_image_url);
 
     let authorName = "";
     if (doc.author) {
