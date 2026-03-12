@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
 
     const title = esc(doc.seo?.metaTitle || doc.title || SITE_NAME);
     const desc = esc(doc.seo?.metaDescription || doc.excerpt || DEFAULT_DESC);
-    const ogImage = resolveOgImage(doc.featuredImage || doc.cover_image_url);
+    const ogImage = getReliableOgImage(doc.featuredImage || doc.cover_image_url);
 
     let authorName = "";
     if (doc.author) {
