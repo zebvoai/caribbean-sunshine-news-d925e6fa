@@ -467,6 +467,24 @@ const CreateArticlePage = () => {
             />
           </div>
 
+          {/* Backdate Publishing */}
+          <div className="border border-border/60 rounded-xl p-4 bg-muted/10">
+            <label className={LABEL_CLASSES}>
+              <span className="flex items-center gap-2">
+                <History className="h-4 w-4 text-muted-foreground" />
+                Backdate Publish
+              </span>
+            </label>
+            <p className="text-[11px] text-muted-foreground/60 mb-2 font-body">Publish with a past date so the article appears as if it was posted earlier.</p>
+            <input
+              type="datetime-local"
+              value={backdateAt}
+              onChange={(e) => setBackdateAt(e.target.value)}
+              max={new Date().toISOString().slice(0, 16)}
+              className={INPUT_CLASSES}
+            />
+          </div>
+
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-3">
             <button
               type="button"
@@ -496,6 +514,16 @@ const CreateArticlePage = () => {
             >
               {scheduling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
               Schedule
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBackdatePublish}
+              disabled={backdating || !backdateAt}
+              className="flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground rounded-xl text-[13px] font-semibold font-body hover:bg-accent/90 transition-all disabled:opacity-60"
+            >
+              {backdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <History className="h-4 w-4" />}
+              Publish (Backdated)
             </button>
           </div>
         </Section>
