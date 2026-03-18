@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
-import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
 
@@ -117,6 +117,8 @@ const CreateArticlePage = () => {
   const [isBreaking, setIsBreaking] = useState(false);
   const [scheduledFor, setScheduledFor] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [backdateAt, setBackdateAt] = useState("");
+  const [backdating, setBackdating] = useState(false);
 
   useEffect(() => {
     mongoApi.getCategories().then(setCategories).catch(console.error);
@@ -130,14 +132,14 @@ const CreateArticlePage = () => {
 
   const saveArticle = async (
     status: "draft" | "published" | "scheduled" = "draft",
-    scheduledAt?: string
+    scheduledAt?: string,
+    customPublishedAt?: string
   ): Promise<string | null> => {
     if (!title.trim()) { toast.error("Title is required"); return null; }
     if (!slug.trim()) { toast.error("Slug is required"); return null; }
     if (!excerpt.trim()) { toast.error("Excerpt is required"); return null; }
     if (!body.trim() || body === "<p></p>") { toast.error("Article body is required"); return null; }
 
-    const now = new Date().toISOString();
     const payload = {
       title: title.trim(),
       slug: slug.trim(),
@@ -155,7 +157,7 @@ const CreateArticlePage = () => {
       meta_title: (metaTitle || title).substring(0, 60),
       meta_description: (metaDescription || excerpt).substring(0, 160),
       publication_status: status,
-      published_at: status === "published" ? now : null,
+      published_at: customPublishedAt || (status === "published" ? new Date().toISOString() : null),
       scheduled_for: scheduledAt || null,
       social_embeds: socialEmbeds.map((e) => ({
         platform: e.platform,
@@ -198,7 +200,25 @@ const CreateArticlePage = () => {
     }
   };
 
-  const handleSchedule = async () => {
+  const handleBackdatePublish = async () => {
+    if (!backdateAt) { toast.error("Please select a backdate"); return; }
+    const bd = new Date(backdateAt);
+    if (bd >= new Date()) { toast.error("Backdate must be in the past"); return; }
+    setBackdating(true);
+    try {
+      const id = await saveArticle("published", undefined, bd.toISOString());
+      if (id) {
+        toast.success("Article published with backdate!");
+        navigate("/admin/articles");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to publish");
+    } finally {
+      setBackdating(false);
+    }
+  };
+
+
     if (!scheduledFor) { toast.error("Please select a date and time to schedule"); return; }
     setScheduling(true);
     try {
@@ -447,6 +467,24 @@ const CreateArticlePage = () => {
             />
           </div>
 
+          {/* Backdate Publishing */}
+          <div className="border border-border/60 rounded-xl p-4 bg-muted/10">
+            <label className={LABEL_CLASSES}>
+              <span className="flex items-center gap-2">
+                <History className="h-4 w-4 text-muted-foreground" />
+                Backdate Publish
+              </span>
+            </label>
+            <p className="text-[11px] text-muted-foreground/60 mb-2 font-body">Publish with a past date so the article appears as if it was posted earlier.</p>
+            <input
+              type="datetime-local"
+              value={backdateAt}
+              onChange={(e) => setBackdateAt(e.target.value)}
+              max={new Date().toISOString().slice(0, 16)}
+              className={INPUT_CLASSES}
+            />
+          </div>
+
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-3">
             <button
               type="button"
@@ -476,6 +514,16 @@ const CreateArticlePage = () => {
             >
               {scheduling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
               Schedule
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBackdatePublish}
+              disabled={backdating || !backdateAt}
+              className="flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground rounded-xl text-[13px] font-semibold font-body hover:bg-accent/90 transition-all disabled:opacity-60"
+            >
+              {backdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <History className="h-4 w-4" />}
+              Publish (Backdated)
             </button>
           </div>
         </Section>

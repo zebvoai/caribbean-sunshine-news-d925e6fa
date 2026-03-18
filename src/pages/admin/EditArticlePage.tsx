@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
-import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, ArrowLeft } from "lucide-react";
+import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, ArrowLeft, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
 
@@ -112,6 +112,8 @@ const EditArticlePage = () => {
   const [isBreaking, setIsBreaking] = useState(false);
   const [scheduledFor, setScheduledFor] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [backdateAt, setBackdateAt] = useState("");
+  const [backdating, setBackdating] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -208,7 +210,26 @@ const EditArticlePage = () => {
     } finally { setPublishing(false); }
   };
 
-  const handleSchedule = async () => {
+  const handleBackdatePublish = async () => {
+    if (!backdateAt) { toast.error("Please select a backdate"); return; }
+    const bd = new Date(backdateAt);
+    if (bd >= new Date()) { toast.error("Backdate must be in the past"); return; }
+    if (!validate() || !id) return;
+    setBackdating(true);
+    try {
+      const payload = buildPayload("published");
+      payload.published_at = bd.toISOString();
+      await mongoApi.updateArticle(id, payload);
+      toast.success("Article published with backdate!");
+      navigate("/admin/articles");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to publish");
+    } finally {
+      setBackdating(false);
+    }
+  };
+
+
     if (!scheduledFor) { toast.error("Please select a date and time to schedule"); return; }
     if (!validate() || !id) return;
     setScheduling(true);
@@ -466,6 +487,24 @@ const EditArticlePage = () => {
             />
           </div>
 
+          {/* Backdate Publishing */}
+          <div className="border border-border rounded-xl p-4 bg-muted/10">
+            <label className={LABEL_CLASSES}>
+              <span className="flex items-center gap-2">
+                <History className="h-4 w-4 text-muted-foreground" />
+                Backdate Publish
+              </span>
+            </label>
+            <p className="text-[11px] text-muted-foreground/60 mb-2 font-body">Publish with a past date so the article appears as if it was posted earlier.</p>
+            <input
+              type="datetime-local"
+              value={backdateAt}
+              onChange={(e) => setBackdateAt(e.target.value)}
+              max={new Date().toISOString().slice(0, 16)}
+              className={INPUT_CLASSES}
+            />
+          </div>
+
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 pt-2">
             <button
               type="button"
@@ -495,6 +534,16 @@ const EditArticlePage = () => {
             >
               {scheduling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Clock className="h-4 w-4" />}
               Schedule
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBackdatePublish}
+              disabled={backdating || !backdateAt}
+              className="flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground rounded-lg text-sm font-semibold hover:bg-accent/90 transition-colors disabled:opacity-60"
+            >
+              {backdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <History className="h-4 w-4" />}
+              Publish (Backdated)
             </button>
           </div>
         </Section>
