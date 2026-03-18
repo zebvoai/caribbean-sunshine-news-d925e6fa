@@ -210,7 +210,26 @@ const EditArticlePage = () => {
     } finally { setPublishing(false); }
   };
 
-  const handleSchedule = async () => {
+  const handleBackdatePublish = async () => {
+    if (!backdateAt) { toast.error("Please select a backdate"); return; }
+    const bd = new Date(backdateAt);
+    if (bd >= new Date()) { toast.error("Backdate must be in the past"); return; }
+    if (!validate() || !id) return;
+    setBackdating(true);
+    try {
+      const payload = buildPayload("published");
+      payload.published_at = bd.toISOString();
+      await mongoApi.updateArticle(id, payload);
+      toast.success("Article published with backdate!");
+      navigate("/admin/articles");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to publish");
+    } finally {
+      setBackdating(false);
+    }
+  };
+
+
     if (!scheduledFor) { toast.error("Please select a date and time to schedule"); return; }
     if (!validate() || !id) return;
     setScheduling(true);

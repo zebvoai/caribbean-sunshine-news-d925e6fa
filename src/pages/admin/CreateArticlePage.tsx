@@ -200,7 +200,25 @@ const CreateArticlePage = () => {
     }
   };
 
-  const handleSchedule = async () => {
+  const handleBackdatePublish = async () => {
+    if (!backdateAt) { toast.error("Please select a backdate"); return; }
+    const bd = new Date(backdateAt);
+    if (bd >= new Date()) { toast.error("Backdate must be in the past"); return; }
+    setBackdating(true);
+    try {
+      const id = await saveArticle("published", undefined, bd.toISOString());
+      if (id) {
+        toast.success("Article published with backdate!");
+        navigate("/admin/articles");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to publish");
+    } finally {
+      setBackdating(false);
+    }
+  };
+
+
     if (!scheduledFor) { toast.error("Please select a date and time to schedule"); return; }
     setScheduling(true);
     try {
