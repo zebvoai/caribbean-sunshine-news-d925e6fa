@@ -132,14 +132,14 @@ const CreateArticlePage = () => {
 
   const saveArticle = async (
     status: "draft" | "published" | "scheduled" = "draft",
-    scheduledAt?: string
+    scheduledAt?: string,
+    customPublishedAt?: string
   ): Promise<string | null> => {
     if (!title.trim()) { toast.error("Title is required"); return null; }
     if (!slug.trim()) { toast.error("Slug is required"); return null; }
     if (!excerpt.trim()) { toast.error("Excerpt is required"); return null; }
     if (!body.trim() || body === "<p></p>") { toast.error("Article body is required"); return null; }
 
-    const now = new Date().toISOString();
     const payload = {
       title: title.trim(),
       slug: slug.trim(),
@@ -157,7 +157,7 @@ const CreateArticlePage = () => {
       meta_title: (metaTitle || title).substring(0, 60),
       meta_description: (metaDescription || excerpt).substring(0, 160),
       publication_status: status,
-      published_at: status === "published" ? now : null,
+      published_at: customPublishedAt || (status === "published" ? new Date().toISOString() : null),
       scheduled_for: scheduledAt || null,
       social_embeds: socialEmbeds.map((e) => ({
         platform: e.platform,
