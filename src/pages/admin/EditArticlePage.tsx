@@ -112,6 +112,8 @@ const EditArticlePage = () => {
   const [isBreaking, setIsBreaking] = useState(false);
   const [scheduledFor, setScheduledFor] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [backdateAt, setBackdateAt] = useState("");
+  const [backdating, setBackdating] = useState(false);
 
   useEffect(() => {
     if (!id) return;
