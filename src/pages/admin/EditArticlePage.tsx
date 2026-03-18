@@ -230,6 +230,7 @@ const EditArticlePage = () => {
   };
 
 
+  const handleSchedule = async () => {
     if (!scheduledFor) { toast.error("Please select a date and time to schedule"); return; }
     if (!validate() || !id) return;
     setScheduling(true);

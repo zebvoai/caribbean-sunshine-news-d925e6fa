@@ -219,6 +219,7 @@ const CreateArticlePage = () => {
   };
 
 
+  const handleSchedule = async () => {
     if (!scheduledFor) { toast.error("Please select a date and time to schedule"); return; }
     setScheduling(true);
     try {
