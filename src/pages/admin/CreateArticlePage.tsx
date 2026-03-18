@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
-import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
 
