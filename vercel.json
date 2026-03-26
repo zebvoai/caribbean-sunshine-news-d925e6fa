@@ -13,6 +13,10 @@
       "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/auth/v1/token"
     },
     {
+      "source": "/sitemap.xml",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/sitemap"
+    },
+    {
       "source": "/news/:slug",
       "has": [
         {
