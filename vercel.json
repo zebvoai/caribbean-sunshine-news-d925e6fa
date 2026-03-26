@@ -17,6 +17,10 @@
       "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/sitemap"
     },
     {
+      "source": "/news-sitemap.xml",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/news-sitemap"
+    },
+    {
       "source": "/news/:slug",
       "has": [
         {

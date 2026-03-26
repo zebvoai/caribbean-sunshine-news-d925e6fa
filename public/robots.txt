@@ -14,3 +14,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://www.dominicanews.dm/sitemap.xml
+Sitemap: https://www.dominicanews.dm/news-sitemap.xml
