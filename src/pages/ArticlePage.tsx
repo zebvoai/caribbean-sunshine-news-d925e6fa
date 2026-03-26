@@ -283,22 +283,39 @@ const ArticlePage = () => {
     }
     canonical.href = url;
 
-    const schema = {
+    const wordCount = article.body.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
+    const schema: Record<string, unknown> = {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
       headline: title,
       description: description,
       image: image ? [image] : [],
       datePublished: article.published_at,
+      dateModified: article.published_at,
+      wordCount,
+      articleSection: article.categories?.name || "News",
       author: article.authors
-        ? [{ "@type": "Person", name: article.authors.full_name }]
-        : [],
+        ? { "@type": "Person", name: article.authors.full_name, jobTitle: article.authors.role }
+        : { "@type": "Organization", name: "Dominica News Online" },
       publisher: {
-        "@type": "Organization",
-        name: "DominicaNews.dm",
+        "@type": "NewsMediaOrganization",
+        name: "Dominica News Online",
+        url: "https://www.dominicanews.dm",
+        logo: {
+          "@type": "ImageObject",
+          url: "https://www.dominicanews.dm/favicon.svg",
+          width: 180,
+          height: 180,
+        },
       },
       url,
+      isAccessibleForFree: true,
+      inLanguage: "en",
     };
+    if (article.is_breaking) {
+      schema.genre = "Breaking News";
+    }
     let ld = document.querySelector('script[type="application/ld+json"]');
     if (!ld) {
       ld = document.createElement("script");
