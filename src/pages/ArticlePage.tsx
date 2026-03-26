@@ -252,7 +252,7 @@ const ArticlePage = () => {
     const url = window.location.href;
     const image = article.cover_image_url || "";
 
-    document.title = title + " | DominicaNews.dm";
+    document.title = title + " | Dominica News DM";
 
     const setMeta = (name: string, content: string, attr = "name") => {
       let el = document.querySelector(`meta[${attr}="${name}"]`);
@@ -297,10 +297,10 @@ const ArticlePage = () => {
       articleSection: article.categories?.name || "News",
       author: article.authors
         ? { "@type": "Person", name: article.authors.full_name, jobTitle: article.authors.role }
-        : { "@type": "Organization", name: "Dominica News Online" },
+        : { "@type": "Organization", name: "Dominica News DM" },
       publisher: {
         "@type": "NewsMediaOrganization",
-        name: "Dominica News Online",
+        name: "Dominica News DM",
         url: "https://www.dominicanews.dm",
         logo: {
           "@type": "ImageObject",
@@ -325,7 +325,7 @@ const ArticlePage = () => {
     ld.textContent = JSON.stringify(schema);
 
     return () => {
-      document.title = "DominicaNews.dm";
+      document.title = "Dominica News DM";
     };
   }, [article]);
 
@@ -457,7 +457,7 @@ const ArticlePage = () => {
 
         {/* ── Meta Row ────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-muted-foreground font-body mb-10 pb-7 border-b border-border/60 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          <span className="font-semibold text-foreground">Dominica News</span>
+          <span className="font-semibold text-foreground">Dominica News DM</span>
           <span className="w-1 h-1 rounded-full bg-border" />
           {pubDate && (
             <span className="flex items-center gap-1">

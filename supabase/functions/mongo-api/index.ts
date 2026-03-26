@@ -1179,7 +1179,7 @@ Deno.serve(async (req) => {
       const slug = url.searchParams.get("slug");
       if (!slug) return new Response("Missing slug", { status: 400, headers: corsHeaders });
 
-      const SITE_NAME = "Dominica News";
+      const SITE_NAME = "Dominica News DM";
       const SITE_URL = "https://www.dominicanews.dm";
       const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
       const DEFAULT_DESC = "Your trusted source for breaking news, local updates, politics, business, culture, and community stories from Dominica and the Caribbean.";
