@@ -19,8 +19,9 @@ const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 const DEFAULT_DESC =
   "Your trusted source for breaking news, local updates, politics, business, culture, and community stories from Dominica and the Caribbean.";
 
-function esc(s: string): string {
-  return s
+function esc(s: unknown): string {
+  const str = String(s ?? "");
+  return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
