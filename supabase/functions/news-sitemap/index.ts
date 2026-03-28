@@ -25,8 +25,9 @@ serve(async () => {
   try {
     const articles = await fetchArticles();
 
-    // Google News sitemap only includes articles from the last 2 days
-    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+    // Google News sitemap – include articles from the last 7 days
+    // (spec says 2 days, but Google accepts up to 30; 7 avoids empty sitemaps)
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     let urls = "";
 
@@ -35,7 +36,7 @@ serve(async () => {
       if (!pubDate) continue;
 
       const publishedDate = new Date(pubDate);
-      if (publishedDate < twoDaysAgo) continue;
+      if (publishedDate < cutoff) continue;
 
       const categoryName = a.categories?.name || "News";
       const keywords = (a.tags && a.tags.length > 0) ? a.tags.join(", ") : "";
