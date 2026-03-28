@@ -36,7 +36,7 @@ serve(async () => {
       if (!pubDate) continue;
 
       const publishedDate = new Date(pubDate);
-      if (publishedDate < twoDaysAgo) continue;
+      if (publishedDate < cutoff) continue;
 
       const categoryName = a.categories?.name || "News";
       const keywords = (a.tags && a.tags.length > 0) ? a.tags.join(", ") : "";
