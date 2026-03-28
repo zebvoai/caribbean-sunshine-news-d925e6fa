@@ -29,6 +29,10 @@
       "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/news-sitemap"
     },
     {
+      "source": "/rss.xml",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/rss"
+    },
+    {
       "source": "/news/:slug",
       "has": [
         {
