@@ -27,7 +27,6 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
-/** Resolve the image URL for OG tags — must be a direct, permanent, publicly accessible URL */
 function resolveOgImage(url: string | null | undefined): string {
   if (!url || url.startsWith("data:")) return DEFAULT_IMAGE;
   return url;
@@ -45,11 +44,37 @@ function isTemporarySocialCdn(url: string): boolean {
 function getReliableOgImage(url: string | null | undefined): string {
   const resolved = resolveOgImage(url);
   if (resolved === DEFAULT_IMAGE) return resolved;
-
-  // Facebook/Instagram CDN URLs are signed and expire; avoid broken social previews.
   if (isTemporarySocialCdn(resolved)) return DEFAULT_IMAGE;
-
   return resolved;
+}
+
+/** Strip HTML tags and return plain text */
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Convert basic HTML to readable paragraphs for crawlers */
+function htmlToReadable(html: string): string {
+  // Preserve paragraph structure
+  let result = html
+    .replace(/<\/p>/gi, "</p>\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/h[1-6]>/gi, "</h>\n")
+    .replace(/<\/li>/gi, "</li>\n")
+    .replace(/<\/blockquote>/gi, "</blockquote>\n");
+
+  // Strip remaining tags
+  result = result.replace(/<[^>]+>/g, "");
+
+  // Clean up whitespace
+  result = result
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${esc(line)}</p>`)
+    .join("\n");
+
+  return result;
 }
 
 function buildHtml(m: {
@@ -59,7 +84,47 @@ function buildHtml(m: {
   url: string;
   date?: string;
   author?: string;
+  body?: string;
+  categoryName?: string;
+  isBreaking?: boolean;
 }): string {
+  const wordCount = m.body ? stripHtml(m.body).split(/\s+/).filter(Boolean).length : 0;
+  const readableBody = m.body ? htmlToReadable(m.body) : "";
+
+  // Build JSON-LD structured data
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    mainEntityOfPage: { "@type": "WebPage", "@id": m.url },
+    headline: m.title.replace(` | ${SITE_NAME}`, ""),
+    description: m.desc,
+    image: m.image ? [m.image] : [],
+    datePublished: m.date,
+    dateModified: m.date,
+    wordCount,
+    articleSection: m.categoryName || "News",
+    author: m.author
+      ? { "@type": "Person", name: m.author }
+      : { "@type": "Organization", name: SITE_NAME },
+    publisher: {
+      "@type": "NewsMediaOrganization",
+      name: SITE_NAME,
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/favicon.svg`,
+        width: 180,
+        height: 180,
+      },
+    },
+    url: m.url,
+    isAccessibleForFree: true,
+    inLanguage: "en",
+  };
+  if (m.isBreaking) {
+    jsonLd.genre = "Breaking News";
+  }
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,6 +132,7 @@ function buildHtml(m: {
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>${m.title}</title>
 <meta name="description" content="${m.desc}"/>
+<link rel="canonical" href="${esc(m.url)}"/>
 <meta property="og:type" content="article"/>
 <meta property="og:site_name" content="${SITE_NAME}"/>
 <meta property="og:title" content="${m.title}"/>
@@ -83,10 +149,24 @@ ${m.author ? `<meta property="article:author" content="${esc(m.author)}"/>` : ""
 <meta name="twitter:title" content="${m.title}"/>
 <meta name="twitter:description" content="${m.desc}"/>
 <meta name="twitter:image" content="${esc(m.image)}"/>
-<meta http-equiv="refresh" content="0;url=${esc(m.url)}"/>
-<link rel="canonical" href="${esc(m.url)}"/>
+<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>
 </head>
-<body><p><a href="${esc(m.url)}">${m.title}</a></p></body>
+<body>
+<header>
+<h1>${m.title}</h1>
+${m.author ? `<p>By ${esc(m.author)}</p>` : ""}
+${m.date ? `<time datetime="${esc(m.date)}">${new Date(m.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</time>` : ""}
+${m.categoryName ? `<p>Category: ${esc(m.categoryName)}</p>` : ""}
+</header>
+${m.image !== DEFAULT_IMAGE ? `<img src="${esc(m.image)}" alt="${m.title}" width="1200" height="630"/>` : ""}
+<article>
+${m.desc ? `<p><strong>${m.desc}</strong></p>` : ""}
+${readableBody}
+</article>
+<footer>
+<p>&copy; ${new Date().getFullYear()} ${SITE_NAME}. <a href="${SITE_URL}">${SITE_URL}</a></p>
+</footer>
+</body>
 </html>`;
 }
 
@@ -105,8 +185,6 @@ Deno.serve(async (req) => {
 
   const pageUrl = `${SITE_URL}/news/${slug}`;
 
-  // NOTE: Supabase edge runtime forces Content-Type to text/plain.
-  // The Vercel api/og-meta.ts proxy re-sets it to text/html before reaching crawlers.
   const headers = {
     "Content-Type": "text/html; charset=utf-8",
     "Cache-Control": "public, s-maxage=300, max-age=60",
@@ -122,7 +200,15 @@ Deno.serve(async (req) => {
     const db = await getDb();
     const doc = await db.collection("articles").findOne(
       { slug, status: "published", $or: [{ deletedAt: null }, { deletedAt: { $exists: false } }] },
-      { projection: { title: 1, excerpt: 1, featuredImage: 1, cover_image_url: 1, seo: 1, publishedAt: 1, author: 1 } }
+      {
+        projection: {
+          title: 1, excerpt: 1, body: 1, content: 1,
+          featuredImage: 1, cover_image_url: 1,
+          seo: 1, publishedAt: 1, author: 1,
+          category: 1, categories: 1,
+          is_breaking: 1, isBreaking: 1,
+        },
+      }
     );
 
     console.log("og-proxy lookup:", slug, "found:", !!doc);
@@ -131,6 +217,8 @@ Deno.serve(async (req) => {
     const title = esc(doc.seo?.metaTitle || doc.title || SITE_NAME);
     const desc = esc(doc.seo?.metaDescription || doc.excerpt || DEFAULT_DESC);
     const ogImage = getReliableOgImage(doc.featuredImage || doc.cover_image_url);
+    const articleBody = doc.body || doc.content || "";
+    const categoryName = doc.categories?.name || doc.category || "";
 
     let authorName = "";
     if (doc.author) {
@@ -150,6 +238,9 @@ Deno.serve(async (req) => {
         url: pageUrl,
         date: doc.publishedAt ? new Date(doc.publishedAt).toISOString() : undefined,
         author: authorName || SITE_NAME,
+        body: articleBody,
+        categoryName,
+        isBreaking: doc.is_breaking || doc.isBreaking || false,
       }),
       { status: 200, headers }
     );
