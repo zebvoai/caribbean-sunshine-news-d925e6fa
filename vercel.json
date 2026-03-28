@@ -4,7 +4,7 @@
       "source": "/:path(.*)",
       "has": [{ "type": "host", "value": "dominicanews.dm" }],
       "destination": "https://www.dominicanews.dm/:path",
-      "statusCode": 301
+      "permanent": true
     }
   ],
   "rewrites": [
