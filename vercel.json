@@ -26,7 +26,7 @@
         {
           "type": "header",
           "key": "user-agent",
-          "value": "(?i)whatsapp|facebookexternalhit|facebot|twitterbot|telegrambot|slackbot|discordbot|linkedinbot|pinterest|googlebot|bingbot|yandex|baiduspider|applebot|bot|crawl|spider|preview"
+          "value": "(?i)whatsapp|facebookexternalhit|facebot|twitterbot|telegrambot|slackbot|discordbot|linkedinbot|pinterest|googlebot|google-inspectiontool|storebot-google|bingbot|yandex|baiduspider|applebot|duckduckbot|seznambot|petalbot|bot|crawl|spider|preview"
         }
       ],
       "destination": "/api/og-meta?slug=:slug"
