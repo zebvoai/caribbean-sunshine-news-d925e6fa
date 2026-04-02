@@ -225,6 +225,9 @@ const Index = () => {
                   <div className="hidden lg:block animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
                     <div className="sticky top-20">
                       <TrendingSidebar articles={trendingArticles} />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Load More */}
