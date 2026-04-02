@@ -47,7 +47,7 @@ const Index = () => {
     queryFn: () => {
       const params: Parameters<typeof mongoApi.getArticles>[0] = {
         status: "published",
-        limit: 12,
+        limit: 100,
       };
       if (activeCat) params.category_slug = activeCat;
       return mongoApi.getArticles(params);
