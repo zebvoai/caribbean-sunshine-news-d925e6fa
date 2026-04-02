@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
@@ -41,6 +42,8 @@ const toBreakingArticle = (a: MongoArticle) => ({
 const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get("cat");
+  const ARTICLES_PER_PAGE = 12;
+  const [visibleCount, setVisibleCount] = useState(ARTICLES_PER_PAGE);
 
   const { data: articles = [], isLoading: loadingArticles } = useQuery({
     queryKey: ["articles", activeCat || "home"],
@@ -98,7 +101,9 @@ const Index = () => {
     : "Latest News";
 
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
-  const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
+  const allGridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
+  const gridArticles = allGridArticles.slice(0, visibleCount);
+  const hasMore = visibleCount < allGridArticles.length;
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   return (
@@ -224,6 +229,18 @@ const Index = () => {
                   </div>
                 )}
               </div>
+
+              {/* Load More */}
+              {hasMore && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={() => setVisibleCount((c) => c + ARTICLES_PER_PAGE)}
+                    className="px-8 py-3 rounded-xl border border-border bg-card text-foreground font-heading font-bold text-sm hover:bg-accent hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md"
+                  >
+                    Load More Articles
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </section>
