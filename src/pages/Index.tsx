@@ -239,8 +239,6 @@ const Index = () => {
                 </div>
               )}
             </div>
-              </div>
-            </div>
           )}
         </section>
       </main>
