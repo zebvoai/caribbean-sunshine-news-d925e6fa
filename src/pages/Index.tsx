@@ -225,9 +225,20 @@ const Index = () => {
                   <div className="hidden lg:block animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
                     <div className="sticky top-20">
                       <TrendingSidebar articles={trendingArticles} />
-                    </div>
-                  </div>
-                )}
+              </div>
+
+              {/* Load More */}
+              {hasMore && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={() => setVisibleCount((c) => c + ARTICLES_PER_PAGE)}
+                    className="px-8 py-3 rounded-xl border border-border bg-card text-foreground font-heading font-bold text-sm hover:bg-accent hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md"
+                  >
+                    Load More Articles
+                  </button>
+                </div>
+              )}
+            </div>
               </div>
             </div>
           )}
