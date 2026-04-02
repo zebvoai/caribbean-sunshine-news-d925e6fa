@@ -101,7 +101,9 @@ const Index = () => {
     : "Latest News";
 
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
-  const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
+  const allGridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
+  const gridArticles = allGridArticles.slice(0, visibleCount);
+  const hasMore = visibleCount < allGridArticles.length;
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   return (
