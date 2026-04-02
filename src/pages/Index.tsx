@@ -42,6 +42,8 @@ const toBreakingArticle = (a: MongoArticle) => ({
 const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get("cat");
+  const ARTICLES_PER_PAGE = 12;
+  const [visibleCount, setVisibleCount] = useState(ARTICLES_PER_PAGE);
 
   const { data: articles = [], isLoading: loadingArticles } = useQuery({
     queryKey: ["articles", activeCat || "home"],
