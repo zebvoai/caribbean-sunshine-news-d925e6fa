@@ -442,9 +442,7 @@ const EditArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Meta Title{" "}
-              <span className={cn("text-xs font-normal", metaTitle.length > 60 ? "text-destructive" : "text-muted-foreground")}>
-                {metaTitle.length}/60
-              </span>
+              <SeoCharCount value={metaTitle || title} max={60} idealMin={30} idealMax={60} />
             </label>
             <input
               type="text"
