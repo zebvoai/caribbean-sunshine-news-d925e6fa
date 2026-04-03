@@ -179,8 +179,6 @@ const EditArticlePage = () => {
         setPrimaryCategoryId(article.primary_category_id || "");
         setAdditionalCategories((article as any).additional_category_ids || []);
         setSocialEmbeds((article.social_embeds || []) as SocialEmbed[]);
-        setMetaTitle(article.meta_title || "");
-        setMetaDescription(article.meta_description || "");
         setIsPinned(article.is_pinned);
         setIsFeatured(article.is_featured);
         setIsBreaking(article.is_breaking);
