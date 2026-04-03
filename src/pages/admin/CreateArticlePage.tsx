@@ -432,9 +432,7 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Meta Description{" "}
-              <span className={cn("text-xs font-normal", metaDescription.length > 160 ? "text-destructive" : "text-muted-foreground")}>
-                {metaDescription.length}/160
-              </span>
+              <SeoCharCount value={metaDescription || excerpt} max={160} idealMin={120} idealMax={160} />
             </label>
             <textarea
               value={metaDescription}
