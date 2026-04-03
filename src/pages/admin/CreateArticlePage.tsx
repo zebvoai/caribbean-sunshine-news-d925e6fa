@@ -334,7 +334,7 @@ const CreateArticlePage = () => {
             </label>
             <textarea
               value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value.substring(0, 300))}
+              onChange={(e) => setExcerpt(e.target.value.substring(0, 200))}
               placeholder="Brief summary of the article..."
               rows={3}
               className={INPUT_CLASSES}
