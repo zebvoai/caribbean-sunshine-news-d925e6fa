@@ -116,6 +116,7 @@ const EditArticlePage = () => {
   const [backdating, setBackdating] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
+  const [originalPublishedAt, setOriginalPublishedAt] = useState<string | null>(null);
 
   const handleGenerateTitle = async () => {
     if (!body.trim() && !excerpt.trim()) {
