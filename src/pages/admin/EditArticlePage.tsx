@@ -107,8 +107,6 @@ const EditArticlePage = () => {
   const [primaryCategoryId, setPrimaryCategoryId] = useState("");
   const [additionalCategories, setAdditionalCategories] = useState<string[]>([]);
   const [socialEmbeds, setSocialEmbeds] = useState<SocialEmbed[]>([]);
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
   const [isPinned, setIsPinned] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
@@ -116,27 +114,26 @@ const EditArticlePage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [backdateAt, setBackdateAt] = useState("");
   const [backdating, setBackdating] = useState(false);
-  const [generatingSeo, setGeneratingSeo] = useState(false);
+  const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
 
-  const handleGenerateSeo = async () => {
-    if (!title.trim() && !excerpt.trim() && !body.trim()) {
-      toast.error("Add a title, excerpt, or body first");
+  const handleGenerateTitle = async () => {
+    if (!body.trim() && !excerpt.trim()) {
+      toast.error("Add article body or excerpt first");
       return;
     }
-    setGeneratingSeo(true);
+    setGeneratingTitle(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-seo", {
-        body: { title: title.trim(), excerpt: excerpt.trim(), body },
+        body: { title: "", excerpt: excerpt.trim(), body },
       });
       if (error) throw error;
-      if (data?.meta_title) setMetaTitle(data.meta_title);
-      if (data?.meta_description) setMetaDescription(data.meta_description);
-      toast.success("SEO fields generated!");
+      if (data?.meta_title) setTitle(data.meta_title.substring(0, 60));
+      toast.success("Title generated!");
     } catch (err: any) {
-      toast.error(err.message || "Failed to generate SEO");
+      toast.error(err.message || "Failed to generate title");
     } finally {
-      setGeneratingSeo(false);
+      setGeneratingTitle(false);
     }
   };
 
@@ -151,7 +148,7 @@ const EditArticlePage = () => {
         body: { title: title.trim(), body },
       });
       if (error) throw error;
-      if (data?.excerpt) setExcerpt(data.excerpt);
+      if (data?.excerpt) setExcerpt(data.excerpt.substring(0, 200));
       toast.success("Excerpt generated!");
     } catch (err: any) {
       toast.error(err.message || "Failed to generate excerpt");
@@ -159,7 +156,6 @@ const EditArticlePage = () => {
       setGeneratingExcerpt(false);
     }
   };
-
 
   useEffect(() => {
     if (!id) return;
@@ -183,8 +179,6 @@ const EditArticlePage = () => {
         setPrimaryCategoryId(article.primary_category_id || "");
         setAdditionalCategories((article as any).additional_category_ids || []);
         setSocialEmbeds((article.social_embeds || []) as SocialEmbed[]);
-        setMetaTitle(article.meta_title || "");
-        setMetaDescription(article.meta_description || "");
         setIsPinned(article.is_pinned);
         setIsFeatured(article.is_featured);
         setIsBreaking(article.is_breaking);
@@ -212,8 +206,8 @@ const EditArticlePage = () => {
     is_featured: isFeatured,
     is_breaking: isBreaking,
     tags: selectedTags,
-    meta_title: (metaTitle || title).substring(0, 60),
-    meta_description: (metaDescription || excerpt).substring(0, 160),
+    meta_title: title.trim().substring(0, 60),
+    meta_description: excerpt.trim().substring(0, 160),
     publication_status: status,
     published_at: status === "published" ? new Date().toISOString() : null,
     scheduled_for: scheduledAt || null,
@@ -341,16 +335,28 @@ const EditArticlePage = () => {
         <Section title="Article Details">
           <div>
             <label className={LABEL_CLASSES}>
-              Title *{" "}
+              Title & Meta Title *{" "}
               <SeoCharCount value={title} max={60} idealMin={30} idealMax={60} />
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value.substring(0, 60))}
-              placeholder="Enter article title..."
+              placeholder="Enter article title (also used as SEO meta title)..."
               className={INPUT_CLASSES}
             />
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="text-[11px] text-muted-foreground">Used as both the article headline and Google search title</p>
+              <button
+                type="button"
+                onClick={handleGenerateTitle}
+                disabled={generatingTitle}
+                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {generatingTitle ? "Generating…" : "Auto-generate"}
+              </button>
+            </div>
           </div>
 
           <div>
@@ -379,25 +385,28 @@ const EditArticlePage = () => {
 
           <div>
             <label className={LABEL_CLASSES}>
-              Excerpt / Summary *{" "}
+              Excerpt & Meta Description *{" "}
               <SeoCharCount value={excerpt} max={200} idealMin={120} idealMax={200} />
             </label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value.substring(0, 200))}
-              placeholder="Brief summary of the article..."
+              placeholder="Brief summary (also used as SEO meta description)..."
               rows={3}
               className={INPUT_CLASSES}
             />
-            <button
-              type="button"
-              onClick={handleGenerateExcerpt}
-              disabled={generatingExcerpt}
-              className="flex items-center gap-2 mt-2 px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[13px] font-semibold hover:bg-secondary/20 transition-all disabled:opacity-50"
-            >
-              {generatingExcerpt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              {generatingExcerpt ? "Generating…" : "Auto-generate with AI"}
-            </button>
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="text-[11px] text-muted-foreground">Used as both the article summary and Google search description</p>
+              <button
+                type="button"
+                onClick={handleGenerateExcerpt}
+                disabled={generatingExcerpt}
+                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {generatingExcerpt ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {generatingExcerpt ? "Generating…" : "Auto-generate"}
+              </button>
+            </div>
           </div>
 
           <div>
@@ -492,45 +501,6 @@ const EditArticlePage = () => {
         {/* Social Embeds */}
         <Section title="Social Media Embeds" collapsible>
           <SocialEmbedsEditor embeds={socialEmbeds} onChange={setSocialEmbeds} />
-        </Section>
-
-        {/* SEO */}
-        <Section title="SEO Settings" collapsible>
-          <button
-            type="button"
-            onClick={handleGenerateSeo}
-            disabled={generatingSeo}
-            className="flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[13px] font-semibold hover:bg-secondary/20 transition-all disabled:opacity-50"
-          >
-            {generatingSeo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {generatingSeo ? "Generating…" : "Auto-generate with AI"}
-          </button>
-          <div>
-            <label className={LABEL_CLASSES}>
-              Meta Title{" "}
-              <SeoCharCount value={metaTitle || title} max={60} idealMin={30} idealMax={60} />
-            </label>
-            <input
-              type="text"
-              value={metaTitle}
-              onChange={(e) => setMetaTitle(e.target.value.substring(0, 60))}
-              placeholder={title || "Leave blank to use article title"}
-              className={INPUT_CLASSES}
-            />
-          </div>
-          <div>
-            <label className={LABEL_CLASSES}>
-              Meta Description{" "}
-              <SeoCharCount value={metaDescription || excerpt} max={160} idealMin={120} idealMax={160} />
-            </label>
-            <textarea
-              value={metaDescription}
-              onChange={(e) => setMetaDescription(e.target.value.substring(0, 160))}
-              placeholder={excerpt || "Leave blank to use excerpt"}
-              rows={3}
-              className={INPUT_CLASSES}
-            />
-          </div>
         </Section>
 
         {/* Publishing Options */}
