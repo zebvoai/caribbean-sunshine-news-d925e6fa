@@ -160,6 +160,7 @@ const CreateArticlePage = () => {
   ): Promise<string | null> => {
     if (!title.trim()) { toast.error("Title is required"); return null; }
     if (title.trim().length < 30) { toast.error("Title must be at least 30 characters"); return null; }
+    if (title.trim().length > 60) { toast.error("Title must be at most 60 characters"); return null; }
     if (!slug.trim()) { toast.error("Slug is required"); return null; }
     if (!excerpt.trim()) { toast.error("Excerpt is required"); return null; }
     if (excerpt.trim().length < 120) { toast.error("Excerpt must be at least 120 characters"); return null; }
@@ -289,12 +290,12 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Title *{" "}
-              <SeoCharCount value={title} max={70} idealMin={30} idealMax={70} />
+              <SeoCharCount value={title} max={60} idealMin={30} idealMax={60} />
             </label>
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value.substring(0, 70))}
+              onChange={(e) => setTitle(e.target.value.substring(0, 60))}
               onBlur={handleTitleBlur}
               placeholder="Enter article title..."
               className={INPUT_CLASSES}
