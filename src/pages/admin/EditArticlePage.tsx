@@ -357,7 +357,7 @@ const EditArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Excerpt / Summary *{" "}
-              <SeoCharCount value={excerpt} max={300} idealMin={120} idealMax={200} />
+              <SeoCharCount value={excerpt} max={200} idealMin={120} idealMax={200} />
             </label>
             <textarea
               value={excerpt}
