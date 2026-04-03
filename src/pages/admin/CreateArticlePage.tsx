@@ -121,6 +121,7 @@ const CreateArticlePage = () => {
   const [backdateAt, setBackdateAt] = useState("");
   const [backdating, setBackdating] = useState(false);
   const [generatingSeo, setGeneratingSeo] = useState(false);
+  const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
 
   const handleGenerateSeo = async () => {
     if (!title.trim() && !excerpt.trim() && !body.trim()) {
