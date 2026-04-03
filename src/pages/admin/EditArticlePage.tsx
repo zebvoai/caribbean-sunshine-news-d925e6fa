@@ -324,7 +324,7 @@ const EditArticlePage = () => {
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value.substring(0, 100))}
+              onChange={(e) => setTitle(e.target.value.substring(0, 70))}
               placeholder="Enter article title..."
               className={INPUT_CLASSES}
             />
