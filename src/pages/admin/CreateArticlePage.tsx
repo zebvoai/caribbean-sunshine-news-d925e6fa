@@ -289,7 +289,7 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Title *{" "}
-              <SeoCharCount value={title} max={100} idealMin={30} idealMax={70} />
+              <SeoCharCount value={title} max={70} idealMin={30} idealMax={70} />
             </label>
             <input
               type="text"
