@@ -481,51 +481,6 @@ const CreateArticlePage = () => {
           <SocialEmbedsEditor embeds={socialEmbeds} onChange={setSocialEmbeds} />
         </Section>
 
-        {/* SEO */}
-        <Section title="SEO Settings" collapsible>
-          <button
-            type="button"
-            onClick={handleGenerateSeo}
-            disabled={generatingSeo}
-            className="flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[13px] font-semibold hover:bg-secondary/20 transition-all disabled:opacity-50"
-          >
-            {generatingSeo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {generatingSeo ? "Generating…" : "Auto-generate with AI"}
-          </button>
-          <div>
-            <label className={LABEL_CLASSES}>
-              Meta Title{" "}
-              <SeoCharCount value={metaTitle || title} max={60} idealMin={30} idealMax={60} />
-            </label>
-            <input
-              type="text"
-              value={metaTitle}
-              onChange={(e) => setMetaTitle(e.target.value.substring(0, 60))}
-              placeholder={title || "Leave blank to use article title"}
-              className={INPUT_CLASSES}
-            />
-          </div>
-          <div>
-            <label className={LABEL_CLASSES}>
-              Meta Description{" "}
-              <SeoCharCount value={metaDescription || excerpt} max={160} idealMin={120} idealMax={160} />
-            </label>
-            <textarea
-              value={metaDescription}
-              onChange={(e) => setMetaDescription(e.target.value.substring(0, 160))}
-              placeholder={excerpt || "Leave blank to use excerpt"}
-              rows={3}
-              className={INPUT_CLASSES}
-            />
-          </div>
-          <div className="bg-muted/30 rounded-lg p-3 space-y-1">
-            <p className="text-xs font-semibold text-foreground">Google SEO Guidelines</p>
-            <p className="text-xs text-muted-foreground">• Meta title: 30–60 characters (truncated at ~60 in search results)</p>
-            <p className="text-xs text-muted-foreground">• Meta description: 120–160 characters (truncated at ~160)</p>
-            <p className="text-xs text-muted-foreground">• If left blank, title and excerpt are used automatically</p>
-          </div>
-        </Section>
-
         {/* Publishing Options */}
         <Section title="Publishing Options">
           <div className="divide-y divide-border">
