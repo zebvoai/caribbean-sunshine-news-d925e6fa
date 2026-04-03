@@ -438,6 +438,15 @@ const CreateArticlePage = () => {
 
         {/* SEO */}
         <Section title="SEO Settings" collapsible>
+          <button
+            type="button"
+            onClick={handleGenerateSeo}
+            disabled={generatingSeo}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[13px] font-semibold hover:bg-secondary/20 transition-all disabled:opacity-50"
+          >
+            {generatingSeo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {generatingSeo ? "Generating…" : "Auto-generate with AI"}
+          </button>
           <div>
             <label className={LABEL_CLASSES}>
               Meta Title{" "}
