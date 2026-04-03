@@ -116,6 +116,28 @@ const EditArticlePage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [backdateAt, setBackdateAt] = useState("");
   const [backdating, setBackdating] = useState(false);
+  const [generatingSeo, setGeneratingSeo] = useState(false);
+
+  const handleGenerateSeo = async () => {
+    if (!title.trim() && !excerpt.trim() && !body.trim()) {
+      toast.error("Add a title, excerpt, or body first");
+      return;
+    }
+    setGeneratingSeo(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-seo", {
+        body: { title: title.trim(), excerpt: excerpt.trim(), body },
+      });
+      if (error) throw error;
+      if (data?.meta_title) setMetaTitle(data.meta_title);
+      if (data?.meta_description) setMetaDescription(data.meta_description);
+      toast.success("SEO fields generated!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate SEO");
+    } finally {
+      setGeneratingSeo(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
