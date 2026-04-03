@@ -107,8 +107,6 @@ const EditArticlePage = () => {
   const [primaryCategoryId, setPrimaryCategoryId] = useState("");
   const [additionalCategories, setAdditionalCategories] = useState<string[]>([]);
   const [socialEmbeds, setSocialEmbeds] = useState<SocialEmbed[]>([]);
-  const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
   const [isPinned, setIsPinned] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   const [isBreaking, setIsBreaking] = useState(false);
@@ -116,26 +114,46 @@ const EditArticlePage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [backdateAt, setBackdateAt] = useState("");
   const [backdating, setBackdating] = useState(false);
-  const [generatingSeo, setGeneratingSeo] = useState(false);
+  const [generatingTitle, setGeneratingTitle] = useState(false);
+  const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
 
-  const handleGenerateSeo = async () => {
-    if (!title.trim() && !excerpt.trim() && !body.trim()) {
-      toast.error("Add a title, excerpt, or body first");
+  const handleGenerateTitle = async () => {
+    if (!body.trim() && !excerpt.trim()) {
+      toast.error("Add article body or excerpt first");
       return;
     }
-    setGeneratingSeo(true);
+    setGeneratingTitle(true);
     try {
       const { data, error } = await supabase.functions.invoke("generate-seo", {
-        body: { title: title.trim(), excerpt: excerpt.trim(), body },
+        body: { title: "", excerpt: excerpt.trim(), body },
       });
       if (error) throw error;
-      if (data?.meta_title) setMetaTitle(data.meta_title);
-      if (data?.meta_description) setMetaDescription(data.meta_description);
-      toast.success("SEO fields generated!");
+      if (data?.meta_title) setTitle(data.meta_title.substring(0, 60));
+      toast.success("Title generated!");
     } catch (err: any) {
-      toast.error(err.message || "Failed to generate SEO");
+      toast.error(err.message || "Failed to generate title");
     } finally {
-      setGeneratingSeo(false);
+      setGeneratingTitle(false);
+    }
+  };
+
+  const handleGenerateExcerpt = async () => {
+    if (!title.trim() && !body.trim()) {
+      toast.error("Add a title or body first");
+      return;
+    }
+    setGeneratingExcerpt(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-excerpt", {
+        body: { title: title.trim(), body },
+      });
+      if (error) throw error;
+      if (data?.excerpt) setExcerpt(data.excerpt.substring(0, 200));
+      toast.success("Excerpt generated!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate excerpt");
+    } finally {
+      setGeneratingExcerpt(false);
     }
   };
 
