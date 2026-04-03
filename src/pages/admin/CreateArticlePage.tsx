@@ -6,6 +6,7 @@ import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
 import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, History, Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import SeoCharCount from "@/components/admin/SeoCharCount";
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
