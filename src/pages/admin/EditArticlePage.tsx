@@ -211,7 +211,7 @@ const EditArticlePage = () => {
     meta_title: title.trim().substring(0, 60),
     meta_description: excerpt.trim().substring(0, 160),
     publication_status: status,
-    published_at: status === "published" ? new Date().toISOString() : null,
+    published_at: status === "published" ? (originalPublishedAt || new Date().toISOString()) : null,
     scheduled_for: scheduledAt || null,
     social_embeds: socialEmbeds.map((e) => ({
       platform: e.platform,
