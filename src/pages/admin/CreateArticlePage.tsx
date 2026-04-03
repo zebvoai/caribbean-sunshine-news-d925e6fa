@@ -7,7 +7,6 @@ import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
 import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, History, Sparkles } from "lucide-react";
 import SeoCharCount from "@/components/admin/SeoCharCount";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
 
