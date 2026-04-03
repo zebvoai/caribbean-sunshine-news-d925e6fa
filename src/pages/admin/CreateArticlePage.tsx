@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
-import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, History } from "lucide-react";
+import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, History, Sparkles } from "lucide-react";
 import SeoCharCount from "@/components/admin/SeoCharCount";
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
@@ -120,6 +120,28 @@ const CreateArticlePage = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [backdateAt, setBackdateAt] = useState("");
   const [backdating, setBackdating] = useState(false);
+  const [generatingSeo, setGeneratingSeo] = useState(false);
+
+  const handleGenerateSeo = async () => {
+    if (!title.trim() && !excerpt.trim() && !body.trim()) {
+      toast.error("Add a title, excerpt, or body first");
+      return;
+    }
+    setGeneratingSeo(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-seo", {
+        body: { title: title.trim(), excerpt: excerpt.trim(), body },
+      });
+      if (error) throw error;
+      if (data?.meta_title) setMetaTitle(data.meta_title);
+      if (data?.meta_description) setMetaDescription(data.meta_description);
+      toast.success("SEO fields generated!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate SEO");
+    } finally {
+      setGeneratingSeo(false);
+    }
+  };
 
   useEffect(() => {
     mongoApi.getCategories().then(setCategories).catch(console.error);
@@ -416,6 +438,15 @@ const CreateArticlePage = () => {
 
         {/* SEO */}
         <Section title="SEO Settings" collapsible>
+          <button
+            type="button"
+            onClick={handleGenerateSeo}
+            disabled={generatingSeo}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[13px] font-semibold hover:bg-secondary/20 transition-all disabled:opacity-50"
+          >
+            {generatingSeo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {generatingSeo ? "Generating…" : "Auto-generate with AI"}
+          </button>
           <div>
             <label className={LABEL_CLASSES}>
               Meta Title{" "}
