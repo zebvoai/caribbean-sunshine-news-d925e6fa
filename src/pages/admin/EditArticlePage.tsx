@@ -371,16 +371,42 @@ const EditArticlePage = () => {
             />
             <div className="flex items-center justify-between mt-1.5">
               <p className="text-[11px] text-muted-foreground">Used as both the article headline and Google search title</p>
-              <button
-                type="button"
-                onClick={handleGenerateTitle}
-                disabled={generatingTitle}
-                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                {generatingTitle ? "Generating…" : "Auto-generate"}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSuggestTitles}
+                  disabled={loadingSuggestions}
+                  className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {loadingSuggestions ? <Loader2 className="h-3 w-3 animate-spin" /> : <Lightbulb className="h-3 w-3" />}
+                  {loadingSuggestions ? "Loading…" : "Suggest titles"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGenerateTitle}
+                  disabled={generatingTitle}
+                  className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                  {generatingTitle ? "Generating…" : "Auto-generate"}
+                </button>
+              </div>
             </div>
+            {titleSuggestions.length > 0 && (
+              <div className="mt-2 border border-border/60 rounded-xl p-3 bg-muted/10 space-y-1.5">
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1">Click to use a suggestion:</p>
+                {titleSuggestions.map((s, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => { setTitle(s); setTitleSuggestions([]); toast.success("Title applied!"); }}
+                    className="w-full text-left px-3 py-2 text-[13px] rounded-lg hover:bg-primary/10 hover:text-primary transition-colors border border-transparent hover:border-primary/20"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
