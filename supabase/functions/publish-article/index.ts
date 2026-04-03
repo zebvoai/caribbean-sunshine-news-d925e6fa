@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
       .from("articles")
       .update({
         publication_status: "published",
-        published_at: new Date().toISOString(),
+        published_at: article.published_at || new Date().toISOString(),
         scheduled_for: null,
         meta_title: metaTitle.substring(0, 60),
         meta_description: metaDescription.substring(0, 160),
