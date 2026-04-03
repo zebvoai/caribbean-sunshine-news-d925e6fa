@@ -385,16 +385,28 @@ const EditArticlePage = () => {
 
           <div>
             <label className={LABEL_CLASSES}>
-              Excerpt / Summary *{" "}
+              Excerpt & Meta Description *{" "}
               <SeoCharCount value={excerpt} max={200} idealMin={120} idealMax={200} />
             </label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value.substring(0, 200))}
-              placeholder="Brief summary of the article..."
+              placeholder="Brief summary (also used as SEO meta description)..."
               rows={3}
               className={INPUT_CLASSES}
             />
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="text-[11px] text-muted-foreground">Used as both the article summary and Google search description</p>
+              <button
+                type="button"
+                onClick={handleGenerateExcerpt}
+                disabled={generatingExcerpt}
+                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {generatingExcerpt ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {generatingExcerpt ? "Generating…" : "Auto-generate"}
+              </button>
+            </div>
           </div>
 
           <div>
