@@ -335,16 +335,28 @@ const EditArticlePage = () => {
         <Section title="Article Details">
           <div>
             <label className={LABEL_CLASSES}>
-              Title *{" "}
+              Title & Meta Title *{" "}
               <SeoCharCount value={title} max={60} idealMin={30} idealMax={60} />
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value.substring(0, 60))}
-              placeholder="Enter article title..."
+              placeholder="Enter article title (also used as SEO meta title)..."
               className={INPUT_CLASSES}
             />
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="text-[11px] text-muted-foreground">Used as both the article headline and Google search title</p>
+              <button
+                type="button"
+                onClick={handleGenerateTitle}
+                disabled={generatingTitle}
+                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {generatingTitle ? "Generating…" : "Auto-generate"}
+              </button>
+            </div>
           </div>
 
           <div>
