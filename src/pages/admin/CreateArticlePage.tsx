@@ -120,6 +120,8 @@ const CreateArticlePage = () => {
   const [backdating, setBackdating] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
+  const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
 
   const handleGenerateTitle = async () => {
     if (!body.trim() && !excerpt.trim()) {
@@ -138,6 +140,28 @@ const CreateArticlePage = () => {
       toast.error(err.message || "Failed to generate title");
     } finally {
       setGeneratingTitle(false);
+    }
+  };
+
+  const handleSuggestTitles = async () => {
+    if (!body.trim() && !excerpt.trim()) {
+      toast.error("Add article body or excerpt first");
+      return;
+    }
+    setLoadingSuggestions(true);
+    setTitleSuggestions([]);
+    try {
+      const { data, error } = await supabase.functions.invoke("suggest-titles", {
+        body: { body, excerpt: excerpt.trim() },
+      });
+      if (error) throw error;
+      const suggestions = (data?.suggestions || []).map((s: any) => s.title?.substring(0, 60)).filter(Boolean);
+      setTitleSuggestions(suggestions);
+      if (!suggestions.length) toast.error("No suggestions returned");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to get suggestions");
+    } finally {
+      setLoadingSuggestions(false);
     }
   };
 
