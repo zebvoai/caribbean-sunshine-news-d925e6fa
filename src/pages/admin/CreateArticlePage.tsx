@@ -289,12 +289,12 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Title *{" "}
-              <SeoCharCount value={title} max={70} idealMin={30} idealMax={70} />
+              <SeoCharCount value={title} max={60} idealMin={30} idealMax={60} />
             </label>
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value.substring(0, 70))}
+              onChange={(e) => setTitle(e.target.value.substring(0, 60))}
               onBlur={handleTitleBlur}
               placeholder="Enter article title..."
               className={INPUT_CLASSES}
