@@ -161,6 +161,7 @@ const EditArticlePage = () => {
   };
 
 
+  useEffect(() => {
     if (!id) return;
     Promise.all([
       mongoApi.getArticleById(id),
