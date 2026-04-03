@@ -442,9 +442,12 @@ const CreateArticlePage = () => {
               className={INPUT_CLASSES}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            If left blank, meta title defaults to article title and meta description defaults to excerpt.
-          </p>
+          <div className="bg-muted/30 rounded-lg p-3 space-y-1">
+            <p className="text-xs font-semibold text-foreground">Google SEO Guidelines</p>
+            <p className="text-xs text-muted-foreground">• Meta title: 30–60 characters (truncated at ~60 in search results)</p>
+            <p className="text-xs text-muted-foreground">• Meta description: 120–160 characters (truncated at ~160)</p>
+            <p className="text-xs text-muted-foreground">• If left blank, title and excerpt are used automatically</p>
+          </div>
         </Section>
 
         {/* Publishing Options */}
