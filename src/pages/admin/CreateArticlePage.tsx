@@ -159,8 +159,10 @@ const CreateArticlePage = () => {
     customPublishedAt?: string
   ): Promise<string | null> => {
     if (!title.trim()) { toast.error("Title is required"); return null; }
+    if (title.trim().length < 30) { toast.error("Title must be at least 30 characters"); return null; }
     if (!slug.trim()) { toast.error("Slug is required"); return null; }
     if (!excerpt.trim()) { toast.error("Excerpt is required"); return null; }
+    if (excerpt.trim().length < 120) { toast.error("Excerpt must be at least 120 characters"); return null; }
     if (!body.trim() || body === "<p></p>") { toast.error("Article body is required"); return null; }
 
     const payload = {
@@ -287,12 +289,12 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Title *{" "}
-              <SeoCharCount value={title} max={100} idealMin={30} idealMax={70} />
+              <SeoCharCount value={title} max={70} idealMin={30} idealMax={70} />
             </label>
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value.substring(0, 100))}
+              onChange={(e) => setTitle(e.target.value.substring(0, 70))}
               onBlur={handleTitleBlur}
               placeholder="Enter article title..."
               className={INPUT_CLASSES}
@@ -328,11 +330,11 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Excerpt / Summary *{" "}
-              <SeoCharCount value={excerpt} max={300} idealMin={120} idealMax={200} />
+              <SeoCharCount value={excerpt} max={200} idealMin={120} idealMax={200} />
             </label>
             <textarea
               value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value.substring(0, 300))}
+              onChange={(e) => setExcerpt(e.target.value.substring(0, 200))}
               placeholder="Brief summary of the article..."
               rows={3}
               className={INPUT_CLASSES}
