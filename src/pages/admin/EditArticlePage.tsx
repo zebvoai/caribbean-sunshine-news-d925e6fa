@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
-import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, ArrowLeft, History, Sparkles, Lightbulb } from "lucide-react";
+import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, ArrowLeft, History, Sparkles } from "lucide-react";
 import SeoCharCount from "@/components/admin/SeoCharCount";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -116,8 +116,7 @@ const EditArticlePage = () => {
   const [backdating, setBackdating] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
-  const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
-  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [originalPublishedAt, setOriginalPublishedAt] = useState<string | null>(null);
 
   const handleGenerateTitle = async () => {
     if (!body.trim() && !excerpt.trim()) {
@@ -136,28 +135,6 @@ const EditArticlePage = () => {
       toast.error(err.message || "Failed to generate title");
     } finally {
       setGeneratingTitle(false);
-    }
-  };
-
-  const handleSuggestTitles = async () => {
-    if (!body.trim() && !excerpt.trim()) {
-      toast.error("Add article body or excerpt first");
-      return;
-    }
-    setLoadingSuggestions(true);
-    setTitleSuggestions([]);
-    try {
-      const { data, error } = await supabase.functions.invoke("suggest-titles", {
-        body: { body, excerpt: excerpt.trim() },
-      });
-      if (error) throw error;
-      const suggestions = (data?.suggestions || []).map((s: any) => s.title?.substring(0, 60)).filter(Boolean);
-      setTitleSuggestions(suggestions);
-      if (!suggestions.length) toast.error("No suggestions returned");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to get suggestions");
-    } finally {
-      setLoadingSuggestions(false);
     }
   };
 
@@ -208,6 +185,7 @@ const EditArticlePage = () => {
         setIsBreaking(article.is_breaking);
         setScheduledFor(article.scheduled_for ? article.scheduled_for.slice(0, 16) : "");
         setSelectedTags(article.tags || []);
+        setOriginalPublishedAt(article.published_at || null);
       })
       .catch((err) => {
         toast.error("Failed to load article");
@@ -233,7 +211,7 @@ const EditArticlePage = () => {
     meta_title: title.trim().substring(0, 60),
     meta_description: excerpt.trim().substring(0, 160),
     publication_status: status,
-    published_at: status === "published" ? new Date().toISOString() : null,
+    published_at: status === "published" ? (originalPublishedAt || new Date().toISOString()) : null,
     scheduled_for: scheduledAt || null,
     social_embeds: socialEmbeds.map((e) => ({
       platform: e.platform,
@@ -371,42 +349,16 @@ const EditArticlePage = () => {
             />
             <div className="flex items-center justify-between mt-1.5">
               <p className="text-[11px] text-muted-foreground">Used as both the article headline and Google search title</p>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleSuggestTitles}
-                  disabled={loadingSuggestions}
-                  className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-primary hover:bg-primary/10 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {loadingSuggestions ? <Loader2 className="h-3 w-3 animate-spin" /> : <Lightbulb className="h-3 w-3" />}
-                  {loadingSuggestions ? "Loading…" : "Suggest titles"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleGenerateTitle}
-                  disabled={generatingTitle}
-                  className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
-                  {generatingTitle ? "Generating…" : "Auto-generate"}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleGenerateTitle}
+                disabled={generatingTitle}
+                className="flex items-center gap-1.5 px-3 py-1 text-[11px] font-semibold text-secondary hover:bg-secondary/10 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {generatingTitle ? "Generating…" : "Auto-generate"}
+              </button>
             </div>
-            {titleSuggestions.length > 0 && (
-              <div className="mt-2 border border-border/60 rounded-xl p-3 bg-muted/10 space-y-1.5">
-                <p className="text-[11px] font-semibold text-muted-foreground mb-1">Click to use a suggestion:</p>
-                {titleSuggestions.map((s, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => { setTitle(s); setTitleSuggestions([]); toast.success("Title applied!"); }}
-                    className="w-full text-left px-3 py-2 text-[13px] rounded-lg hover:bg-primary/10 hover:text-primary transition-colors border border-transparent hover:border-primary/20"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           <div>
