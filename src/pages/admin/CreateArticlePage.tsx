@@ -6,6 +6,7 @@ import RichTextEditor from "@/components/admin/RichTextEditor";
 import ImageUploader from "@/components/admin/ImageUploader";
 import SocialEmbedsEditor, { SocialEmbed } from "@/components/admin/SocialEmbedsEditor";
 import { Save, Send, Clock, Pin, Star, Zap, Loader2, ChevronDown, ChevronUp, History } from "lucide-react";
+import SeoCharCount from "@/components/admin/SeoCharCount";
 import { cn } from "@/lib/utils";
 import { mongoApi, MongoCategory, MongoAuthor, MongoTag } from "@/lib/mongoApi";
 
@@ -262,11 +263,14 @@ const CreateArticlePage = () => {
         {/* Article Details */}
         <Section title="Article Details">
           <div>
-            <label className={LABEL_CLASSES}>Title *</label>
+            <label className={LABEL_CLASSES}>
+              Title *{" "}
+              <SeoCharCount value={title} max={100} idealMin={30} idealMax={70} />
+            </label>
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value.substring(0, 100))}
               onBlur={handleTitleBlur}
               placeholder="Enter article title..."
               className={INPUT_CLASSES}
@@ -302,9 +306,7 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Excerpt / Summary *{" "}
-              <span className={cn("text-xs font-normal", excerpt.length > 300 ? "text-destructive" : "text-muted-foreground")}>
-                {excerpt.length}/300
-              </span>
+              <SeoCharCount value={excerpt} max={300} idealMin={120} idealMax={200} />
             </label>
             <textarea
               value={excerpt}
@@ -417,9 +419,7 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Meta Title{" "}
-              <span className={cn("text-xs font-normal", metaTitle.length > 60 ? "text-destructive" : "text-muted-foreground")}>
-                {metaTitle.length}/60
-              </span>
+              <SeoCharCount value={metaTitle || title} max={60} idealMin={30} idealMax={60} />
             </label>
             <input
               type="text"
@@ -432,9 +432,7 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Meta Description{" "}
-              <span className={cn("text-xs font-normal", metaDescription.length > 160 ? "text-destructive" : "text-muted-foreground")}>
-                {metaDescription.length}/160
-              </span>
+              <SeoCharCount value={metaDescription || excerpt} max={160} idealMin={120} idealMax={160} />
             </label>
             <textarea
               value={metaDescription}
@@ -444,9 +442,12 @@ const CreateArticlePage = () => {
               className={INPUT_CLASSES}
             />
           </div>
-          <p className="text-xs text-muted-foreground">
-            If left blank, meta title defaults to article title and meta description defaults to excerpt.
-          </p>
+          <div className="bg-muted/30 rounded-lg p-3 space-y-1">
+            <p className="text-xs font-semibold text-foreground">Google SEO Guidelines</p>
+            <p className="text-xs text-muted-foreground">• Meta title: 30–60 characters (truncated at ~60 in search results)</p>
+            <p className="text-xs text-muted-foreground">• Meta description: 120–160 characters (truncated at ~160)</p>
+            <p className="text-xs text-muted-foreground">• If left blank, title and excerpt are used automatically</p>
+          </div>
         </Section>
 
         {/* Publishing Options */}
