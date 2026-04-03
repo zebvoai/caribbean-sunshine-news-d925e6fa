@@ -117,6 +117,7 @@ const EditArticlePage = () => {
   const [backdateAt, setBackdateAt] = useState("");
   const [backdating, setBackdating] = useState(false);
   const [generatingSeo, setGeneratingSeo] = useState(false);
+  const [generatingExcerpt, setGeneratingExcerpt] = useState(false);
 
   const handleGenerateSeo = async () => {
     if (!title.trim() && !excerpt.trim() && !body.trim()) {
@@ -138,6 +139,27 @@ const EditArticlePage = () => {
       setGeneratingSeo(false);
     }
   };
+
+  const handleGenerateExcerpt = async () => {
+    if (!title.trim() && !body.trim()) {
+      toast.error("Add a title or body first");
+      return;
+    }
+    setGeneratingExcerpt(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-excerpt", {
+        body: { title: title.trim(), body },
+      });
+      if (error) throw error;
+      if (data?.excerpt) setExcerpt(data.excerpt);
+      toast.success("Excerpt generated!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate excerpt");
+    } finally {
+      setGeneratingExcerpt(false);
+    }
+  };
+
 
   useEffect(() => {
     if (!id) return;
@@ -367,6 +389,15 @@ const EditArticlePage = () => {
               rows={3}
               className={INPUT_CLASSES}
             />
+            <button
+              type="button"
+              onClick={handleGenerateExcerpt}
+              disabled={generatingExcerpt}
+              className="flex items-center gap-2 mt-2 px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[13px] font-semibold hover:bg-secondary/20 transition-all disabled:opacity-50"
+            >
+              {generatingExcerpt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {generatingExcerpt ? "Generating…" : "Auto-generate with AI"}
+            </button>
           </div>
 
           <div>
