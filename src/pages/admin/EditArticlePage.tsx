@@ -148,7 +148,7 @@ const EditArticlePage = () => {
         body: { title: title.trim(), body },
       });
       if (error) throw error;
-      if (data?.excerpt) setExcerpt(data.excerpt.substring(0, 200));
+      if (data?.excerpt) setExcerpt(data.excerpt.substring(0, 160));
       toast.success("Excerpt generated!");
     } catch (err: any) {
       toast.error(err.message || "Failed to generate excerpt");
