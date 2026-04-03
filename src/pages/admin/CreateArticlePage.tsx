@@ -306,9 +306,7 @@ const CreateArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Excerpt / Summary *{" "}
-              <span className={cn("text-xs font-normal", excerpt.length > 300 ? "text-destructive" : "text-muted-foreground")}>
-                {excerpt.length}/300
-              </span>
+              <SeoCharCount value={excerpt} max={300} idealMin={120} idealMax={200} />
             </label>
             <textarea
               value={excerpt}
