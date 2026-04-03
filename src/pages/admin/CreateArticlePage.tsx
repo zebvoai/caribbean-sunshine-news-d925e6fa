@@ -362,6 +362,15 @@ const CreateArticlePage = () => {
               className={INPUT_CLASSES}
               required
             />
+            <button
+              type="button"
+              onClick={handleGenerateExcerpt}
+              disabled={generatingExcerpt}
+              className="flex items-center gap-2 mt-2 px-4 py-2 bg-secondary/10 text-secondary border border-secondary/20 rounded-xl text-[13px] font-semibold hover:bg-secondary/20 transition-all disabled:opacity-50"
+            >
+              {generatingExcerpt ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {generatingExcerpt ? "Generating…" : "Auto-generate with AI"}
+            </button>
           </div>
 
           <div>
