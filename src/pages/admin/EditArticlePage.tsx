@@ -140,7 +140,27 @@ const EditArticlePage = () => {
     }
   };
 
-  useEffect(() => {
+  const handleGenerateExcerpt = async () => {
+    if (!title.trim() && !body.trim()) {
+      toast.error("Add a title or body first");
+      return;
+    }
+    setGeneratingExcerpt(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-excerpt", {
+        body: { title: title.trim(), body },
+      });
+      if (error) throw error;
+      if (data?.excerpt) setExcerpt(data.excerpt);
+      toast.success("Excerpt generated!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to generate excerpt");
+    } finally {
+      setGeneratingExcerpt(false);
+    }
+  };
+
+
     if (!id) return;
     Promise.all([
       mongoApi.getArticleById(id),
