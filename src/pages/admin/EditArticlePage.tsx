@@ -148,7 +148,7 @@ const EditArticlePage = () => {
         body: { title: title.trim(), body },
       });
       if (error) throw error;
-      if (data?.excerpt) setExcerpt(data.excerpt.substring(0, 200));
+      if (data?.excerpt) setExcerpt(data.excerpt.substring(0, 160));
       toast.success("Excerpt generated!");
     } catch (err: any) {
       toast.error(err.message || "Failed to generate excerpt");
@@ -386,11 +386,11 @@ const EditArticlePage = () => {
           <div>
             <label className={LABEL_CLASSES}>
               Excerpt & Meta Description *{" "}
-              <SeoCharCount value={excerpt} max={200} idealMin={120} idealMax={200} />
+              <SeoCharCount value={excerpt} max={160} idealMin={120} idealMax={160} />
             </label>
             <textarea
               value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value.substring(0, 200))}
+              onChange={(e) => setExcerpt(e.target.value.substring(0, 160))}
               placeholder="Brief summary (also used as SEO meta description)..."
               rows={3}
               className={INPUT_CLASSES}
