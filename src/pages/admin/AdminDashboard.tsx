@@ -6,8 +6,7 @@ import {
   ArrowUpRight, Activity, Zap, Radio, Calendar, BarChart2,
   Sparkles, ArrowRight,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { mongoApi } from "@/lib/mongoApi";
+import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
