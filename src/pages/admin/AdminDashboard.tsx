@@ -47,39 +47,30 @@ const AdminDashboard = () => {
     { label: "Schedule", description: "Queue articles", icon: Calendar, path: "/admin/schedule" },
   ];
 
-  const { data: recentActivity = [] } = useQuery({
-    queryKey: ["dashboard-recent-activity"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("articles")
-        .select("id, title, publication_status, is_breaking, updated_at, published_at")
-        .order("updated_at", { ascending: false })
-        .limit(8);
+  const recentActivity = allArticles
+    .sort((a, b) => new Date(b.updated_at || 0).getTime() - new Date(a.updated_at || 0).getTime())
+    .slice(0, 8)
+    .map((a) => {
+      const type = a.is_breaking
+        ? "breaking"
+        : a.publication_status === "published"
+        ? "publish"
+        : a.publication_status === "scheduled"
+        ? "scheduled"
+        : "edit";
 
-      return (data || []).map((a) => {
-        const type = a.is_breaking
-          ? "breaking"
-          : a.publication_status === "published"
-          ? "publish"
-          : a.publication_status === "scheduled"
-          ? "scheduled"
-          : "edit";
+      const action = a.is_breaking
+        ? "Breaking"
+        : a.publication_status === "published"
+        ? "Published"
+        : a.publication_status === "scheduled"
+        ? "Scheduled"
+        : "Draft";
 
-        const action = a.is_breaking
-          ? "Breaking"
-          : a.publication_status === "published"
-          ? "Published"
-          : a.publication_status === "scheduled"
-          ? "Scheduled"
-          : "Draft";
+      const time = formatDistanceToNow(new Date(a.updated_at || a.created_at || new Date()), { addSuffix: false });
 
-        const time = formatDistanceToNow(new Date(a.updated_at), { addSuffix: false });
-
-        return { id: a.id, action, subject: a.title, time, type };
-      });
-    },
-    staleTime: 30 * 1000,
-  });
+      return { id: a.id, action, subject: a.title, time, type };
+    });
 
   const typeColors: Record<string, string> = {
     publish: "bg-primary/10 text-primary border border-primary/15",
