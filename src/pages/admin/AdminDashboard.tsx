@@ -14,47 +14,23 @@ import { formatDistanceToNow } from "date-fns";
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  const { data: articles = [] } = useQuery({
-    queryKey: ["admin-articles-count"],
-    queryFn: () => mongoApi.getArticles({ limit: 5 }),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const { data: totalArticles = 0 } = useQuery({
-    queryKey: ["dashboard-total-articles"],
-    queryFn: async () => {
-      const { count } = await supabase.from("articles").select("*", { count: "exact", head: true });
-      return count ?? 0;
-    },
+  const { data: allArticles = [] } = useQuery({
+    queryKey: ["dashboard-all-articles"],
+    queryFn: () => mongoApi.getArticles({ limit: 500 }),
     staleTime: 60 * 1000,
   });
 
-  const { data: totalViews = 0 } = useQuery({
-    queryKey: ["dashboard-total-views"],
-    queryFn: async () => {
-      const { data } = await supabase.from("articles").select("view_count");
-      return data?.reduce((sum, a) => sum + (a.view_count || 0), 0) ?? 0;
-    },
+  const { data: allAuthors = [] } = useQuery({
+    queryKey: ["dashboard-all-authors"],
+    queryFn: () => mongoApi.getAuthors(),
     staleTime: 60 * 1000,
   });
 
-  const { data: totalAuthors = 0 } = useQuery({
-    queryKey: ["dashboard-total-authors"],
-    queryFn: async () => {
-      const { count } = await supabase.from("authors").select("*", { count: "exact", head: true });
-      return count ?? 0;
-    },
-    staleTime: 60 * 1000,
-  });
-
-  const { data: publishedCount = 0 } = useQuery({
-    queryKey: ["dashboard-published-count"],
-    queryFn: async () => {
-      const { count } = await supabase.from("articles").select("*", { count: "exact", head: true }).eq("publication_status", "published");
-      return count ?? 0;
-    },
-    staleTime: 60 * 1000,
-  });
+  const articles = allArticles.slice(0, 5);
+  const totalArticles = allArticles.length;
+  const totalViews = allArticles.reduce((sum, a) => sum + (a.view_count || 0), 0);
+  const totalAuthors = allAuthors.length;
+  const publishedCount = allArticles.filter((a) => a.publication_status === "published").length;
 
   const formatViews = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}K` : String(v);
 
