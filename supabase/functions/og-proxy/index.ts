@@ -17,7 +17,7 @@ const SITE_NAME = "Dominica News DM";
 const SITE_URL = "https://www.dominicanews.dm";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 const DEFAULT_DESC =
-  "Your trusted source for breaking news, local updates, politics, business, culture, and community stories from Dominica and the Caribbean.";
+  "Stay updated with the latest Dominica news, breaking stories, politics, business, and Caribbean updates. Trusted source for accurate and timely news.";
 
 function esc(s: unknown): string {
   const str = String(s ?? "");
