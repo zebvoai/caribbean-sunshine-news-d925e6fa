@@ -523,7 +523,7 @@ const EditArticlePage = () => {
               className={INPUT_CLASSES}
             />
             <p className="text-[11px] text-muted-foreground/60 mt-1.5 font-body">
-              Times are in your local timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone})
+              Times are in Dominica time (AST, UTC-4)
             </p>
           </div>
 
