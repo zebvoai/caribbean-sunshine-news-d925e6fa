@@ -471,7 +471,6 @@ const ArticlePage = () => {
             </span>
           )}
           <span className="w-1 h-1 rounded-full bg-border" />
-          <span className="w-1 h-1 rounded-full bg-border" />
           <span className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
             {readTime} min read
