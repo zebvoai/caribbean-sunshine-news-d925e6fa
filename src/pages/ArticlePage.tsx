@@ -150,6 +150,7 @@ const RelatedCard = ({ article }: { article: RelatedArticle }) => (
                 month: "short",
                 day: "numeric",
                 year: "numeric",
+                timeZone: DOMINICA_TZ,
               })}
             </span>
           </>

@@ -14,6 +14,7 @@ const SiteHeader = () => {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "America/Dominica",
   });
 
   const handleSearch = (e: React.FormEvent) => {

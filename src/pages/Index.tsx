@@ -158,7 +158,7 @@ const Index = () => {
                         </span>
                         {u.updated_at && (
                           <span className="text-xs text-muted-foreground font-body">
-                            Updated {new Date(u.updated_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                            Updated {new Date(u.updated_at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "America/Dominica" })}
                           </span>
                         )}
                       </div>
