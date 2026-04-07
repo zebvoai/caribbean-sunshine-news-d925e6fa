@@ -81,16 +81,20 @@ const calcReadTime = (body: string): number => {
   return Math.max(1, Math.ceil(words / 225));
 };
 
+const DOMINICA_TZ = "America/Dominica";
+
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: DOMINICA_TZ,
   }) +
   " | " +
   new Date(iso).toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
+    timeZone: DOMINICA_TZ,
     timeZoneName: "short",
   });
 
