@@ -24,6 +24,7 @@ const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
         year: "numeric",
         month: "long",
         day: "numeric",
+        timeZone: "America/Dominica",
       })
     : "",
   image: getProxiedAssetUrl(a.cover_image_url || ""),
