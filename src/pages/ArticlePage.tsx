@@ -471,10 +471,6 @@ const ArticlePage = () => {
             </span>
           )}
           <span className="w-1 h-1 rounded-full bg-border" />
-          <span className="flex items-center gap-1">
-            <Eye className="h-3.5 w-3.5" />
-            {article.view_count.toLocaleString()} views
-          </span>
           <span className="w-1 h-1 rounded-full bg-border" />
           <span className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
