@@ -13,12 +13,14 @@ const formatDate = (iso: string) =>
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "America/Dominica",
   });
 
 const formatTime = (iso: string) =>
   new Date(iso).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "America/Dominica",
   });
 
 const LiveUpdateCard = ({ update }: { update: MongoLiveUpdate }) => (

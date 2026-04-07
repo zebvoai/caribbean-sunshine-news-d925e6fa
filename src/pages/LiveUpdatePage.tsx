@@ -12,10 +12,10 @@ import { useToast } from "@/hooks/use-toast";
 const POLL_INTERVAL = 30_000; // 30 seconds
 
 const formatTime = (iso: string) =>
-  new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", timeZone: "America/Dominica" });
 
 const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "America/Dominica" });
 
 const formatRelative = (iso: string) => {
   const diff = Date.now() - new Date(iso).getTime();
