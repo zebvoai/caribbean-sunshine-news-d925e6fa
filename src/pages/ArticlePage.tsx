@@ -330,7 +330,7 @@ const ArticlePage = () => {
     ld.textContent = JSON.stringify(schema);
 
     return () => {
-      document.title = "Dominica News DM";
+      document.title = "Dominica News";
     };
   }, [article]);
 
