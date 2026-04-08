@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const SITE_URL = "https://www.dominicanews.dm";
-const PUBLICATION_NAME = "Dominica News DM";
+const PUBLICATION_NAME = "Dominica News";
 const MONGO_API_URL = Deno.env.get("SUPABASE_URL")! + "/functions/v1/mongo-api";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 

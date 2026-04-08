@@ -50,7 +50,7 @@ const SiteHeader = () => {
           <Link to="/" className="text-center group relative">
             <img
               src={logoImg}
-              alt="Dominica News DM"
+              alt="Dominica News"
               className="h-11 md:h-16 w-auto object-contain transition-all duration-500 group-hover:scale-[1.02] group-hover:brightness-110"
             />
           </Link>

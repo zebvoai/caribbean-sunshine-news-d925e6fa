@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const SITE_URL = "https://www.dominicanews.dm";
-const FEED_TITLE = "Dominica News DM";
+const FEED_TITLE = "Dominica News";
 const FEED_DESCRIPTION = "Dominica's premier independent news platform – breaking news, politics, sports, culture and more.";
 const MONGO_API_URL = Deno.env.get("SUPABASE_URL")! + "/functions/v1/mongo-api";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -97,7 +97,7 @@ ${items}  </channel>
     });
   } catch (_e) {
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Dominica News DM</title></channel></rss>`,
+      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Dominica News</title></channel></rss>`,
       { headers: { "Content-Type": "application/rss+xml" } }
     );
   }
