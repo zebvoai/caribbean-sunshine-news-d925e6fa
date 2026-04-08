@@ -302,10 +302,10 @@ const ArticlePage = () => {
       articleSection: article.categories?.name || "News",
       author: article.authors
         ? { "@type": "Person", name: article.authors.full_name, jobTitle: article.authors.role }
-        : { "@type": "Organization", name: "Dominica News DM" },
+        : { "@type": "Organization", name: "Dominica News" },
       publisher: {
         "@type": "NewsMediaOrganization",
-        name: "Dominica News DM",
+        name: "Dominica News",
         url: "https://www.dominicanews.dm",
         logo: {
           "@type": "ImageObject",
