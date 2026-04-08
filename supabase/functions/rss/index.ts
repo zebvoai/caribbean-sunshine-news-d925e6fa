@@ -97,7 +97,7 @@ ${items}  </channel>
     });
   } catch (_e) {
     return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Dominica News DM</title></channel></rss>`,
+      `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Dominica News</title></channel></rss>`,
       { headers: { "Content-Type": "application/rss+xml" } }
     );
   }

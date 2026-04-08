@@ -31,7 +31,7 @@ serve(async (req) => {
     // Strip HTML tags from body for context
     const plainBody = (body || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().substring(0, 2000);
 
-    const systemPrompt = `You are an SEO expert for a Caribbean news website called "Dominica News DM". Generate optimized meta title and meta description following Google's SEO guidelines.
+    const systemPrompt = `You are an SEO expert for a Caribbean news website called "Dominica News". Generate optimized meta title and meta description following Google's SEO guidelines.
 
 Rules:
 - Meta title: 50-60 characters max. Include the most important keywords naturally. Make it compelling for click-through. Do NOT include the site name — it will be appended automatically.

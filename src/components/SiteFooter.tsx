@@ -48,7 +48,7 @@ const SiteFooter = () => {
           <div className="lg:col-span-1">
             <img src={logoImg} alt="Dominica News" className="h-10 w-auto mb-5 brightness-0 invert opacity-80" />
             <p className="text-sm leading-[1.8] opacity-60 font-body">
-              Dominica News DM is your trusted source for breaking news, politics,
+              Dominica News is your trusted source for breaking news, politics,
               weather updates, and Caribbean coverage.
             </p>
             <div className="flex items-center gap-2.5 mt-6">

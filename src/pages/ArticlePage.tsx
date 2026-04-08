@@ -462,7 +462,7 @@ const ArticlePage = () => {
 
         {/* ── Meta Row ────────────────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-muted-foreground font-body mb-10 pb-7 border-b border-border/60 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          <span className="font-semibold text-foreground">Dominica News DM</span>
+          <span className="font-semibold text-foreground">Dominica News</span>
           <span className="w-1 h-1 rounded-full bg-border" />
           {pubDate && (
             <span className="flex items-center gap-1">

@@ -13,7 +13,7 @@ async function getDb() {
   return cachedClient.db(DB_NAME);
 }
 
-const SITE_NAME = "Dominica News DM";
+const SITE_NAME = "Dominica News";
 const SITE_URL = "https://www.dominicanews.dm";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 const DEFAULT_DESC =
