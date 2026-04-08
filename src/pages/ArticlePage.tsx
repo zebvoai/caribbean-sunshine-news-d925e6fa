@@ -257,7 +257,7 @@ const ArticlePage = () => {
     const url = window.location.href;
     const image = article.cover_image_url || "";
 
-    document.title = title + " | Dominica News DM";
+    document.title = title + " | Dominica News";
 
     const setMeta = (name: string, content: string, attr = "name") => {
       let el = document.querySelector(`meta[${attr}="${name}"]`);
