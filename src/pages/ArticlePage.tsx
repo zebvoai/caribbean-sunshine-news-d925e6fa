@@ -57,6 +57,7 @@ interface Article {
   meta_title: string | null;
   meta_description: string | null;
   published_at: string | null;
+  updated_at: string | null;
   view_count: number;
   primary_category_id: string | null;
   authors: Author | null;
@@ -295,9 +296,11 @@ const ArticlePage = () => {
       mainEntityOfPage: { "@type": "WebPage", "@id": url },
       headline: title,
       description: description,
-      image: image ? [image] : [],
+      image: image
+        ? [image]
+        : ["https://www.dominicanews.dm/favicon.svg"],
       datePublished: article.published_at,
-      dateModified: article.published_at,
+      dateModified: article.updated_at || article.published_at,
       wordCount,
       articleSection: article.categories?.name || "News",
       author: article.authors
