@@ -127,8 +127,55 @@ const FacebookEmbed = ({ url, pluginType }: { url: string; pluginType: "video" |
 };
 
 /**
- * Renders a URL-based embed for supported platforms using iframes.
+ * Twitter/X embed using the widgets.js SDK.
  */
+const TwitterEmbed = ({ tweetUrl }: { tweetUrl: string }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const twttr = (window as any).twttr;
+
+    const renderTweet = () => {
+      if (!containerRef.current) return;
+      containerRef.current.innerHTML = "";
+      (window as any).twttr.widgets.createTweet(
+        tweetUrl.match(/status\/(\d+)/)?.[1] || "",
+        containerRef.current,
+        { align: "center", conversation: "none", dnt: true }
+      );
+    };
+
+    if (twttr?.widgets) {
+      renderTweet();
+    } else {
+      const existingScript = document.getElementById("twitter-wjs");
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.id = "twitter-wjs";
+        script.src = "https://platform.twitter.com/widgets.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
+      const interval = setInterval(() => {
+        if ((window as any).twttr?.widgets) {
+          clearInterval(interval);
+          renderTweet();
+        }
+      }, 200);
+
+      return () => clearInterval(interval);
+    }
+  }, [tweetUrl]);
+
+  return (
+    <div className="flex justify-center">
+      <div ref={containerRef} style={{ maxWidth: 550, width: "100%" }} />
+    </div>
+  );
+};
+
+
 const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
   // YouTube
   if (platform === "youtube" || url.includes("youtube.com") || url.includes("youtu.be")) {
