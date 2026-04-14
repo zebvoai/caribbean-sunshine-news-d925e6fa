@@ -42,6 +42,15 @@ const getInstagramShortcode = (url: string): string | null => {
 };
 
 /**
+ * Extracts a Twitter/X tweet URL path for embedding.
+ * Supports twitter.com and x.com status URLs.
+ */
+const getTwitterTweetUrl = (url: string): string | null => {
+  const match = url.match(/(?:twitter\.com|x\.com)\/(\w+)\/status\/(\d+)/);
+  return match ? `https://x.com/${match[1]}/status/${match[2]}` : null;
+};
+
+/**
  * Extracts a TikTok video ID from various URL formats.
  * Supports /video/{id} and /@user/video/{id}
  */
