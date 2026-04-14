@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SocialEmbedProps {
   platform: string;
@@ -29,6 +30,21 @@ const getSpotifyPath = (url: string): string | null => {
   const match = url.match(/open\.spotify\.com\/(track|album|playlist|episode|show)\/([a-zA-Z0-9]+)/);
   if (match) return `${match[1]}/${match[2]}`;
   return null;
+};
+
+const isFacebookShareUrl = (url: string): boolean =>
+  /(?:^|\/\/)facebook\.com\/share\/[a-z]\//i.test(url) ||
+  /(?:^|\/\/)www\.facebook\.com\/share\/[a-z]\//i.test(url);
+
+const cleanFacebookUrl = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    if (!host.endsWith("facebook.com")) return url;
+    return `${parsed.origin}${parsed.pathname}`.replace(/\/$/, "");
+  } catch {
+    return url;
+  }
 };
 
 /**
@@ -126,10 +142,10 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
   }
 
   // Facebook – only standard post/video URLs work with the embed plugin.
-  // Short share links (/share/p/...) and other non-canonical formats fail silently.
+  // Share links (/share/...) must be resolved to their canonical reel/video URLs first.
   if (platform === "facebook" || url.includes("facebook.com")) {
     const isEmbeddable = /facebook\.com\/(?:[\w.]+\/(?:posts|videos|photos)|permalink\.php|watch\/|reel\/)/.test(url);
-    
+
     if (isEmbeddable) {
       const isVideo = url.includes("/videos/") || url.includes("/watch") || url.includes("/reel/");
       const pluginType = isVideo ? "video" : "post";
@@ -231,6 +247,49 @@ const RawEmbedCode = ({ html }: { html: string }) => {
  * Main component that decides how to render a social embed.
  */
 const SocialEmbedRenderer = ({ platform, embed_url, embed_code }: SocialEmbedProps) => {
+  const initialUrl = embed_url?.trim() ? cleanFacebookUrl(embed_url.trim()) : null;
+  const [resolvedUrl, setResolvedUrl] = useState<string | null>(initialUrl);
+  const [isResolving, setIsResolving] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const nextUrl = embed_url?.trim() ? cleanFacebookUrl(embed_url.trim()) : null;
+    setResolvedUrl(nextUrl);
+
+    if (!nextUrl || platform !== "facebook" || !isFacebookShareUrl(nextUrl)) {
+      setIsResolving(false);
+      return;
+    }
+
+    const resolveFacebookUrl = async () => {
+      setIsResolving(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("resolve-facebook-url", {
+          body: { url: nextUrl },
+        });
+
+        if (error) throw error;
+        if (cancelled) return;
+
+        const canonicalUrl = typeof data?.resolved_url === "string"
+          ? cleanFacebookUrl(data.resolved_url)
+          : nextUrl;
+
+        setResolvedUrl(canonicalUrl);
+      } catch {
+        if (!cancelled) setResolvedUrl(nextUrl);
+      } finally {
+        if (!cancelled) setIsResolving(false);
+      }
+    };
+
+    resolveFacebookUrl();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [platform, embed_url]);
+
   // Prefer embed_code (raw HTML) when available
   if (embed_code && embed_code.trim()) {
     return (
@@ -241,10 +300,14 @@ const SocialEmbedRenderer = ({ platform, embed_url, embed_code }: SocialEmbedPro
   }
 
   // URL-based embed
-  if (embed_url && embed_url.trim()) {
+  if (resolvedUrl && resolvedUrl.trim()) {
     return (
       <div className="border border-border rounded-lg p-4 bg-muted/30">
-        <UrlEmbed platform={platform} url={embed_url} />
+        {isResolving ? (
+          <div className="text-sm text-muted-foreground font-body">Loading Facebook embed…</div>
+        ) : (
+          <UrlEmbed platform={platform} url={resolvedUrl} />
+        )}
       </div>
     );
   }
