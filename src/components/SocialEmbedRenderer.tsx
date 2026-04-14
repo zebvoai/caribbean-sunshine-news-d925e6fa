@@ -128,10 +128,10 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
   // Facebook – only standard post/video URLs work with the embed plugin.
   // Short share links (/share/p/...) and other non-canonical formats fail silently.
   if (platform === "facebook" || url.includes("facebook.com")) {
-    const isEmbeddable = /facebook\.com\/(?:[\w.]+\/(?:posts|videos|photos)|permalink\.php|watch\/)/.test(url);
+    const isEmbeddable = /facebook\.com\/(?:[\w.]+\/(?:posts|videos|photos)|permalink\.php|watch\/|reel\/)/.test(url);
     
     if (isEmbeddable) {
-      const isVideo = url.includes("/videos/") || url.includes("/watch");
+      const isVideo = url.includes("/videos/") || url.includes("/watch") || url.includes("/reel/");
       const pluginType = isVideo ? "video" : "post";
       const pluginUrl = `https://www.facebook.com/plugins/${pluginType}.php?href=${encodeURIComponent(url)}&show_text=true&width=500`;
       return (
