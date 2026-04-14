@@ -32,6 +32,24 @@ const getSpotifyPath = (url: string): string | null => {
   return null;
 };
 
+/**
+ * Extracts an Instagram shortcode from various URL formats.
+ * Supports /p/, /reel/, /tv/ paths.
+ */
+const getInstagramShortcode = (url: string): string | null => {
+  const match = url.match(/instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+};
+
+/**
+ * Extracts a TikTok video ID from various URL formats.
+ * Supports /video/{id} and /@user/video/{id}
+ */
+const getTikTokVideoId = (url: string): string | null => {
+  const match = url.match(/tiktok\.com\/(?:@[\w.]+\/)?video\/(\d+)/);
+  return match ? match[1] : null;
+};
+
 const isFacebookShareUrl = (url: string): boolean =>
   /facebook\.com\/share\/[a-z0-9]+\//i.test(url);
 
