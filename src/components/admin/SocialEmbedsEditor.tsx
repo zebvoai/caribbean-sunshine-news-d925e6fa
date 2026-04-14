@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { PlusCircle, X, Eye, EyeOff } from "lucide-react";
+import { useState, useRef } from "react";
+import { PlusCircle, X, Eye, EyeOff, GripVertical } from "lucide-react";
 import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
+import { cn } from "@/lib/utils";
 
 const PLATFORMS = [
   { value: "instagram", label: "Instagram" },
@@ -58,6 +59,10 @@ const SocialEmbedsEditor = ({ embeds, onChange }: SocialEmbedsEditorProps) => {
     embed_code: "",
   });
 
+  // Drag state
+  const dragIdx = useRef<number | null>(null);
+  const [overIdx, setOverIdx] = useState<number | null>(null);
+
   const addEmbed = () => {
     if (!newEmbed.embed_url && !newEmbed.embed_code) return;
     onChange([...embeds, { ...newEmbed }]);
@@ -69,11 +74,54 @@ const SocialEmbedsEditor = ({ embeds, onChange }: SocialEmbedsEditorProps) => {
     onChange(embeds.filter((_, i) => i !== idx));
   };
 
+  const handleDragStart = (idx: number) => {
+    dragIdx.current = idx;
+  };
+
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    if (dragIdx.current === null || dragIdx.current === idx) return;
+    setOverIdx(idx);
+  };
+
+  const handleDrop = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    const from = dragIdx.current;
+    if (from === null || from === idx) return;
+    const reordered = [...embeds];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(idx, 0, moved);
+    onChange(reordered);
+    dragIdx.current = null;
+    setOverIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    dragIdx.current = null;
+    setOverIdx(null);
+  };
+
   return (
     <div className="space-y-3">
       {embeds.map((embed, idx) => (
-        <div key={idx} className="border border-border rounded-lg bg-muted/20 overflow-hidden">
-          <div className="flex items-center gap-3 p-3">
+        <div
+          key={idx}
+          draggable
+          onDragStart={() => handleDragStart(idx)}
+          onDragOver={(e) => handleDragOver(e, idx)}
+          onDrop={(e) => handleDrop(e, idx)}
+          onDragEnd={handleDragEnd}
+          className={cn(
+            "border rounded-lg bg-muted/20 overflow-hidden transition-all",
+            overIdx === idx && dragIdx.current !== idx
+              ? "border-primary/50 ring-2 ring-primary/20"
+              : "border-border"
+          )}
+        >
+          <div className="flex items-center gap-2 p-3">
+            <div className="cursor-grab active:cursor-grabbing text-muted-foreground/40 hover:text-muted-foreground transition-colors flex-shrink-0">
+              <GripVertical className="h-4 w-4" />
+            </div>
             <span className="text-xs font-semibold uppercase text-muted-foreground w-20 flex-shrink-0">
               {embed.platform}
             </span>
@@ -133,7 +181,6 @@ const SocialEmbedsEditor = ({ embeds, onChange }: SocialEmbedsEditorProps) => {
             />
           </div>
 
-          {/* Live preview of new embed being added */}
           {(newEmbed.embed_url || newEmbed.embed_code) && (
             <div className="space-y-1.5">
               <span className="text-xs font-medium text-muted-foreground">Preview</span>
