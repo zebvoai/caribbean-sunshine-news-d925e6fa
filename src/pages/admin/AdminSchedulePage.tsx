@@ -422,14 +422,14 @@ const AdminSchedulePage = () => {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-4 mb-5">
+      {/* Stats + Next check indicator */}
+      <div className="flex flex-wrap items-center gap-4 mb-5">
         <div className="flex items-center gap-1.5 text-sm">
           <Clock className="h-4 w-4 text-primary" />
           <span className="font-semibold text-foreground">{articles.length}</span>
           <span className="text-muted-foreground">Scheduled</span>
         </div>
-      </div>
+        <NextCheckIndicator />
 
       {/* Search */}
       <div className="relative max-w-sm mb-5">
