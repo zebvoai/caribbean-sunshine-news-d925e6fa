@@ -430,6 +430,7 @@ const AdminSchedulePage = () => {
           <span className="text-muted-foreground">Scheduled</span>
         </div>
         <NextCheckIndicator />
+      </div>
 
       {/* Search */}
       <div className="relative max-w-sm mb-5">
