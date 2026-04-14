@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle, X, Eye, EyeOff } from "lucide-react";
+import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
 
 const PLATFORMS = [
   { value: "instagram", label: "Instagram" },
@@ -20,6 +21,34 @@ interface SocialEmbedsEditorProps {
   embeds: SocialEmbed[];
   onChange: (embeds: SocialEmbed[]) => void;
 }
+
+const EmbedPreviewToggle = ({ embed }: { embed: SocialEmbed }) => {
+  const [showPreview, setShowPreview] = useState(false);
+
+  if (!embed.embed_url && !embed.embed_code) return null;
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setShowPreview((p) => !p)}
+        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {showPreview ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+        {showPreview ? "Hide preview" : "Preview"}
+      </button>
+      {showPreview && (
+        <div className="mt-2 max-w-md">
+          <SocialEmbedRenderer
+            platform={embed.platform}
+            embed_url={embed.embed_url || null}
+            embed_code={embed.embed_code || null}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SocialEmbedsEditor = ({ embeds, onChange }: SocialEmbedsEditorProps) => {
   const [adding, setAdding] = useState(false);
@@ -43,23 +72,25 @@ const SocialEmbedsEditor = ({ embeds, onChange }: SocialEmbedsEditorProps) => {
   return (
     <div className="space-y-3">
       {embeds.map((embed, idx) => (
-        <div
-          key={idx}
-          className="flex items-center gap-3 p-3 border border-border rounded-lg bg-muted/20"
-        >
-          <span className="text-xs font-semibold uppercase text-muted-foreground w-20 flex-shrink-0">
-            {embed.platform}
-          </span>
-          <span className="text-sm text-foreground truncate flex-1">
-            {embed.embed_url || embed.embed_code.substring(0, 60) + "..."}
-          </span>
-          <button
-            type="button"
-            onClick={() => removeEmbed(idx)}
-            className="p-1 hover:bg-muted rounded transition-colors"
-          >
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
+        <div key={idx} className="border border-border rounded-lg bg-muted/20 overflow-hidden">
+          <div className="flex items-center gap-3 p-3">
+            <span className="text-xs font-semibold uppercase text-muted-foreground w-20 flex-shrink-0">
+              {embed.platform}
+            </span>
+            <span className="text-sm text-foreground truncate flex-1">
+              {embed.embed_url || embed.embed_code.substring(0, 60) + "..."}
+            </span>
+            <button
+              type="button"
+              onClick={() => removeEmbed(idx)}
+              className="p-1 hover:bg-muted rounded transition-colors"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="px-3 pb-3">
+            <EmbedPreviewToggle embed={embed} />
+          </div>
         </div>
       ))}
 
@@ -101,6 +132,21 @@ const SocialEmbedsEditor = ({ embeds, onChange }: SocialEmbedsEditorProps) => {
               className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 font-mono"
             />
           </div>
+
+          {/* Live preview of new embed being added */}
+          {(newEmbed.embed_url || newEmbed.embed_code) && (
+            <div className="space-y-1.5">
+              <span className="text-xs font-medium text-muted-foreground">Preview</span>
+              <div className="max-w-md">
+                <SocialEmbedRenderer
+                  platform={newEmbed.platform}
+                  embed_url={newEmbed.embed_url || null}
+                  embed_code={newEmbed.embed_code || null}
+                />
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2">
             <button
               type="button"
