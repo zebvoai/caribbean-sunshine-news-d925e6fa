@@ -256,7 +256,14 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
     }
   }
 
-  // Twitter/X – link only (Twitter embeds require JS SDK)
+  // Twitter/X – use widgets.js SDK to render tweet
+  if (platform === "twitter" || url.includes("twitter.com") || url.includes("x.com")) {
+    const tweetUrl = getTwitterTweetUrl(url);
+    if (tweetUrl) {
+      return <TwitterEmbed tweetUrl={tweetUrl} />;
+    }
+  }
+
   // Fallback: show a styled link
   return (
     <a
