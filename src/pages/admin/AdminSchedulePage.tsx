@@ -84,6 +84,27 @@ const Toggle = ({ checked, onChange, label, icon: Icon, colorClass = "bg-primary
 const generateSlugLocal = (text: string) =>
   text.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_]+/g, "-").replace(/-+/g, "-").substring(0, 80);
 
+const NextCheckIndicator = () => {
+  const [secsLeft, setSecsLeft] = useState(() => 60 - new Date().getSeconds());
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSecsLeft(60 - new Date().getSeconds());
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-1.5 text-sm text-muted-foreground border-l border-border pl-4">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+      </span>
+      <span>Next auto-publish check in <span className="font-semibold text-foreground">{secsLeft}s</span></span>
+    </div>
+  );
+};
+
 const AdminSchedulePage = () => {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -422,13 +443,14 @@ const AdminSchedulePage = () => {
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="flex items-center gap-4 mb-5">
+      {/* Stats + Next check indicator */}
+      <div className="flex flex-wrap items-center gap-4 mb-5">
         <div className="flex items-center gap-1.5 text-sm">
           <Clock className="h-4 w-4 text-primary" />
           <span className="font-semibold text-foreground">{articles.length}</span>
           <span className="text-muted-foreground">Scheduled</span>
         </div>
+        <NextCheckIndicator />
       </div>
 
       {/* Search */}
