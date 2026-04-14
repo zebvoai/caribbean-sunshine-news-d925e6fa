@@ -204,8 +204,49 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
     );
   }
 
-  // TikTok – link only (TikTok embeds require JS SDK)
-  // Instagram – link only (Instagram embeds require JS SDK)
+  // Instagram – iframe embed using /p/{shortcode}/embed or /reel/{id}/embed
+  if (platform === "instagram" || url.includes("instagram.com")) {
+    const shortcode = getInstagramShortcode(url);
+    if (shortcode) {
+      const embedType = url.includes("/reel/") ? "reel" : url.includes("/tv/") ? "tv" : "p";
+      return (
+        <div className="flex justify-center">
+          <iframe
+            src={`https://www.instagram.com/${embedType}/${shortcode}/embed`}
+            width="400"
+            height="520"
+            style={{ border: "none", overflow: "hidden", maxWidth: "100%", borderRadius: 12 }}
+            allow="encrypted-media"
+            allowFullScreen
+            loading="lazy"
+            title="Instagram embed"
+          />
+        </div>
+      );
+    }
+  }
+
+  // TikTok – iframe embed using /embed/v3/{videoId}
+  if (platform === "tiktok" || url.includes("tiktok.com")) {
+    const videoId = getTikTokVideoId(url);
+    if (videoId) {
+      return (
+        <div className="flex justify-center">
+          <iframe
+            src={`https://www.tiktok.com/embed/v3/${videoId}`}
+            width="340"
+            height="700"
+            style={{ border: "none", overflow: "hidden", maxWidth: "100%", borderRadius: 12 }}
+            allow="encrypted-media"
+            allowFullScreen
+            loading="lazy"
+            title="TikTok embed"
+          />
+        </div>
+      );
+    }
+  }
+
   // Twitter/X – link only (Twitter embeds require JS SDK)
   // Fallback: show a styled link
   return (
