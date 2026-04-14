@@ -32,6 +32,24 @@ const getSpotifyPath = (url: string): string | null => {
   return null;
 };
 
+/**
+ * Extracts an Instagram shortcode from various URL formats.
+ * Supports /p/, /reel/, /tv/ paths.
+ */
+const getInstagramShortcode = (url: string): string | null => {
+  const match = url.match(/instagram\.com\/(?:p|reel|tv)\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+};
+
+/**
+ * Extracts a TikTok video ID from various URL formats.
+ * Supports /video/{id} and /@user/video/{id}
+ */
+const getTikTokVideoId = (url: string): string | null => {
+  const match = url.match(/tiktok\.com\/(?:@[\w.]+\/)?video\/(\d+)/);
+  return match ? match[1] : null;
+};
+
 const isFacebookShareUrl = (url: string): boolean =>
   /facebook\.com\/share\/[a-z0-9]+\//i.test(url);
 
@@ -186,8 +204,49 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
     );
   }
 
-  // TikTok – link only (TikTok embeds require JS SDK)
-  // Instagram – link only (Instagram embeds require JS SDK)
+  // Instagram – iframe embed using /p/{shortcode}/embed or /reel/{id}/embed
+  if (platform === "instagram" || url.includes("instagram.com")) {
+    const shortcode = getInstagramShortcode(url);
+    if (shortcode) {
+      const embedType = url.includes("/reel/") ? "reel" : url.includes("/tv/") ? "tv" : "p";
+      return (
+        <div className="flex justify-center">
+          <iframe
+            src={`https://www.instagram.com/${embedType}/${shortcode}/embed`}
+            width="400"
+            height="520"
+            style={{ border: "none", overflow: "hidden", maxWidth: "100%", borderRadius: 12 }}
+            allow="encrypted-media"
+            allowFullScreen
+            loading="lazy"
+            title="Instagram embed"
+          />
+        </div>
+      );
+    }
+  }
+
+  // TikTok – iframe embed using /embed/v3/{videoId}
+  if (platform === "tiktok" || url.includes("tiktok.com")) {
+    const videoId = getTikTokVideoId(url);
+    if (videoId) {
+      return (
+        <div className="flex justify-center">
+          <iframe
+            src={`https://www.tiktok.com/embed/v3/${videoId}`}
+            width="340"
+            height="700"
+            style={{ border: "none", overflow: "hidden", maxWidth: "100%", borderRadius: 12 }}
+            allow="encrypted-media"
+            allowFullScreen
+            loading="lazy"
+            title="TikTok embed"
+          />
+        </div>
+      );
+    }
+  }
+
   // Twitter/X – link only (Twitter embeds require JS SDK)
   // Fallback: show a styled link
   return (
