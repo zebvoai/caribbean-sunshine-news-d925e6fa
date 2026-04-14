@@ -28,7 +28,7 @@ const InlineArticleBody = ({ html, className, style }: InlineArticleBodyProps) =
 
     // Pattern 2: TipTap-stripped plain-text format (p or div containing 📎 <strong>PLATFORM</strong> embed: URL)
     const platformAlts = PLATFORM_NAMES.join("|");
-    const plainPattern = `<p[^>]*>\\s*📎\\s*<strong>(${platformAlts})<\\/strong>\\s*embed:\\s*(https?:\\/\\/[^<\\s]+)\\s*<\\/p>`;
+    const plainPattern = `<p[^>]*>\\s*📎\\s*<strong>(${platformAlts})<\\/strong>\\s*embed:\\s*(?:<a[^>]*>\\s*)?(https?:\\/\\/[^<\\s]+?)(?:\\s*<\\/a>)?\\s*<\\/p>`;
 
     const combinedRegex = new RegExp(`(?:${attrPattern})|(?:${plainPattern})`, "gi");
 
