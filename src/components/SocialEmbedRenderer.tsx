@@ -33,8 +33,7 @@ const getSpotifyPath = (url: string): string | null => {
 };
 
 const isFacebookShareUrl = (url: string): boolean =>
-  /(?:^|\/\/)facebook\.com\/share\/[a-z]\//i.test(url) ||
-  /(?:^|\/\/)www\.facebook\.com\/share\/[a-z]\//i.test(url);
+  /facebook\.com\/share\/[a-z0-9]+\//i.test(url);
 
 const cleanFacebookUrl = (url: string): string => {
   try {
