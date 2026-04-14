@@ -42,6 +42,15 @@ const getInstagramShortcode = (url: string): string | null => {
 };
 
 /**
+ * Extracts a Twitter/X tweet URL path for embedding.
+ * Supports twitter.com and x.com status URLs.
+ */
+const getTwitterTweetUrl = (url: string): string | null => {
+  const match = url.match(/(?:twitter\.com|x\.com)\/(\w+)\/status\/(\d+)/);
+  return match ? `https://x.com/${match[1]}/status/${match[2]}` : null;
+};
+
+/**
  * Extracts a TikTok video ID from various URL formats.
  * Supports /video/{id} and /@user/video/{id}
  */
@@ -118,8 +127,55 @@ const FacebookEmbed = ({ url, pluginType }: { url: string; pluginType: "video" |
 };
 
 /**
- * Renders a URL-based embed for supported platforms using iframes.
+ * Twitter/X embed using the widgets.js SDK.
  */
+const TwitterEmbed = ({ tweetUrl }: { tweetUrl: string }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const twttr = (window as any).twttr;
+
+    const renderTweet = () => {
+      if (!containerRef.current) return;
+      containerRef.current.innerHTML = "";
+      (window as any).twttr.widgets.createTweet(
+        tweetUrl.match(/status\/(\d+)/)?.[1] || "",
+        containerRef.current,
+        { align: "center", conversation: "none", dnt: true }
+      );
+    };
+
+    if (twttr?.widgets) {
+      renderTweet();
+    } else {
+      const existingScript = document.getElementById("twitter-wjs");
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.id = "twitter-wjs";
+        script.src = "https://platform.twitter.com/widgets.js";
+        script.async = true;
+        document.body.appendChild(script);
+      }
+
+      const interval = setInterval(() => {
+        if ((window as any).twttr?.widgets) {
+          clearInterval(interval);
+          renderTweet();
+        }
+      }, 200);
+
+      return () => clearInterval(interval);
+    }
+  }, [tweetUrl]);
+
+  return (
+    <div className="flex justify-center">
+      <div ref={containerRef} style={{ maxWidth: 550, width: "100%" }} />
+    </div>
+  );
+};
+
+
 const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
   // YouTube
   if (platform === "youtube" || url.includes("youtube.com") || url.includes("youtu.be")) {
@@ -247,7 +303,14 @@ const UrlEmbed = ({ platform, url }: { platform: string; url: string }) => {
     }
   }
 
-  // Twitter/X – link only (Twitter embeds require JS SDK)
+  // Twitter/X – use widgets.js SDK to render tweet
+  if (platform === "twitter" || url.includes("twitter.com") || url.includes("x.com")) {
+    const tweetUrl = getTwitterTweetUrl(url);
+    if (tweetUrl) {
+      return <TwitterEmbed tweetUrl={tweetUrl} />;
+    }
+  }
+
   // Fallback: show a styled link
   return (
     <a
