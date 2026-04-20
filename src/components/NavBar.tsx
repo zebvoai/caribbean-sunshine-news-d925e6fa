@@ -59,16 +59,18 @@ const NavBar = () => {
           Home
         </Link>
 
-        {categories.map((cat) => (
-          <Link
-            key={cat.id}
-            to={`/?cat=${cat.slug}`}
-            onMouseEnter={() => prefetch(cat.slug)}
-            className={`${linkBase} ${activeCat === cat.slug ? activeClass : inactiveClass}`}
-          >
-            {cat.name}
-          </Link>
-        ))}
+        {categories
+          .filter((cat) => (cat.articles_count ?? 0) > 0)
+          .map((cat) => (
+            <Link
+              key={cat.id}
+              to={`/?cat=${cat.slug}`}
+              onMouseEnter={() => prefetch(cat.slug)}
+              className={`${linkBase} ${activeCat === cat.slug ? activeClass : inactiveClass}`}
+            >
+              {cat.name}
+            </Link>
+          ))}
 
         <Link
           to="/live"
