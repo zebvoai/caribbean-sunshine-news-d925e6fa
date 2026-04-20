@@ -20,10 +20,13 @@ serve(async (req) => {
       );
     }
 
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const apiKey = OPENROUTER_API_KEY || LOVABLE_API_KEY;
+    const useOpenRouter = !!OPENROUTER_API_KEY;
+    if (!apiKey) {
       return new Response(
-        JSON.stringify({ error: "LOVABLE_API_KEY is not configured" }),
+        JSON.stringify({ error: "No AI API key configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -45,14 +48,24 @@ Title: ${title || "(not provided)"}
 Excerpt: ${excerpt || "(not provided)"}
 Body excerpt: ${plainBody || "(not provided)"}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const endpoint = useOpenRouter
+      ? "https://openrouter.ai/api/v1/chat/completions"
+      : "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const model = useOpenRouter
+      ? "google/gemini-2.0-flash-001"
+      : "google/gemini-3-flash-preview";
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        ...(useOpenRouter
+          ? { "HTTP-Referer": "https://www.dominicanews.dm", "X-Title": "Dominica News" }
+          : {}),
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
