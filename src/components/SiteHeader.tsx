@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, X, ChevronRight } from "lucide-react";
+import { Search, X } from "lucide-react";
 import logoImg from "@/assets/dominica_logo.png";
 import { Input } from "@/components/ui/input";
+import DominicaInfoStrip from "@/components/DominicaInfoStrip";
 
 const SiteHeader = () => {
   const navigate = useNavigate();
@@ -31,15 +32,12 @@ const SiteHeader = () => {
     <>
       {/* Top accent bar */}
       <div className="bg-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between text-[10px] font-body font-semibold tracking-[0.15em] uppercase text-primary-foreground">
-          <span className="opacity-90 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/40" />
-            {today}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex items-center justify-between gap-3 text-[10px] font-body font-semibold tracking-[0.15em] uppercase text-primary-foreground">
+          <span className="opacity-90 flex items-center gap-1.5 truncate">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground/40 flex-shrink-0" />
+            <span className="truncate">{today}</span>
           </span>
-          <span className="hidden sm:flex items-center gap-1.5 opacity-80">
-            Your Trusted Caribbean News Source
-            <ChevronRight className="h-3 w-3 opacity-50" />
-          </span>
+          <DominicaInfoStrip />
         </div>
       </div>
 
