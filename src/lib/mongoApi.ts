@@ -267,6 +267,7 @@ export const mongoApi = {
   getArticles(params: {
     status?: string;
     limit?: number;
+    skip?: number;
     category_id?: string;
     category_slug?: string;
     exclude_id?: string;
@@ -276,6 +277,7 @@ export const mongoApi = {
     const p: Record<string, string> = { resource: "articles" };
     if (params.status) p.status = params.status;
     if (params.limit) p.limit = String(params.limit);
+    if (params.skip) p.skip = String(params.skip);
     if (params.category_id) p.category_id = params.category_id;
     if (params.category_slug) p.category_slug = params.category_slug;
     if (params.exclude_id) p.exclude_id = params.exclude_id;

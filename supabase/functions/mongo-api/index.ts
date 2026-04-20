@@ -535,6 +535,7 @@ Deno.serve(async (req) => {
       // GET list
       const status = url.searchParams.get("status");
       const limit = parseInt(url.searchParams.get("limit") || "50");
+      const skip = Math.max(0, parseInt(url.searchParams.get("skip") || "0"));
       const categoryId = url.searchParams.get("category_id");
       const categorySlug = url.searchParams.get("category_slug");
       const excludeId = url.searchParams.get("exclude_id");
@@ -593,6 +594,7 @@ Deno.serve(async (req) => {
         .collection("articles")
         .find(filter, { projection: { content: 0, body: 0 } }) // exclude body for list perf
         .sort({ publishedAt: -1, createdAt: -1 })
+        .skip(skip)
         .limit(limit)
         .toArray();
 
