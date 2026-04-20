@@ -217,7 +217,7 @@ const Index = () => {
               )}
 
               {/* Main grid + Trending sidebar */}
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12">
+              <div className={`grid grid-cols-1 gap-12 ${!activeCat && trendingArticles.length > 0 ? "lg:grid-cols-[1fr_300px]" : ""}`}>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 stagger-children">
                   {!activeCat && endedLiveAsCards.map((card) => (
                     <Link key={`live-${card.slug}`} to={`/live/${card.slug}`} className="block">
