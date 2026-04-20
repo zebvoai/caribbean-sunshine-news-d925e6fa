@@ -48,8 +48,9 @@ serve(async () => {
   </url>\n`;
     }
 
-    // Categories
+    // Categories (skip empty)
     for (const c of categories) {
+      if ((c.articles_count ?? 0) <= 0) continue;
       urls += `  <url>
     <loc>${SITE_URL}/category/${escapeXml(c.slug)}</loc>
     <changefreq>daily</changefreq>

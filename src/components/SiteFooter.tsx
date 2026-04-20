@@ -88,16 +88,18 @@ const SiteFooter = () => {
           <div>
             <h3 className="font-heading font-bold text-xs uppercase tracking-[0.2em] mb-5 opacity-50">Categories</h3>
             <ul className="space-y-3 text-sm font-body">
-              {categories.map((cat) => (
-                <li key={cat.id}>
-                  <Link
-                    to={`/?cat=${cat.slug}`}
-                    className="opacity-55 hover:opacity-100 hover:translate-x-1 inline-block transition-all duration-300"
-                  >
-                    {cat.name}
-                  </Link>
-                </li>
-              ))}
+              {categories
+                .filter((cat) => (cat.articles_count ?? 0) > 0)
+                .map((cat) => (
+                  <li key={cat.id}>
+                    <Link
+                      to={`/?cat=${cat.slug}`}
+                      className="opacity-55 hover:opacity-100 hover:translate-x-1 inline-block transition-all duration-300"
+                    >
+                      {cat.name}
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </div>
 
