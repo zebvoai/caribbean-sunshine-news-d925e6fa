@@ -147,6 +147,19 @@ const normalizeArticle = (doc: any, full = false) => {
     updated_at: doc.updatedAt ? new Date(doc.updatedAt).toISOString() : null,
   };
 
+  base.authors = doc._author
+    ? {
+        id: doc._author._id.toString(),
+        full_name: doc._author.name || "Unknown",
+        avatar_url: doc._author.avatarUrl || null,
+        bio: doc._author.bio || null,
+        role: "reporter",
+      }
+    : null;
+  base.categories = doc._category
+    ? { name: doc._category.name, slug: doc._category.slug }
+    : null;
+
   if (full) {
     base.body = doc.content || doc.body || "";
     base.social_embeds = (doc.embeds || []).map((e: any) => ({
@@ -155,18 +168,6 @@ const normalizeArticle = (doc: any, full = false) => {
       embed_code: e.code || e.embed_code || null,
     }));
     base.additional_category_ids = (doc.categories || []).map((c: any) => c.toString());
-    base.authors = doc._author
-      ? {
-          id: doc._author._id.toString(),
-          full_name: doc._author.name || "Unknown",
-          avatar_url: doc._author.avatarUrl || null,
-          bio: doc._author.bio || null,
-          role: "reporter",
-        }
-      : null;
-    base.categories = doc._category
-      ? { name: doc._category.name, slug: doc._category.slug }
-      : null;
   }
 
   return base;
@@ -598,7 +599,42 @@ Deno.serve(async (req) => {
         .limit(limit)
         .toArray();
 
-      return jsonResponse(docs.map((d) => normalizeArticle(d, false)));
+      // Batch-fetch authors and categories so list cards can show real names
+      const authorIds = Array.from(
+        new Set(docs.map((d: any) => d.author?.toString()).filter(Boolean))
+      ).map((id) => new ObjectId(id as string));
+      const categoryIds = Array.from(
+        new Set(docs.map((d: any) => d.category?.toString()).filter(Boolean))
+      ).map((id) => new ObjectId(id as string));
+
+      const [authorDocs, categoryDocs] = await Promise.all([
+        authorIds.length
+          ? db.collection("authors").find({ _id: { $in: authorIds } }).toArray()
+          : Promise.resolve([] as any[]),
+        categoryIds.length
+          ? db.collection("categories").find({ _id: { $in: categoryIds } }).toArray()
+          : Promise.resolve([] as any[]),
+      ]);
+
+      const authorMap = new Map<string, any>(
+        authorDocs.map((a: any) => [a._id.toString(), a])
+      );
+      const categoryMap = new Map<string, any>(
+        categoryDocs.map((c: any) => [c._id.toString(), c])
+      );
+
+      return jsonResponse(
+        docs.map((d: any) =>
+          normalizeArticle(
+            {
+              ...d,
+              _author: d.author ? authorMap.get(d.author.toString()) || null : null,
+              _category: d.category ? categoryMap.get(d.category.toString()) || null : null,
+            },
+            false
+          )
+        )
+      );
     }
 
     // ── CATEGORIES ───────────────────────────────────────────────────────────
