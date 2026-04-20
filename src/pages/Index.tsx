@@ -1,15 +1,14 @@
-import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import TrendingSidebar from "@/components/TrendingSidebar";
-import { mongoApi, MongoArticle, MongoLiveUpdate } from "@/lib/mongoApi";
+import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
 
