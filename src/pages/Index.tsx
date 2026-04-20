@@ -43,23 +43,36 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get("cat");
   const ARTICLES_PER_PAGE = 12;
-  const [visibleCount, setVisibleCount] = useState(ARTICLES_PER_PAGE);
 
-  const { data: articles = [], isLoading: loadingArticles } = useQuery({
-    queryKey: ["articles", activeCat || "home"],
-    queryFn: () => {
+  const {
+    data: articlesPages,
+    isLoading: loadingArticles,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["articles-paged", activeCat || "home"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => {
       const params: Parameters<typeof mongoApi.getArticles>[0] = {
         status: "published",
-        limit: 100,
+        limit: ARTICLES_PER_PAGE,
+        skip: pageParam as number,
       };
       if (activeCat) params.category_slug = activeCat;
       return mongoApi.getArticles(params);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage || lastPage.length < ARTICLES_PER_PAGE) return undefined;
+      return allPages.reduce((acc, p) => acc + p.length, 0);
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
-  const { data: breakingRaw = [], isLoading: loadingBreaking } = useQuery({
+  const articles: MongoArticle[] = articlesPages?.pages.flat() ?? [];
+
+  const { data: breakingRaw = [] } = useQuery({
     queryKey: ["articles", "breaking"],
     queryFn: () => mongoApi.getArticles({ status: "published", limit: 5, is_breaking: true }),
     staleTime: 5 * 60 * 1000,
@@ -101,9 +114,7 @@ const Index = () => {
     : "Latest News";
 
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
-  const allGridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
-  const gridArticles = allGridArticles.slice(0, visibleCount);
-  const hasMore = visibleCount < allGridArticles.length;
+  const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   return (
