@@ -17,7 +17,7 @@ const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
   title: a.title,
   excerpt: a.excerpt,
   category: a.categories?.name || "News",
-  source: "Dominica News",
+  source: a.authors?.full_name || "Dominica News",
   date: a.published_at
     ? new Date(a.published_at).toLocaleDateString("en-US", {
         year: "numeric",
