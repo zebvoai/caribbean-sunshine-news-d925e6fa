@@ -1,15 +1,14 @@
-import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
 import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import TrendingSidebar from "@/components/TrendingSidebar";
-import { mongoApi, MongoArticle, MongoLiveUpdate } from "@/lib/mongoApi";
+import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
 
@@ -44,23 +43,36 @@ const Index = () => {
   const [searchParams] = useSearchParams();
   const activeCat = searchParams.get("cat");
   const ARTICLES_PER_PAGE = 12;
-  const [visibleCount, setVisibleCount] = useState(ARTICLES_PER_PAGE);
 
-  const { data: articles = [], isLoading: loadingArticles } = useQuery({
-    queryKey: ["articles", activeCat || "home"],
-    queryFn: () => {
+  const {
+    data: articlesPages,
+    isLoading: loadingArticles,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["articles-paged", activeCat || "home"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => {
       const params: Parameters<typeof mongoApi.getArticles>[0] = {
         status: "published",
-        limit: 100,
+        limit: ARTICLES_PER_PAGE,
+        skip: pageParam as number,
       };
       if (activeCat) params.category_slug = activeCat;
       return mongoApi.getArticles(params);
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage || lastPage.length < ARTICLES_PER_PAGE) return undefined;
+      return allPages.reduce((acc, p) => acc + p.length, 0);
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
-  const { data: breakingRaw = [], isLoading: loadingBreaking } = useQuery({
+  const articles: MongoArticle[] = articlesPages?.pages.flat() ?? [];
+
+  const { data: breakingRaw = [] } = useQuery({
     queryKey: ["articles", "breaking"],
     queryFn: () => mongoApi.getArticles({ status: "published", limit: 5, is_breaking: true }),
     staleTime: 5 * 60 * 1000,
@@ -102,9 +114,7 @@ const Index = () => {
     : "Latest News";
 
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
-  const allGridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
-  const gridArticles = allGridArticles.slice(0, visibleCount);
-  const hasMore = visibleCount < allGridArticles.length;
+  const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   return (
@@ -232,13 +242,21 @@ const Index = () => {
               </div>
 
               {/* Load More */}
-              {hasMore && (
+              {hasNextPage && (
                 <div className="flex justify-center pt-4">
                   <button
-                    onClick={() => setVisibleCount((c) => c + ARTICLES_PER_PAGE)}
-                    className="px-8 py-3 rounded-xl border border-border bg-card text-foreground font-heading font-bold text-sm hover:bg-accent hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md"
+                    onClick={() => fetchNextPage()}
+                    disabled={isFetchingNextPage}
+                    className="px-8 py-3 rounded-xl border border-border bg-card text-foreground font-heading font-bold text-sm hover:bg-accent hover:border-primary/30 transition-all duration-300 shadow-sm hover:shadow-md inline-flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Load More Articles
+                    {isFetchingNextPage ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Loading...
+                      </>
+                    ) : (
+                      "Load More Articles"
+                    )}
                   </button>
                 </div>
               )}
