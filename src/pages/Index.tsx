@@ -19,12 +19,15 @@ const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
   category: a.categories?.name || "News",
   source: a.authors?.full_name || "Dominica News",
   date: a.published_at
-    ? new Date(a.published_at).toLocaleDateString("en-US", {
+    ? new Date(a.published_at).toLocaleString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
         timeZone: "America/Dominica",
-      })
+      }) + " AST"
     : "",
   image: getProxiedAssetUrl(a.cover_image_url || ""),
   slug: a.slug,
