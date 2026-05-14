@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import { mongoApi } from "@/lib/mongoApi";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
@@ -15,8 +16,35 @@ const DynamicPage = () => {
     enabled: !!slug,
   });
 
+  const canonical = `https://www.dominicanews.dm/page/${slug}`;
+  const pageTitle = page ? `${page.title} | Dominica News` : "Dominica News";
+  const rawDesc = page?.subtitle || (page?.body ? page.body.replace(/<[^>]+>/g, " ").trim() : "");
+  const pageDesc = (rawDesc || "Dominica News information page.").slice(0, 160);
+  const webPageLd = page
+    ? {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: page.title,
+        description: pageDesc,
+        url: canonical,
+        isPartOf: { "@type": "WebSite", name: "Dominica News", url: "https://www.dominicanews.dm" },
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+        {webPageLd && (
+          <script type="application/ld+json">{JSON.stringify(webPageLd)}</script>
+        )}
+      </Helmet>
       {isLoading && <PageLoader />}
       <SiteHeader />
       <NavBar />

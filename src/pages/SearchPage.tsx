@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import { Search } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
@@ -52,8 +53,28 @@ const SearchPage = () => {
     }
   };
 
+  const pageTitle = queryFromUrl
+    ? `Search: ${queryFromUrl} | Dominica News`
+    : "Search Articles | Dominica News";
+  const pageDesc = queryFromUrl
+    ? `Search results for "${queryFromUrl}" on Dominica News — breaking stories, politics, and Caribbean coverage.`
+    : "Search Dominica News articles by title or keyword across politics, business, sports, and culture.";
+  const canonical = queryFromUrl
+    ? `https://www.dominicanews.dm/search?q=${encodeURIComponent(queryFromUrl)}`
+    : "https://www.dominicanews.dm/search";
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonical} />
+        <meta name="robots" content="noindex, follow" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <SiteHeader />
       <NavBar />
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">

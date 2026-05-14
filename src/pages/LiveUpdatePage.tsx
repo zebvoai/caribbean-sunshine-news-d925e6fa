@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { mongoApi, MongoLiveUpdate, LiveBlogEntry } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import SiteHeader from "@/components/SiteHeader";
@@ -156,8 +157,52 @@ const LiveUpdatePage = () => {
     groupedByDate[dateKey].push(e);
   });
 
+  const pageTitle = `${update.title} | Dominica News`;
+  const pageDesc = (update.excerpt || `Live coverage: ${update.title}`).slice(0, 160);
+  const canonical = `https://www.dominicanews.dm/live/${slug}`;
+  const ogImage = update.cover_image_url || "https://www.dominicanews.dm/og-image.png";
+  const liveLd = {
+    "@context": "https://schema.org",
+    "@type": "LiveBlogPosting",
+    headline: update.title,
+    description: pageDesc,
+    url: canonical,
+    coverageStartTime: update.published_at || undefined,
+    coverageEndTime: !update.is_live ? update.updated_at || undefined : undefined,
+    datePublished: update.published_at || undefined,
+    dateModified: update.updated_at || undefined,
+    image: ogImage ? [ogImage] : undefined,
+    publisher: {
+      "@type": "NewsMediaOrganization",
+      name: "Dominica News",
+      url: "https://www.dominicanews.dm",
+      logo: { "@type": "ImageObject", url: "https://www.dominicanews.dm/favicon.svg" },
+    },
+    liveBlogUpdate: entries.slice(0, 20).map((e) => ({
+      "@type": "BlogPosting",
+      headline: (e.content || "").replace(/<[^>]+>/g, " ").slice(0, 100),
+      datePublished: e.created_at,
+      articleBody: (e.content || "").replace(/<[^>]+>/g, " ").trim(),
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="article" />
+        <meta property="og:image" content={ogImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
+        <meta name="twitter:image" content={ogImage} />
+        <script type="application/ld+json">{JSON.stringify(liveLd)}</script>
+      </Helmet>
       <SiteHeader />
       <NavBar />
       <main className="max-w-4xl mx-auto px-6 py-10">
