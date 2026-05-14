@@ -1,0 +1,24 @@
+# Dominica News
+
+> Dominica News (DominicaNews.DM) — independent online newsroom covering breaking news, politics, business, sports, and culture in the Commonwealth of Dominica and the wider Caribbean.
+
+Dominica News publishes daily reporting, live coverage of major events, and in-depth features. Content is in English and produced by local reporters and editors.
+
+## Pages
+
+- [Home](/): Latest stories, breaking news, and featured Dominica coverage.
+- [Search](/search): Search articles by keyword.
+- [Live Updates](/live): Live blog coverage of breaking and ongoing events.
+- [About](/page/about): About Dominica News.
+- [Contact](/page/contact): Contact the newsroom.
+
+## Feeds
+
+- [RSS Feed](/rss.xml): Latest 50 articles in RSS 2.0.
+- [Sitemap](/sitemap.xml): Full XML sitemap.
+- [Google News Sitemap](/news-sitemap.xml): News sitemap (last 7 days).
+
+## Optional
+
+- [Article URLs](/news/): Individual article pages live under `/news/{slug}`.
+- [Live coverage URLs](/live/): Live blog pages live under `/live/{slug}`.
