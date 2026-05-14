@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
@@ -91,8 +92,36 @@ const LiveUpdatesListPage = () => {
   const activeUpdates = liveUpdates.filter((u) => u.is_live);
   const endedUpdates = liveUpdates.filter((u) => !u.is_live);
 
+  const pageTitle = "Live Updates — Breaking Coverage | Dominica News";
+  const pageDesc = "Live blog coverage of breaking events, elections, and ongoing stories from across Dominica and the Caribbean.";
+  const canonical = "https://www.dominicanews.dm/live";
+  const collectionLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Live Updates",
+    description: pageDesc,
+    url: canonical,
+    isPartOf: { "@type": "WebSite", name: "Dominica News", url: "https://www.dominicanews.dm" },
+    hasPart: liveUpdates.slice(0, 20).map((u) => ({
+      "@type": "LiveBlogPosting",
+      headline: u.title,
+      url: `https://www.dominicanews.dm/live/${u.slug}`,
+      coverageStartTime: u.published_at || undefined,
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify(collectionLd)}</script>
+      </Helmet>
       <SiteHeader />
       <NavBar />
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-10">
