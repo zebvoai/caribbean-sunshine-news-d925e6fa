@@ -161,6 +161,51 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_jobs: {
+        Row: {
+          current_item: string | null
+          errors: Json
+          failed: number
+          finished_at: string | null
+          id: string
+          processed: number
+          skipped: number
+          started_at: string
+          status: string
+          succeeded: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          current_item?: string | null
+          errors?: Json
+          failed?: number
+          finished_at?: string | null
+          id?: string
+          processed?: number
+          skipped?: number
+          started_at?: string
+          status?: string
+          succeeded?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          current_item?: string | null
+          errors?: Json
+          failed?: number
+          finished_at?: string | null
+          id?: string
+          processed?: number
+          skipped?: number
+          started_at?: string
+          status?: string
+          succeeded?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
