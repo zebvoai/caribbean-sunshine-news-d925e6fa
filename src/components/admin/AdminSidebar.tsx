@@ -12,6 +12,7 @@ import {
   BarChart2,
   Calendar,
   Trash2,
+  HardDriveDownload,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -40,6 +41,7 @@ const settingsNav = [
   { title: "Analytics", url: "/admin/analytics", icon: BarChart2 },
   { title: "Schedule", url: "/admin/schedule", icon: Calendar },
   { title: "Recycle Bin", url: "/admin/trash", icon: Trash2 },
+  { title: "Image Backup", url: "/admin/backup", icon: HardDriveDownload },
 ];
 
 interface NavSectionProps {
