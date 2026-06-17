@@ -182,6 +182,42 @@ export type Database = {
         }
         Relationships: []
       }
+      image_backups: {
+        Row: {
+          backup_path: string
+          backup_url: string
+          content_type: string | null
+          context: string | null
+          created_at: string
+          id: string
+          original_filename: string | null
+          primary_url: string
+          size_bytes: number | null
+        }
+        Insert: {
+          backup_path: string
+          backup_url: string
+          content_type?: string | null
+          context?: string | null
+          created_at?: string
+          id?: string
+          original_filename?: string | null
+          primary_url: string
+          size_bytes?: number | null
+        }
+        Update: {
+          backup_path?: string
+          backup_url?: string
+          content_type?: string | null
+          context?: string | null
+          created_at?: string
+          id?: string
+          original_filename?: string | null
+          primary_url?: string
+          size_bytes?: number | null
+        }
+        Relationships: []
+      }
       social_embeds: {
         Row: {
           article_id: string
