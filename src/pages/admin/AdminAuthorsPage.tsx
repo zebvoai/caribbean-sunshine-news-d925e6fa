@@ -125,6 +125,13 @@ const AdminAuthorsPage = () => {
       const { data: urlData } = supabase.storage.from("article-images").getPublicUrl(path);
       setForm((prev) => ({ ...prev, avatar_url: urlData.publicUrl }));
       toast.success("Photo uploaded");
+      const { mirrorToBackup } = await import("@/lib/backupImage");
+      void mirrorToBackup({
+        file,
+        path,
+        primaryUrl: urlData.publicUrl,
+        context: "author-avatar",
+      });
     } catch (err: any) {
       toast.error(err.message || "Upload failed");
     } finally {

@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { Upload, Link, X, Image as ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { mirrorToBackup } from "@/lib/backupImage";
 import { toast } from "sonner";
 
 interface ImageUploaderProps {
@@ -61,6 +62,14 @@ const ImageUploader = ({
       console.log("[ImageUploader] Public URL:", urlData.publicUrl);
       onImageUrlChange(urlData.publicUrl);
       toast.success("Image uploaded successfully");
+
+      // Mirror to backup storage (fire-and-forget, never blocks UI)
+      void mirrorToBackup({
+        file,
+        path,
+        primaryUrl: urlData.publicUrl,
+        context: "article-cover",
+      });
     } catch (err: any) {
       console.error("[ImageUploader] Error:", err);
       const message = err?.message || "Upload failed";
