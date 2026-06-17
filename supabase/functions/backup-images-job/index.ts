@@ -128,7 +128,6 @@ async function processOne(
   const { data: existing } = await primary
     .from("image_backups").select("id").eq("primary_url", item.url).maybeSingle();
   if (existing) {
-    await primary.rpc("set_updated_at"); // noop placeholder; not used
     const { data: job } = await primary.from("backup_jobs")
       .select("processed, skipped").eq("id", jobId).maybeSingle();
     await primary.from("backup_jobs").update({
