@@ -2,6 +2,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
@@ -11,6 +12,7 @@ import TrendingSidebar from "@/components/TrendingSidebar";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
+
 
 const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
   id: 0,
@@ -120,10 +122,45 @@ const Index = () => {
   const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
+  const isCategory = !!activeCat;
+  const pageTitle = isCategory
+    ? `${sectionTitle} News - Dominica News`
+    : "Dominica News: Breaking News, Politics & Caribbean Updates";
+  const pageDesc = isCategory
+    ? `Latest ${sectionTitle.toLowerCase()} news, updates and analysis from Dominica and the Caribbean by Dominica News.`
+    : "Dominica News is the leading independent online newsroom in the Commonwealth of Dominica, delivering trusted breaking news, politics, business, sports, and Caribbean coverage.";
+  const canonical = isCategory
+    ? `https://www.dominicanews.dm/?cat=${activeCat}`
+    : "https://www.dominicanews.dm/";
+  const collectionLd = isCategory
+    ? {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: `${sectionTitle} News`,
+        url: canonical,
+        isPartOf: { "@type": "WebSite", name: "Dominica News", url: "https://www.dominicanews.dm" },
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle.slice(0, 60)}</title>
+        <meta name="description" content={pageDesc.slice(0, 160)} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDesc} />
+        {collectionLd && (
+          <script type="application/ld+json">{JSON.stringify(collectionLd)}</script>
+        )}
+      </Helmet>
       <SiteHeader />
       <NavBar />
+
 
       {/* Breaking Ticker */}
       {!activeCat && breakingArticles.length > 0 && (
