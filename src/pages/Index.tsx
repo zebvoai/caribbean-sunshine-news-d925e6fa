@@ -2,6 +2,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
@@ -11,6 +12,7 @@ import TrendingSidebar from "@/components/TrendingSidebar";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
 import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
+
 
 const toNewsArticle = (a: MongoArticle): NewsArticle & { slug: string } => ({
   id: 0,
