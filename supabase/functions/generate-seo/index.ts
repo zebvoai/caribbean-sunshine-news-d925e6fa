@@ -112,9 +112,9 @@ Body excerpt: ${plainBody || "(not provided)"}`;
         );
       }
       const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
+      console.error("AI gateway error:", useOpenRouter ? "openrouter" : "lovable", response.status, errText);
       return new Response(
-        JSON.stringify({ error: "AI service error" }),
+        JSON.stringify({ error: `AI service error (${response.status}): ${errText.substring(0, 300)}` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
