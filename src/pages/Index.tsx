@@ -10,7 +10,7 @@ import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import TrendingSidebar from "@/components/TrendingSidebar";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, getOptimizedImageUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
 
 
