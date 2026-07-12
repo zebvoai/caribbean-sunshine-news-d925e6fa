@@ -108,6 +108,7 @@ const EventLandingPage = ({ eventKey }: { eventKey: EventKey }) => {
       queries={cfg.queries(year)}
       breadcrumbLabel={`${cfg.name} ${year}`}
       extraJsonLd={[eventJsonLd]}
+      faqs={cfg.faqs(year)}
     />
   );
 };
