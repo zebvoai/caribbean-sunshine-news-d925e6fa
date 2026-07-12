@@ -6,8 +6,9 @@ const FEED_DESCRIPTION = "Dominica's premier independent news platform – break
 const MONGO_API_URL = Deno.env.get("SUPABASE_URL")! + "/functions/v1/mongo-api";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-async function fetchArticles() {
+async function fetchArticles(categorySlug?: string) {
   const params = new URLSearchParams({ resource: "articles", status: "published", limit: "50" });
+  if (categorySlug) params.set("category", categorySlug);
   const res = await fetch(`${MONGO_API_URL}?${params}`, {
     headers: {
       apikey: SERVICE_KEY,
@@ -31,19 +32,39 @@ function stripHtml(html: string) {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
-serve(async () => {
+serve(async (req) => {
   try {
-    const articles = await fetchArticles();
+    const url = new URL(req.url);
+    // Support both /rss.xml?category=politics and /rss/politics.xml style paths.
+    let categorySlug = url.searchParams.get("category") || "";
+    const pathMatch = url.pathname.match(/\/rss\/([^/.]+)\.xml$/i);
+    if (!categorySlug && pathMatch) categorySlug = pathMatch[1];
+
+    const articles = await fetchArticles(categorySlug || undefined);
+
+    // Client-side filter fallback if backend does not honor the category param.
+    const filtered = categorySlug
+      ? articles.filter((a: any) => a.categories?.slug === categorySlug)
+      : articles;
 
     const now = new Date().toUTCString();
     let lastBuildDate = now;
-    if (articles.length > 0) {
-      const latest = articles[0].published_at || articles[0].created_at;
+    if (filtered.length > 0) {
+      const latest = filtered[0].published_at || filtered[0].created_at;
       if (latest) lastBuildDate = new Date(latest).toUTCString();
     }
 
+    const feedTitle = categorySlug
+      ? `${FEED_TITLE} — ${categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1)}`
+      : FEED_TITLE;
+    const feedLink = categorySlug ? `${SITE_URL}/category/${categorySlug}` : SITE_URL;
+    const selfHref = categorySlug ? `${SITE_URL}/rss/${categorySlug}.xml` : `${SITE_URL}/rss.xml`;
+    const feedDesc = categorySlug
+      ? `Latest ${categorySlug} news and updates from Dominica News.`
+      : FEED_DESCRIPTION;
+
     let items = "";
-    for (const a of articles) {
+    for (const a of filtered) {
       const pubDate = a.published_at || a.created_at;
       const dateStr = pubDate ? new Date(pubDate).toUTCString() : now;
       const link = `${SITE_URL}/news/${a.slug}`;
@@ -74,16 +95,16 @@ serve(async () => {
      xmlns:atom="http://www.w3.org/2005/Atom"
      xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>${escapeXml(FEED_TITLE)}</title>
-    <link>${SITE_URL}</link>
-    <description>${escapeXml(FEED_DESCRIPTION)}</description>
+    <title>${escapeXml(feedTitle)}</title>
+    <link>${feedLink}</link>
+    <description>${escapeXml(feedDesc)}</description>
     <language>en</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>
-    <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${selfHref}" rel="self" type="application/rss+xml" />
     <image>
       <url>${SITE_URL}/favicon.svg</url>
-      <title>${escapeXml(FEED_TITLE)}</title>
-      <link>${SITE_URL}</link>
+      <title>${escapeXml(feedTitle)}</title>
+      <link>${feedLink}</link>
     </image>
 ${items}  </channel>
 </rss>`;
