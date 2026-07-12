@@ -105,7 +105,7 @@ export interface MongoArticle {
   tags?: string[];
   additional_category_ids?: string[];
   social_embeds?: { platform: string; embed_url: string | null; embed_code: string | null }[];
-  authors?: { id: string; full_name: string; avatar_url: string | null; bio: string | null; role: string } | null;
+  authors?: { id: string; full_name: string; avatar_url: string | null; bio: string | null; role: string; slug?: string | null } | null;
   categories?: { name: string; slug: string } | null;
 }
 
