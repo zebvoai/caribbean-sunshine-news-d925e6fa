@@ -542,6 +542,8 @@ Deno.serve(async (req) => {
       const excludeId = url.searchParams.get("exclude_id");
       const isBreaking = url.searchParams.get("is_breaking");
       const searchQuery = url.searchParams.get("q");
+      const authorIdParam = url.searchParams.get("author_id");
+      const tagParam = url.searchParams.get("tag");
 
       const filter: any = { deletedAt: { $in: [null, undefined] } };
       if (status && status !== "all") filter.status = status;
