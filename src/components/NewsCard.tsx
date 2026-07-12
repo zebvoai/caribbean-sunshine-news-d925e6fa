@@ -88,10 +88,12 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
     return (
       <article className="group flex gap-4 items-start cursor-pointer py-3.5">
         <div className="relative overflow-hidden rounded-xl flex-shrink-0 w-24 h-24 shadow-sm">
-          {!imgError && safeImageSrc ? (
+          {!imgError && (thumbSrc || safeImageSrc) ? (
             <img
-              src={safeImageSrc}
+              src={thumbSrc || safeImageSrc}
               alt={article.title}
+              width={96}
+              height={96}
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
