@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useParams } from "react-router-dom";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowRight, Loader2 } from "lucide-react";
@@ -44,9 +44,38 @@ const toBreakingArticle = (a: MongoArticle) => ({
   published_at: a.published_at,
 });
 
+const CATEGORY_META: Record<string, { title: string; desc: string; heading: string }> = {
+  caribbean: {
+    title: "Caribbean News | Dominica News",
+    desc: "Latest Caribbean news, regional politics, CARICOM updates and stories from across the Caribbean — curated by Dominica News.",
+    heading: "Caribbean News",
+  },
+  dominica: {
+    title: "Dominica News: Latest Updates from the Nature Isle",
+    desc: "All the latest news from the Commonwealth of Dominica — communities, government, culture and events from the Nature Isle.",
+    heading: "Dominica News",
+  },
+  news: {
+    title: "Latest News | Dominica News",
+    desc: "Breaking headlines and the latest news stories from Dominica and the Caribbean, updated throughout the day.",
+    heading: "Latest News",
+  },
+  politics: {
+    title: "Dominica Politics News | Elections & Government",
+    desc: "Dominica political news — elections, parliament, government policy, and political analysis from across the Commonwealth of Dominica.",
+    heading: "Politics",
+  },
+  weather: {
+    title: "Dominica Weather News | Hurricanes & Forecasts",
+    desc: "Dominica weather updates, hurricane and tropical storm alerts, forecasts and climate coverage for the Nature Isle.",
+    heading: "Weather",
+  },
+};
+
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const activeCat = searchParams.get("cat");
+  const routeParams = useParams();
+  const activeCat = routeParams.slug || searchParams.get("cat");
   const ARTICLES_PER_PAGE = 12;
 
   const {
@@ -114,24 +143,36 @@ const Index = () => {
     is_live_update: true,
   }));
 
-  const sectionTitle = activeCat
-    ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1)
-    : "Latest News";
+  const catMeta = activeCat ? CATEGORY_META[activeCat.toLowerCase()] : null;
+  const sectionTitle = catMeta?.heading
+    ?? (activeCat ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1) : "Latest News");
 
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
   const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   const isCategory = !!activeCat;
-  const pageTitle = isCategory
-    ? `${sectionTitle} News in Dominica | Dominica News`
-    : "Dominica News: Latest & Breaking News in Dominica";
-  const pageDesc = isCategory
-    ? `Latest ${sectionTitle.toLowerCase()} news, updates and analysis from Dominica and the Caribbean by Dominica News.`
-    : "Dominica News delivers the latest breaking news in Dominica — politics, business, sports, crime, weather and Caribbean updates from the Commonwealth of Dominica.";
+  const pageTitle = catMeta?.title
+    ?? (isCategory
+      ? `${sectionTitle} News in Dominica | Dominica News`
+      : "Dominica News: Latest & Breaking News in Dominica");
+  const pageDesc = catMeta?.desc
+    ?? (isCategory
+      ? `Latest ${sectionTitle.toLowerCase()} news, updates and analysis from Dominica and the Caribbean by Dominica News.`
+      : "Dominica News delivers the latest breaking news in Dominica — politics, business, sports, crime, weather and Caribbean updates from the Commonwealth of Dominica.");
   const canonical = isCategory
-    ? `https://www.dominicanews.dm/?cat=${activeCat}`
+    ? `https://www.dominicanews.dm/category/${activeCat}`
     : "https://www.dominicanews.dm/";
+  const breadcrumbLd = isCategory
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Dominica News", item: "https://www.dominicanews.dm/" },
+          { "@type": "ListItem", position: 2, name: sectionTitle, item: canonical },
+        ],
+      }
+    : null;
   const collectionLd = isCategory
     ? {
         "@context": "https://schema.org",
@@ -154,6 +195,9 @@ const Index = () => {
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDesc} />
+        {breadcrumbLd && (
+          <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
+        )}
         {collectionLd && (
           <script type="application/ld+json">{JSON.stringify(collectionLd)}</script>
         )}
@@ -168,6 +212,20 @@ const Index = () => {
       )}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
+        {isCategory && (
+          <nav aria-label="breadcrumb" className="-mb-4">
+            <ol className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-body flex-wrap">
+              <li><Link to="/" className="hover:text-primary transition-colors">Dominica News</Link></li>
+              <li>›</li>
+              <li className="text-foreground font-medium" aria-current="page">{sectionTitle}</li>
+              <li className="ml-3">
+                <Link to="/" className="text-primary hover:underline text-xs">← Back to Latest News</Link>
+              </li>
+            </ol>
+          </nav>
+        )}
+
+
 
         {/* Live Updates Section */}
         {!activeCat && (loadingLive ? (

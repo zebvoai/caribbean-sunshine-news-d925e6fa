@@ -324,6 +324,20 @@ const ArticlePage = () => {
     if (article.is_breaking) {
       schema.genre = "Breaking News";
     }
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Dominica News", item: "https://www.dominicanews.dm/" },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: article.categories?.name || "News",
+          item: `https://www.dominicanews.dm/category/${article.categories?.slug || "news"}`,
+        },
+        { "@type": "ListItem", position: 3, name: article.title, item: url },
+      ],
+    };
     let ld = document.querySelector('script[type="application/ld+json"]');
     if (!ld) {
       ld = document.createElement("script");
@@ -331,6 +345,14 @@ const ArticlePage = () => {
       document.head.appendChild(ld);
     }
     ld.textContent = JSON.stringify(schema);
+    let bcLd = document.querySelector('script[type="application/ld+json"][data-bc="1"]');
+    if (!bcLd) {
+      bcLd = document.createElement("script");
+      bcLd.setAttribute("type", "application/ld+json");
+      bcLd.setAttribute("data-bc", "1");
+      document.head.appendChild(bcLd);
+    }
+    bcLd.textContent = JSON.stringify(breadcrumbSchema);
 
     return () => {
       document.title = "Dominica News";
@@ -413,11 +435,11 @@ const ArticlePage = () => {
         <nav aria-label="breadcrumb" className="mb-8 animate-fade-in-up">
           <ol className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-body flex-wrap">
             <li>
-              <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+              <Link to="/" className="hover:text-primary transition-colors">Dominica News</Link>
             </li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li>
-              <Link to={`/?cat=${categorySlug}`} className="hover:text-primary transition-colors">{categoryName}</Link>
+              <Link to={`/category/${categorySlug}`} className="hover:text-primary transition-colors">{categoryName}</Link>
             </li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li className="text-foreground font-medium max-w-xs truncate" aria-current="page">
@@ -442,7 +464,7 @@ const ArticlePage = () => {
           )}
           {article.categories && (
             <Link
-              to={`/?cat=${categorySlug}`}
+              to={`/category/${categorySlug}`}
               className="inline-block bg-primary/8 text-primary text-[9px] font-semibold px-3.5 py-1.5 rounded-full hover:bg-primary/15 transition-colors uppercase tracking-[0.15em] border border-primary/15"
             >
               {categoryName}
@@ -630,10 +652,10 @@ const ArticlePage = () => {
               {" "}and follow the{" "}
               <Link to="/" className="text-primary hover:underline">latest Dominica news</Link>
               {" "}across{" "}
-              <Link to={`/?cat=${categorySlug}`} className="text-primary hover:underline">{categoryName}</Link>,{" "}
-              <Link to="/?cat=politics" className="text-primary hover:underline">Politics</Link>,{" "}
-              <Link to="/?cat=business" className="text-primary hover:underline">Business</Link>,{" "}
-              <Link to="/?cat=sports" className="text-primary hover:underline">Sports</Link>, and{" "}
+              <Link to={`/category/${categorySlug}`} className="text-primary hover:underline">{categoryName}</Link>,{" "}
+              <Link to="/category/politics" className="text-primary hover:underline">Politics</Link>,{" "}
+              <Link to="/category/business" className="text-primary hover:underline">Business</Link>,{" "}
+              <Link to="/category/sports" className="text-primary hover:underline">Sports</Link>, and{" "}
               <Link to="/live" className="text-primary hover:underline">Live Updates</Link>{" "}
               from the Commonwealth of Dominica.
             </p>
