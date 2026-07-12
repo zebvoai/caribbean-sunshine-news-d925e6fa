@@ -153,7 +153,8 @@ const normalizeArticle = (doc: any, full = false) => {
         full_name: doc._author.name || "Unknown",
         avatar_url: doc._author.avatarUrl || null,
         bio: doc._author.bio || null,
-        role: "reporter",
+        role: doc._author.title || "reporter",
+        slug: doc._author.slug || null,
       }
     : null;
   base.categories = doc._category
