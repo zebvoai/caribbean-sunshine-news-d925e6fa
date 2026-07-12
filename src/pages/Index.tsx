@@ -198,6 +198,9 @@ const Index = () => {
         {breadcrumbLd && (
           <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
         )}
+        {collectionLd && (
+          <script type="application/ld+json">{JSON.stringify(collectionLd)}</script>
+        )}
       </Helmet>
       <SiteHeader />
       <NavBar />
