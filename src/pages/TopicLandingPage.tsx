@@ -219,6 +219,22 @@ const TopicLandingPage = ({
           )}
         </section>
 
+        {faqs && faqs.length > 0 && (
+          <section aria-labelledby="topic-faq-heading" className="mt-16">
+            <h2 id="topic-faq-heading" className="text-2xl font-heading font-bold text-foreground mb-6">
+              Frequently asked questions
+            </h2>
+            <dl className="space-y-5">
+              {faqs.map((f, i) => (
+                <div key={i} className="rounded-2xl border border-border bg-card p-6">
+                  <dt className="font-heading font-semibold text-foreground mb-2">{f.question}</dt>
+                  <dd className="text-muted-foreground leading-relaxed">{f.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
         <section className="mt-16 rounded-3xl bg-muted/40 p-8">
           <h2 className="text-xl font-heading font-bold text-foreground mb-3">More from Dominica News</h2>
           <p className="text-muted-foreground mb-4">
