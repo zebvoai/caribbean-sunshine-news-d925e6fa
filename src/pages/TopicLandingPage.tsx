@@ -71,6 +71,7 @@ const TopicLandingPage = ({
   queries,
   breadcrumbLabel,
   extraJsonLd,
+  faqs,
   limit = 24,
 }: TopicLandingPageProps) => {
   const canonical = `${SITE}${canonicalPath}`;
