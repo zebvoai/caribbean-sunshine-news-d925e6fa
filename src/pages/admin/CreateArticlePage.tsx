@@ -107,6 +107,7 @@ const CreateArticlePage = () => {
   const [body, setBody] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [coverImageAlt, setCoverImageAlt] = useState("");
+  const [seoH1, setSeoH1] = useState("");
   const [authorId, setAuthorId] = useState("");
   const [primaryCategoryId, setPrimaryCategoryId] = useState("");
   const [additionalCategories, setAdditionalCategories] = useState<string[]>([]);
