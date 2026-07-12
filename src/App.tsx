@@ -33,6 +33,8 @@ import AdminBackupPage from "./pages/admin/AdminBackupPage";
 import EventLandingPage from "./pages/EventLandingPage";
 import ObituariesPage from "./pages/ObituariesPage";
 import PersonPage from "./pages/PersonPage";
+import AuthorPage from "./pages/AuthorPage";
+import TagPage from "./pages/TagPage";
 const queryClient = new QueryClient();
 
 const App = () => {
