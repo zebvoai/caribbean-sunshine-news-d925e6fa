@@ -202,6 +202,7 @@ const CreateArticlePage = () => {
       tags: selectedTags,
       meta_title: title.trim().substring(0, 60),
       meta_description: excerpt.trim().substring(0, 160),
+      seo_h1: seoH1.trim() || null,
       publication_status: status,
       published_at: customPublishedAt || (status === "published" ? new Date().toISOString() : null),
       scheduled_for: scheduledAt || null,
