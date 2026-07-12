@@ -618,6 +618,30 @@ const ArticlePage = () => {
           </section>
         )}
 
+        {/* ── SEO Internal Links ─────────────────────────────────────────── */}
+        <section className="mb-10 animate-fade-in-up" style={{ animationDelay: "0.4s" }} aria-label="More from Dominica News">
+          <div className="rounded-2xl border border-border bg-muted/30 p-6">
+            <h3 className="font-heading font-bold text-lg text-foreground mb-2">
+              More from <Link to="/" className="text-primary hover:underline">Dominica News</Link>
+            </h3>
+            <p className="text-sm text-muted-foreground font-body leading-relaxed">
+              Stay updated with{" "}
+              <Link to="/" className="text-primary hover:underline">breaking news in Dominica</Link>
+              {" "}and follow the{" "}
+              <Link to="/" className="text-primary hover:underline">latest Dominica news</Link>
+              {" "}across{" "}
+              <Link to={`/?cat=${categorySlug}`} className="text-primary hover:underline">{categoryName}</Link>,{" "}
+              <Link to="/?cat=politics" className="text-primary hover:underline">Politics</Link>,{" "}
+              <Link to="/?cat=business" className="text-primary hover:underline">Business</Link>,{" "}
+              <Link to="/?cat=sports" className="text-primary hover:underline">Sports</Link>, and{" "}
+              <Link to="/live" className="text-primary hover:underline">Live Updates</Link>{" "}
+              from the Commonwealth of Dominica.
+            </p>
+          </div>
+        </section>
+
+
+
         {/* ── Related Articles ────────────────────────────────────────────── */}
         {related.length > 0 && (
           <section className="mb-14 animate-fade-in-up" style={{ animationDelay: "0.45s" }}>

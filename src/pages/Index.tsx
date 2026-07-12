@@ -124,11 +124,11 @@ const Index = () => {
 
   const isCategory = !!activeCat;
   const pageTitle = isCategory
-    ? `${sectionTitle} News - Dominica News`
-    : "Dominica News: Breaking News, Politics & Caribbean Updates";
+    ? `${sectionTitle} News in Dominica | Dominica News`
+    : "Dominica News: Latest & Breaking News in Dominica";
   const pageDesc = isCategory
     ? `Latest ${sectionTitle.toLowerCase()} news, updates and analysis from Dominica and the Caribbean by Dominica News.`
-    : "Dominica News is the leading independent online newsroom in the Commonwealth of Dominica, delivering trusted breaking news, politics, business, sports, and Caribbean coverage.";
+    : "Dominica News delivers the latest breaking news in Dominica — politics, business, sports, crime, weather and Caribbean updates from the Commonwealth of Dominica.";
   const canonical = isCategory
     ? `https://www.dominicanews.dm/?cat=${activeCat}`
     : "https://www.dominicanews.dm/";
