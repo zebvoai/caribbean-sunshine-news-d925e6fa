@@ -44,33 +44,44 @@ const toBreakingArticle = (a: MongoArticle) => ({
   published_at: a.published_at,
 });
 
-const CATEGORY_META: Record<string, { title: string; desc: string; heading: string }> = {
+const CATEGORY_META: Record<string, { title: string; desc: string; heading: string; intro: string }> = {
   caribbean: {
     title: "Caribbean News | Dominica News",
     desc: "Latest Caribbean news, regional politics, CARICOM updates and stories from across the Caribbean — curated by Dominica News.",
     heading: "Caribbean News",
+    intro:
+      "Caribbean news from a Dominican perspective — CARICOM decisions, regional elections, hurricane response, sport, and cross-island stories that shape life in the Commonwealth of Dominica and its neighbours. Updated throughout the day by the Dominica News editorial team.",
   },
   dominica: {
     title: "Dominica News: Latest Updates from the Nature Isle",
     desc: "All the latest news from the Commonwealth of Dominica — communities, government, culture and events from the Nature Isle.",
     heading: "Dominica News",
+    intro:
+      "The latest news from the Commonwealth of Dominica — Roseau to Portsmouth, Kalinago Territory to Marigot. Community stories, government announcements, culture and events reported daily from across the Nature Isle.",
   },
   news: {
     title: "Latest News | Dominica News",
     desc: "Breaking headlines and the latest news stories from Dominica and the Caribbean, updated throughout the day.",
     heading: "Latest News",
+    intro:
+      "Breaking headlines and the latest news in Dominica and the wider Caribbean, updated throughout the day. Follow ongoing stories, official statements, and verified reports from Dominica News.",
   },
   politics: {
     title: "Dominica Politics News | Elections & Government",
     desc: "Dominica political news — elections, parliament, government policy, and political analysis from across the Commonwealth of Dominica.",
     heading: "Politics",
+    intro:
+      "Dominica political news — general elections, parliamentary debate, government policy, DLP and UWP developments, and diplomatic affairs. Independent political coverage from Dominica News, with context on how each decision affects citizens.",
   },
   weather: {
     title: "Dominica Weather News | Hurricanes & Forecasts",
     desc: "Dominica weather updates, hurricane and tropical storm alerts, forecasts and climate coverage for the Nature Isle.",
     heading: "Weather",
+    intro:
+      "Dominica weather updates — hurricane and tropical storm alerts, daily forecasts, marine warnings, and long-term climate coverage. Sourced from the Dominica Meteorological Service and regional monitoring agencies, and updated as conditions change.",
   },
 };
+
 
 const Index = () => {
   const [searchParams] = useSearchParams();
