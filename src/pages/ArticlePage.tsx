@@ -324,6 +324,20 @@ const ArticlePage = () => {
     if (article.is_breaking) {
       schema.genre = "Breaking News";
     }
+    const breadcrumbSchema = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Dominica News", item: "https://www.dominicanews.dm/" },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: article.categories?.name || "News",
+          item: `https://www.dominicanews.dm/category/${article.categories?.slug || "news"}`,
+        },
+        { "@type": "ListItem", position: 3, name: article.title, item: url },
+      ],
+    };
     let ld = document.querySelector('script[type="application/ld+json"]');
     if (!ld) {
       ld = document.createElement("script");
@@ -331,6 +345,14 @@ const ArticlePage = () => {
       document.head.appendChild(ld);
     }
     ld.textContent = JSON.stringify(schema);
+    let bcLd = document.querySelector('script[type="application/ld+json"][data-bc="1"]');
+    if (!bcLd) {
+      bcLd = document.createElement("script");
+      bcLd.setAttribute("type", "application/ld+json");
+      bcLd.setAttribute("data-bc", "1");
+      document.head.appendChild(bcLd);
+    }
+    bcLd.textContent = JSON.stringify(breadcrumbSchema);
 
     return () => {
       document.title = "Dominica News";
