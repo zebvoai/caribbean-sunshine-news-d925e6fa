@@ -338,6 +338,10 @@ const ArticlePage = () => {
       url,
       isAccessibleForFree: true,
       inLanguage: "en",
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ["h1", "[data-speakable='excerpt']", ".news-prose p"],
+      },
     };
     if (article.is_breaking) {
       schema.genre = "Breaking News";
