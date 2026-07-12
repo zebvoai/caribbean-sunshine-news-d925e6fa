@@ -45,6 +45,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/category/:slug" element={<Index />} />
             <Route path="/news/:slug" element={<ArticlePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/live" element={<LiveUpdatesListPage />} />
