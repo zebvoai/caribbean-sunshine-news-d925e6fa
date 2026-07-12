@@ -168,6 +168,7 @@ const ArticlePage = () => {
   const { toast } = useToast();
   const [article, setArticle] = useState<Article | null>(null);
   const [related, setRelated] = useState<RelatedArticle[]>([]);
+  const [moreFromAuthor, setMoreFromAuthor] = useState<RelatedArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const viewCounted = useRef(false);
