@@ -1,10 +1,13 @@
 import { useMemo } from "react";
 import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
+import { applyEntityLinks } from "@/lib/entityLinker";
 
 interface InlineArticleBodyProps {
   html: string;
   className?: string;
   style?: React.CSSProperties;
+  /** Apply automatic in-body entity linking (people, events, obituaries). Default true. */
+  linkEntities?: boolean;
 }
 
 /**
@@ -14,7 +17,9 @@ interface InlineArticleBodyProps {
  */
 const PLATFORM_NAMES = ["instagram", "twitter", "youtube", "tiktok", "spotify", "facebook"];
 
-const InlineArticleBody = ({ html, className, style }: InlineArticleBodyProps) => {
+const InlineArticleBody = ({ html: rawHtml, className, style, linkEntities = true }: InlineArticleBodyProps) => {
+  const html = useMemo(() => (linkEntities ? applyEntityLinks(rawHtml) : rawHtml), [rawHtml, linkEntities]);
+
   const segments = useMemo(() => {
     if (!html) return [{ type: "html" as const, content: "" }];
 
