@@ -2,13 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) - deferred to reduce TBT -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-FJE70XDN9M"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-FJE70XDN9M');
+      // Defer GA init to after first paint so it doesn't block LCP
+      window.addEventListener('load', function () {
+        gtag('js', new Date());
+        gtag('config', 'G-FJE70XDN9M', { send_page_view: true });
+      });
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#16a34a" />
@@ -19,8 +22,15 @@
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="preconnect" href="https://xqzffikjyrdmbuptreyj.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://xqzffikjyrdmbuptreyj.supabase.co" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Regional targeting for Caribbean readership -->
+    <link rel="alternate" hreflang="en-DM" href="https://www.dominicanews.dm/" />
+    <link rel="alternate" hreflang="en" href="https://www.dominicanews.dm/" />
+    <link rel="alternate" hreflang="x-default" href="https://www.dominicanews.dm/" />
     <title>Dominica News: Latest & Breaking News in Dominica</title>
 
     <meta name="description" content="Dominica News delivers the latest breaking news in Dominica — politics, business, sports, crime, weather and Caribbean updates from the Commonwealth of Dominica.">
