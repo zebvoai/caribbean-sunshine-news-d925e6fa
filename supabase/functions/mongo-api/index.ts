@@ -472,6 +472,7 @@ Deno.serve(async (req) => {
           seo: {
             metaTitle: body.meta_title || null,
             metaDescription: body.meta_description || null,
+            h1: body.seo_h1 || null,
           },
           embeds: (body.social_embeds || []).map((e: any) => ({
             platform: e.platform,
