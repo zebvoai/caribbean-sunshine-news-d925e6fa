@@ -273,6 +273,8 @@ export const mongoApi = {
     exclude_id?: string;
     is_breaking?: boolean;
     q?: string;
+    author_id?: string;
+    tag?: string;
   } = {}): Promise<MongoArticle[]> {
     const p: Record<string, string> = { resource: "articles" };
     if (params.status) p.status = params.status;
@@ -283,6 +285,8 @@ export const mongoApi = {
     if (params.exclude_id) p.exclude_id = params.exclude_id;
     if (params.is_breaking) p.is_breaking = "true";
     if (params.q) p.q = params.q;
+    if (params.author_id) p.author_id = params.author_id;
+    if (params.tag) p.tag = params.tag;
     return get<MongoArticle[]>(p);
   },
 
