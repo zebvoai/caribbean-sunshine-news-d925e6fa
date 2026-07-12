@@ -53,6 +53,10 @@
       "destination": "/api/og-meta?slug=:slug"
     },
     {
+      "source": "/rss/:slug.xml",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/rss?category=:slug"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
