@@ -310,7 +310,7 @@ const Index = () => {
               {/* Hero card */}
               {heroArticle && (
                 <Link to={`/news/${heroArticle.slug}`} className="block animate-fade-in-up">
-                  <NewsCard article={heroArticle} isBreaking={heroArticle.is_breaking} variant="hero" />
+                  <NewsCard article={heroArticle} isBreaking={heroArticle.is_breaking} variant="hero" priority />
                 </Link>
               )}
 
