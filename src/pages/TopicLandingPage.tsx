@@ -77,10 +77,17 @@ const TopicLandingPage = ({
   // Editable intro override from Pages CMS (optional)
   const { data: cmsPage } = useQuery({
     queryKey: ["topic-cms", editableSlug],
-    queryFn: () => mongoApi.getPageBySlug(editableSlug!),
+    queryFn: async () => {
+      try {
+        return await mongoApi.getPageBySlug(editableSlug!);
+      } catch {
+        return null;
+      }
+    },
     enabled: !!editableSlug,
     retry: false,
   });
+
 
   const results = useQueries({
     queries: queries.map((q) => ({
