@@ -140,6 +140,7 @@ const normalizeArticle = (doc: any, full = false) => {
     view_count: doc.views || 0,
     meta_title: doc.seo?.metaTitle || doc.seo?.title || null,
     meta_description: doc.seo?.metaDescription || doc.seo?.description || null,
+    seo_h1: doc.seo?.h1 || null,
     primary_category_id: doc.category?.toString() || null,
     author_id: doc.author?.toString() || null,
     tags: doc.tags || [],
