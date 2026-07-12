@@ -251,6 +251,23 @@ const ArticlePage = () => {
     fetchRelated();
   }, [article]);
 
+  // ── Fetch more from same author ────────────────────────────────────────────
+  useEffect(() => {
+    if (!article) return;
+    const authorId = (article as any).authors?.id || (article as any).author_id;
+    if (!authorId) return;
+    mongoApi
+      .getArticles({
+        status: "published",
+        author_id: authorId,
+        exclude_id: (article as any).id,
+        limit: 3,
+      })
+      .then((data) => setMoreFromAuthor(data as unknown as RelatedArticle[]))
+      .catch(() => setMoreFromAuthor([]));
+  }, [article]);
+
+
   // ── SEO meta tags ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (!article) return;
