@@ -431,6 +431,12 @@ const ArticlePage = () => {
 
   const readTime = calcReadTime(article.body);
   const pubDate = article.published_at ? formatDate(article.published_at) : "";
+  const showUpdated =
+    !!article.updated_at &&
+    !!article.published_at &&
+    Math.abs(new Date(article.updated_at).getTime() - new Date(article.published_at).getTime()) >
+      1000 * 60 * 60 * 24;
+  const updatedDate = showUpdated && article.updated_at ? formatDate(article.updated_at) : "";
   const categorySlug = article.categories?.slug || "news";
   const categoryName = article.categories?.name || "News";
   const authorRole =
