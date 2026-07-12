@@ -25,9 +25,8 @@ serve(async () => {
   try {
     const articles = await fetchArticles();
 
-    // Google News sitemap – include articles from the last 7 days
-    // (spec says 2 days, but Google accepts up to 30; 7 avoids empty sitemaps)
-    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    // Google News sitemap – must be articles from the last 48 hours (Google requirement).
+    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
     let urls = "";
 
