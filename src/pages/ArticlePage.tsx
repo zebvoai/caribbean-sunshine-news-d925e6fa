@@ -652,9 +652,18 @@ const ArticlePage = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                  <span className="font-heading font-bold text-foreground text-base">
-                    {article.authors.full_name}
-                  </span>
+                  {(article.authors as any).slug ? (
+                    <Link
+                      to={`/author/${(article.authors as any).slug}`}
+                      className="font-heading font-bold text-foreground text-base hover:text-primary hover:underline"
+                    >
+                      {article.authors.full_name}
+                    </Link>
+                  ) : (
+                    <span className="font-heading font-bold text-foreground text-base">
+                      {article.authors.full_name}
+                    </span>
+                  )}
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary font-body uppercase tracking-wider">
                     {authorRole}
                   </span>
@@ -668,8 +677,49 @@ const ArticlePage = () => {
                     No bio available.
                   </p>
                 )}
+                {(article.authors as any).slug && (
+                  <Link
+                    to={`/author/${(article.authors as any).slug}`}
+                    className="inline-block mt-3 text-sm text-primary font-body font-semibold hover:underline"
+                  >
+                    View all articles by {article.authors.full_name} →
+                  </Link>
+                )}
               </div>
             </div>
+
+            {moreFromAuthor.length > 0 && (
+              <div className="mt-8 pt-6 border-t border-border/60">
+                <h4 className="font-heading font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">
+                  You may have missed from {article.authors.full_name}
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {moreFromAuthor.map((a) => (
+                    <Link
+                      key={a.id}
+                      to={`/news/${a.slug}`}
+                      className="group block rounded-xl overflow-hidden border border-border/60 bg-card hover:border-primary/40 transition-colors"
+                    >
+                      {a.cover_image_url && (
+                        <div className="aspect-video overflow-hidden bg-muted">
+                          <img
+                            src={a.cover_image_url}
+                            alt={a.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                      )}
+                      <div className="p-3">
+                        <h5 className="font-heading font-semibold text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                          {a.title}
+                        </h5>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         )}
 
