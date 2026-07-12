@@ -31,6 +31,8 @@ export interface TopicLandingPageProps {
   breadcrumbLabel?: string;
   /** Optional extra JSON-LD blocks (Event, Person, etc). */
   extraJsonLd?: Record<string, unknown>[];
+  /** Optional FAQ entries — rendered as a visible section and emitted as FAQPage JSON-LD. */
+  faqs?: { question: string; answer: string }[];
   /** Max articles to show. Default 24. */
   limit?: number;
 }
@@ -69,6 +71,7 @@ const TopicLandingPage = ({
   queries,
   breadcrumbLabel,
   extraJsonLd,
+  faqs,
   limit = 24,
 }: TopicLandingPageProps) => {
   const canonical = `${SITE}${canonicalPath}`;
@@ -129,7 +132,19 @@ const TopicLandingPage = ({
     isPartOf: { "@type": "WebSite", name: "Dominica News", url: SITE },
   };
 
-  const jsonLdBlocks = [breadcrumbLd, collectionLd, ...(extraJsonLd || [])];
+  const faqLd = faqs && faqs.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.question,
+          acceptedAnswer: { "@type": "Answer", text: f.answer },
+        })),
+      }
+    : null;
+
+  const jsonLdBlocks = [breadcrumbLd, collectionLd, ...(extraJsonLd || []), ...(faqLd ? [faqLd] : [])];
 
   return (
     <div className="min-h-screen bg-background">
@@ -203,6 +218,22 @@ const TopicLandingPage = ({
             </div>
           )}
         </section>
+
+        {faqs && faqs.length > 0 && (
+          <section aria-labelledby="topic-faq-heading" className="mt-16">
+            <h2 id="topic-faq-heading" className="text-2xl font-heading font-bold text-foreground mb-6">
+              Frequently asked questions
+            </h2>
+            <dl className="space-y-5">
+              {faqs.map((f, i) => (
+                <div key={i} className="rounded-2xl border border-border bg-card p-6">
+                  <dt className="font-heading font-semibold text-foreground mb-2">{f.question}</dt>
+                  <dd className="text-muted-foreground leading-relaxed">{f.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
         <section className="mt-16 rounded-3xl bg-muted/40 p-8">
           <h2 className="text-xl font-heading font-bold text-foreground mb-3">More from Dominica News</h2>

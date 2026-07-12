@@ -140,6 +140,7 @@ const normalizeArticle = (doc: any, full = false) => {
     view_count: doc.views || 0,
     meta_title: doc.seo?.metaTitle || doc.seo?.title || null,
     meta_description: doc.seo?.metaDescription || doc.seo?.description || null,
+    seo_h1: doc.seo?.h1 || null,
     primary_category_id: doc.category?.toString() || null,
     author_id: doc.author?.toString() || null,
     tags: doc.tags || [],
@@ -416,10 +417,11 @@ Deno.serve(async (req) => {
         if (body.is_breaking !== undefined) update.isBreaking = body.is_breaking;
         if (body.is_featured !== undefined) update.isFeatured = body.is_featured;
         if (body.is_pinned !== undefined) update.isPinned = body.is_pinned;
-        if (body.meta_title !== undefined || body.meta_description !== undefined) {
+        if (body.meta_title !== undefined || body.meta_description !== undefined || body.seo_h1 !== undefined) {
           update.seo = {
-            metaTitle: body.meta_title || null,
-            metaDescription: body.meta_description || null,
+            metaTitle: body.meta_title ?? null,
+            metaDescription: body.meta_description ?? null,
+            h1: body.seo_h1 ?? null,
           };
         }
         if (body.social_embeds !== undefined) {
@@ -470,6 +472,7 @@ Deno.serve(async (req) => {
           seo: {
             metaTitle: body.meta_title || null,
             metaDescription: body.meta_description || null,
+            h1: body.seo_h1 || null,
           },
           embeds: (body.social_embeds || []).map((e: any) => ({
             platform: e.platform,

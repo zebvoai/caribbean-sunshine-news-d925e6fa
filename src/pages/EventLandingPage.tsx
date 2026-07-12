@@ -12,6 +12,7 @@ interface EventConfig {
   seoDesc: (year: string) => string;
   urlPrefix: string; // e.g. "dominica-carnival"
   location: string;
+  faqs: (year: string) => { question: string; answer: string }[];
 }
 
 const EVENTS: Record<EventKey, EventConfig> = {
@@ -26,6 +27,12 @@ const EVENTS: Record<EventKey, EventConfig> = {
     seoTitle: (year) => `Dominica Carnival ${year}: Mas Domnik News, Results & Live Coverage`,
     seoDesc: (year) =>
       `Dominica Carnival ${year} coverage from Dominica News — Mas Domnik parades, Calypso Monarch, Queen of Carnival, bouyon, road march and full results.`,
+    faqs: (year) => [
+      { question: `When is Dominica Carnival ${year}?`, answer: `Dominica Carnival ${year} — Mas Domnik — traditionally climaxes on the Monday and Tuesday before Ash Wednesday, with the National Queen Show, Calypso Monarch finals and J'ouvert in the preceding weeks in Roseau.` },
+      { question: "What is Mas Domnik?", answer: "Mas Domnik is the local name for Dominica Carnival, marketed as the 'Real Mas' of the Caribbean because of its unscripted street parades, sensay costumes, and strong bouyon and cadence-lypso music culture." },
+      { question: "Where is the main Carnival parade held?", answer: "The main Monday and Tuesday parades run through downtown Roseau, with judging points along Bay Front and the Old Market area." },
+      { question: "How can I follow Carnival results?", answer: `Dominica News publishes Calypso Monarch, Queen of Carnival, band of the year and road march results on this page as soon as they are announced by the Dominica Festivals Committee.` },
+    ],
   },
   wcmf: {
     name: "World Creole Music Festival",
@@ -38,6 +45,12 @@ const EVENTS: Record<EventKey, EventConfig> = {
     seoTitle: (year) => `World Creole Music Festival ${year} (WCMF): Lineup, Tickets & News`,
     seoDesc: (year) =>
       `World Creole Music Festival ${year} (WCMF) in Dominica — full lineup, tickets, nightly reviews, bouyon and zouk coverage from Dominica News.`,
+    faqs: (year) => [
+      { question: `When is the World Creole Music Festival ${year}?`, answer: `WCMF ${year} runs over three nights in late October at Windsor Park Stadium in Roseau, Dominica, as part of the country's Independence celebrations. Exact dates are confirmed by the Discover Dominica Authority.` },
+      { question: "Where is WCMF held?", answer: "The World Creole Music Festival is held at Windsor Park Stadium in Roseau, the capital of the Commonwealth of Dominica." },
+      { question: "What music genres are featured?", answer: "WCMF showcases creole music from across the Caribbean, Africa and the diaspora — including bouyon, zouk, cadence-lypso, kompa, soukous, reggae and Afrobeats." },
+      { question: "How can I buy WCMF tickets?", answer: "Tickets are sold through the official Discover Dominica Authority website and authorised regional agents. Dominica News publishes ticket launch dates and lineup announcements on this page." },
+    ],
   },
   "miss-dominica": {
     name: "Miss Dominica",
@@ -50,6 +63,12 @@ const EVENTS: Record<EventKey, EventConfig> = {
     seoTitle: (year) => `Miss Dominica ${year}: Contestants, Results & Queen of Carnival News`,
     seoDesc: (year) =>
       `Miss Dominica ${year} pageant coverage from Dominica News — contestants, results, Queen of Carnival, National Queen Show highlights and photos.`,
+    faqs: (year) => [
+      { question: `When is Miss Dominica ${year}?`, answer: `The Miss Dominica ${year} National Queen Show is traditionally held on the Saturday before Carnival Monday in Roseau, launching the Mas Domnik season.` },
+      { question: "Who organises the Miss Dominica pageant?", answer: "The pageant is coordinated by the Dominica Festivals Committee together with sponsors, and the winner represents the country as Queen of Carnival." },
+      { question: "What segments make up the show?", answer: "Contestants compete across introduction, talent, evening wear, swimwear/beach wear and an on-stage interview segment, with a preliminary talent night held earlier in the week." },
+      { question: "Where can I watch Miss Dominica?", answer: "The show is staged at a Roseau venue announced each year and streamed by national broadcasters. Dominica News publishes results and highlights on this page immediately after crowning." },
+    ],
   },
 };
 
@@ -89,6 +108,7 @@ const EventLandingPage = ({ eventKey }: { eventKey: EventKey }) => {
       queries={cfg.queries(year)}
       breadcrumbLabel={`${cfg.name} ${year}`}
       extraJsonLd={[eventJsonLd]}
+      faqs={cfg.faqs(year)}
     />
   );
 };

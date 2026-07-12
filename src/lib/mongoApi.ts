@@ -96,6 +96,7 @@ export interface MongoArticle {
   view_count: number;
   meta_title: string | null;
   meta_description: string | null;
+  seo_h1: string | null;
   primary_category_id: string | null;
   author_id: string | null;
   created_at: string | null;
@@ -257,6 +258,7 @@ export interface CreateArticlePayload {
   is_pinned?: boolean;
   meta_title?: string | null;
   meta_description?: string | null;
+  seo_h1?: string | null;
   social_embeds?: { platform: string; embed_url?: string | null; embed_code?: string | null }[];
 }
 

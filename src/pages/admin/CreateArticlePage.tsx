@@ -107,6 +107,7 @@ const CreateArticlePage = () => {
   const [body, setBody] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [coverImageAlt, setCoverImageAlt] = useState("");
+  const [seoH1, setSeoH1] = useState("");
   const [authorId, setAuthorId] = useState("");
   const [primaryCategoryId, setPrimaryCategoryId] = useState("");
   const [additionalCategories, setAdditionalCategories] = useState<string[]>([]);
@@ -201,6 +202,7 @@ const CreateArticlePage = () => {
       tags: selectedTags,
       meta_title: title.trim().substring(0, 60),
       meta_description: excerpt.trim().substring(0, 160),
+      seo_h1: seoH1.trim() || null,
       publication_status: status,
       published_at: customPublishedAt || (status === "published" ? new Date().toISOString() : null),
       scheduled_for: scheduledAt || null,
@@ -385,6 +387,24 @@ const CreateArticlePage = () => {
               </button>
             </div>
           </div>
+
+          <div>
+            <label className={LABEL_CLASSES}>
+              SEO H1 Override <span className="text-muted-foreground font-normal">(optional)</span>{" "}
+              <span className="text-[11px] font-normal text-muted-foreground">{seoH1.length}/90</span>
+            </label>
+            <input
+              type="text"
+              value={seoH1}
+              onChange={(e) => setSeoH1(e.target.value.substring(0, 90))}
+              placeholder='e.g. "Roseau man charged with theft — Dominica News"'
+              className={INPUT_CLASSES}
+            />
+            <p className="text-[11px] text-muted-foreground mt-1.5">
+              Optional keyword-rich headline shown on the article page. Leave blank to use the meta title. Ideal when the meta title omits "Dominica" or the primary entity.
+            </p>
+          </div>
+
 
           <div>
             <label className={LABEL_CLASSES}>Article Body *</label>
