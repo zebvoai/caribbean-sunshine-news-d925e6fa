@@ -226,8 +226,9 @@ const EditArticlePage = () => {
     if (title.trim().length > 60) { toast.error("Title must be at most 60 characters"); return false; }
     if (!slug.trim()) { toast.error("Slug is required"); return false; }
     if (!excerpt.trim()) { toast.error("Excerpt is required"); return false; }
-    if (excerpt.trim().length < 120) { toast.error("Excerpt must be at least 120 characters"); return false; }
+    if (excerpt.trim().length < 120) { toast.error("Excerpt must be at least 120 characters — Google favours 140–160 for meta description"); return false; }
     if (!body.trim() || body === "<p></p>") { toast.error("Article body is required"); return false; }
+    if (coverImageUrl && !coverImageAlt.trim()) { toast.error("Cover image alt text is required for SEO and accessibility"); return false; }
     return true;
   };
 
