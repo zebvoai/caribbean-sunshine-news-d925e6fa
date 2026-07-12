@@ -258,6 +258,7 @@ export interface CreateArticlePayload {
   is_pinned?: boolean;
   meta_title?: string | null;
   meta_description?: string | null;
+  seo_h1?: string | null;
   social_embeds?: { platform: string; embed_url?: string | null; embed_code?: string | null }[];
 }
 
