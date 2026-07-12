@@ -413,11 +413,11 @@ const ArticlePage = () => {
         <nav aria-label="breadcrumb" className="mb-8 animate-fade-in-up">
           <ol className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-body flex-wrap">
             <li>
-              <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+              <Link to="/" className="hover:text-primary transition-colors">Dominica News</Link>
             </li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li>
-              <Link to={`/?cat=${categorySlug}`} className="hover:text-primary transition-colors">{categoryName}</Link>
+              <Link to={`/category/${categorySlug}`} className="hover:text-primary transition-colors">{categoryName}</Link>
             </li>
             <li><ChevronRight className="h-3.5 w-3.5" /></li>
             <li className="text-foreground font-medium max-w-xs truncate" aria-current="page">
