@@ -143,24 +143,36 @@ const Index = () => {
     is_live_update: true,
   }));
 
-  const sectionTitle = activeCat
-    ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1)
-    : "Latest News";
+  const catMeta = activeCat ? CATEGORY_META[activeCat.toLowerCase()] : null;
+  const sectionTitle = catMeta?.heading
+    ?? (activeCat ? activeCat.charAt(0).toUpperCase() + activeCat.slice(1) : "Latest News");
 
   const heroArticle = !activeCat && mappedArticles.length > 0 ? mappedArticles[0] : null;
   const gridArticles = !activeCat ? mappedArticles.slice(1) : mappedArticles;
   const trendingArticles = !activeCat ? mappedArticles.slice(1, 6) : [];
 
   const isCategory = !!activeCat;
-  const pageTitle = isCategory
-    ? `${sectionTitle} News in Dominica | Dominica News`
-    : "Dominica News: Latest & Breaking News in Dominica";
-  const pageDesc = isCategory
-    ? `Latest ${sectionTitle.toLowerCase()} news, updates and analysis from Dominica and the Caribbean by Dominica News.`
-    : "Dominica News delivers the latest breaking news in Dominica — politics, business, sports, crime, weather and Caribbean updates from the Commonwealth of Dominica.";
+  const pageTitle = catMeta?.title
+    ?? (isCategory
+      ? `${sectionTitle} News in Dominica | Dominica News`
+      : "Dominica News: Latest & Breaking News in Dominica");
+  const pageDesc = catMeta?.desc
+    ?? (isCategory
+      ? `Latest ${sectionTitle.toLowerCase()} news, updates and analysis from Dominica and the Caribbean by Dominica News.`
+      : "Dominica News delivers the latest breaking news in Dominica — politics, business, sports, crime, weather and Caribbean updates from the Commonwealth of Dominica.");
   const canonical = isCategory
-    ? `https://www.dominicanews.dm/?cat=${activeCat}`
+    ? `https://www.dominicanews.dm/category/${activeCat}`
     : "https://www.dominicanews.dm/";
+  const breadcrumbLd = isCategory
+    ? {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Dominica News", item: "https://www.dominicanews.dm/" },
+          { "@type": "ListItem", position: 2, name: sectionTitle, item: canonical },
+        ],
+      }
+    : null;
   const collectionLd = isCategory
     ? {
         "@context": "https://schema.org",
