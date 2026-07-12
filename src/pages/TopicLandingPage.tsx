@@ -31,6 +31,8 @@ export interface TopicLandingPageProps {
   breadcrumbLabel?: string;
   /** Optional extra JSON-LD blocks (Event, Person, etc). */
   extraJsonLd?: Record<string, unknown>[];
+  /** Optional FAQ entries — rendered as a visible section and emitted as FAQPage JSON-LD. */
+  faqs?: { question: string; answer: string }[];
   /** Max articles to show. Default 24. */
   limit?: number;
 }
