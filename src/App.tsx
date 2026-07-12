@@ -30,6 +30,9 @@ import AdminLiveUpdatesPage from "./pages/admin/AdminLiveUpdatesPage";
 import AdminSchedulePage from "./pages/admin/AdminSchedulePage";
 import AdminTrashPage from "./pages/admin/AdminTrashPage";
 import AdminBackupPage from "./pages/admin/AdminBackupPage";
+import EventLandingPage from "./pages/EventLandingPage";
+import ObituariesPage from "./pages/ObituariesPage";
+import PersonPage from "./pages/PersonPage";
 const queryClient = new QueryClient();
 
 const App = () => {
