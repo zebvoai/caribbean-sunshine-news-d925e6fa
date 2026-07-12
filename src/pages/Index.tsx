@@ -222,16 +222,7 @@ const Index = () => {
           </nav>
         )}
 
-      <SiteHeader />
-      <NavBar />
 
-
-      {/* Breaking Ticker */}
-      {!activeCat && breakingArticles.length > 0 && (
-        <BreakingTicker items={breakingArticles} />
-      )}
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
 
         {/* Live Updates Section */}
         {!activeCat && (loadingLive ? (
