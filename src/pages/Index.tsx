@@ -195,10 +195,33 @@ const Index = () => {
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDesc} />
-        {collectionLd && (
-          <script type="application/ld+json">{JSON.stringify(collectionLd)}</script>
+        {breadcrumbLd && (
+          <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
         )}
       </Helmet>
+      <SiteHeader />
+      <NavBar />
+
+
+      {/* Breaking Ticker */}
+      {!activeCat && breakingArticles.length > 0 && (
+        <BreakingTicker items={breakingArticles} />
+      )}
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
+        {isCategory && (
+          <nav aria-label="breadcrumb" className="-mb-4">
+            <ol className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-body flex-wrap">
+              <li><Link to="/" className="hover:text-primary transition-colors">Dominica News</Link></li>
+              <li>›</li>
+              <li className="text-foreground font-medium" aria-current="page">{sectionTitle}</li>
+              <li className="ml-3">
+                <Link to="/" className="text-primary hover:underline text-xs">← Back to Latest News</Link>
+              </li>
+            </ol>
+          </nav>
+        )}
+
       <SiteHeader />
       <NavBar />
 
