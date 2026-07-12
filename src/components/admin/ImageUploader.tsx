@@ -254,15 +254,25 @@ const ImageUploader = ({
           {/* Alt text */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">
-              Image Alt Text <span className="text-muted-foreground font-normal">(SEO & accessibility)</span>
+              Image Alt Text <span className="text-destructive">*</span>{" "}
+              <span className="text-muted-foreground font-normal text-xs">(required for SEO & accessibility)</span>
             </label>
             <input
               type="text"
               value={imageAlt}
               onChange={(e) => onImageAltChange(e.target.value)}
-              placeholder="Describe the image..."
-              className="w-full border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              placeholder="Describe the image (e.g. 'Prime Minister Roosevelt Skerrit addressing parliament in Roseau')..."
+              className={`w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                imageUrl && !imageAlt.trim() ? "border-destructive/60 bg-destructive/5" : "border-border"
+              }`}
+              aria-invalid={!!imageUrl && !imageAlt.trim()}
+              required={!!imageUrl}
             />
+            {imageUrl && !imageAlt.trim() && (
+              <p className="text-[11px] text-destructive mt-1">
+                Alt text is required whenever an image is set — describe the image in a short sentence.
+              </p>
+            )}
           </div>
         </>
       )}
