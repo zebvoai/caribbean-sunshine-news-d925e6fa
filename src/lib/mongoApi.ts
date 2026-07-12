@@ -105,7 +105,7 @@ export interface MongoArticle {
   tags?: string[];
   additional_category_ids?: string[];
   social_embeds?: { platform: string; embed_url: string | null; embed_code: string | null }[];
-  authors?: { id: string; full_name: string; avatar_url: string | null; bio: string | null; role: string } | null;
+  authors?: { id: string; full_name: string; avatar_url: string | null; bio: string | null; role: string; slug?: string | null } | null;
   categories?: { name: string; slug: string } | null;
 }
 
@@ -273,6 +273,8 @@ export const mongoApi = {
     exclude_id?: string;
     is_breaking?: boolean;
     q?: string;
+    author_id?: string;
+    tag?: string;
   } = {}): Promise<MongoArticle[]> {
     const p: Record<string, string> = { resource: "articles" };
     if (params.status) p.status = params.status;
@@ -283,6 +285,8 @@ export const mongoApi = {
     if (params.exclude_id) p.exclude_id = params.exclude_id;
     if (params.is_breaking) p.is_breaking = "true";
     if (params.q) p.q = params.q;
+    if (params.author_id) p.author_id = params.author_id;
+    if (params.tag) p.tag = params.tag;
     return get<MongoArticle[]>(p);
   },
 

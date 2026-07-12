@@ -153,7 +153,8 @@ const normalizeArticle = (doc: any, full = false) => {
         full_name: doc._author.name || "Unknown",
         avatar_url: doc._author.avatarUrl || null,
         bio: doc._author.bio || null,
-        role: "reporter",
+        role: doc._author.title || "reporter",
+        slug: doc._author.slug || null,
       }
     : null;
   base.categories = doc._category
@@ -542,6 +543,8 @@ Deno.serve(async (req) => {
       const excludeId = url.searchParams.get("exclude_id");
       const isBreaking = url.searchParams.get("is_breaking");
       const searchQuery = url.searchParams.get("q");
+      const authorIdParam = url.searchParams.get("author_id");
+      const tagParam = url.searchParams.get("tag");
 
       const filter: any = { deletedAt: { $in: [null, undefined] } };
       if (status && status !== "all") filter.status = status;
@@ -589,6 +592,14 @@ Deno.serve(async (req) => {
 
       if (excludeId) {
         try { filter._id = { $ne: new ObjectId(excludeId) }; } catch {}
+      }
+
+      if (authorIdParam) {
+        try { filter.author = new ObjectId(authorIdParam); } catch {}
+      }
+
+      if (tagParam) {
+        filter.tags = tagParam;
       }
 
       const docs = await db
