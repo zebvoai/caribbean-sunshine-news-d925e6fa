@@ -593,6 +593,14 @@ Deno.serve(async (req) => {
         try { filter._id = { $ne: new ObjectId(excludeId) }; } catch {}
       }
 
+      if (authorIdParam) {
+        try { filter.author = new ObjectId(authorIdParam); } catch {}
+      }
+
+      if (tagParam) {
+        filter.tags = tagParam;
+      }
+
       const docs = await db
         .collection("articles")
         .find(filter, { projection: { content: 0, body: 0 } }) // exclude body for list perf
