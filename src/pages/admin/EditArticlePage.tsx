@@ -187,6 +187,7 @@ const EditArticlePage = () => {
         setScheduledFor(article.scheduled_for ? article.scheduled_for.slice(0, 16) : "");
         setSelectedTags(article.tags || []);
         setOriginalPublishedAt(article.published_at || null);
+        setSeoH1((article as any).seo_h1 || "");
       })
       .catch((err) => {
         toast.error("Failed to load article");
