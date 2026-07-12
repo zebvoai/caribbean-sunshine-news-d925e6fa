@@ -217,7 +217,7 @@ const Index = () => {
         <meta name="twitter:description" content={pageDesc} />
         <link rel="alternate" type="application/rss+xml" title={rssTitle} href={rssHref} />
         {heroImageForPreload && (
-          <link rel="preload" as="image" href={heroImageForPreload} fetchpriority="high" />
+          <link rel="preload" as="image" href={heroImageForPreload} fetchPriority="high" />
         )}
         {breadcrumbLd && (
           <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
