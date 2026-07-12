@@ -505,7 +505,7 @@ const ArticlePage = () => {
           className="text-[1.85rem] md:text-[3rem] font-heading font-extrabold text-foreground leading-[1.08] mb-6 animate-fade-in-up tracking-tight"
           style={{ animationDelay: "0.1s" }}
         >
-          {article.title}
+          {(article as any).seo_h1?.trim() || article.title}
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
