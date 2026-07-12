@@ -132,7 +132,19 @@ const TopicLandingPage = ({
     isPartOf: { "@type": "WebSite", name: "Dominica News", url: SITE },
   };
 
-  const jsonLdBlocks = [breadcrumbLd, collectionLd, ...(extraJsonLd || [])];
+  const faqLd = faqs && faqs.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.question,
+          acceptedAnswer: { "@type": "Answer", text: f.answer },
+        })),
+      }
+    : null;
+
+  const jsonLdBlocks = [breadcrumbLd, collectionLd, ...(extraJsonLd || []), ...(faqLd ? [faqLd] : [])];
 
   return (
     <div className="min-h-screen bg-background">
