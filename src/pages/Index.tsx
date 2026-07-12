@@ -44,9 +44,38 @@ const toBreakingArticle = (a: MongoArticle) => ({
   published_at: a.published_at,
 });
 
+const CATEGORY_META: Record<string, { title: string; desc: string; heading: string }> = {
+  caribbean: {
+    title: "Caribbean News | Dominica News",
+    desc: "Latest Caribbean news, regional politics, CARICOM updates and stories from across the Caribbean — curated by Dominica News.",
+    heading: "Caribbean News",
+  },
+  dominica: {
+    title: "Dominica News: Latest Updates from the Nature Isle",
+    desc: "All the latest news from the Commonwealth of Dominica — communities, government, culture and events from the Nature Isle.",
+    heading: "Dominica News",
+  },
+  news: {
+    title: "Latest News | Dominica News",
+    desc: "Breaking headlines and the latest news stories from Dominica and the Caribbean, updated throughout the day.",
+    heading: "Latest News",
+  },
+  politics: {
+    title: "Dominica Politics News | Elections & Government",
+    desc: "Dominica political news — elections, parliament, government policy, and political analysis from across the Commonwealth of Dominica.",
+    heading: "Politics",
+  },
+  weather: {
+    title: "Dominica Weather News | Hurricanes & Forecasts",
+    desc: "Dominica weather updates, hurricane and tropical storm alerts, forecasts and climate coverage for the Nature Isle.",
+    heading: "Weather",
+  },
+};
+
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const activeCat = searchParams.get("cat");
+  const routeParams = useParams();
+  const activeCat = routeParams.slug || searchParams.get("cat");
   const ARTICLES_PER_PAGE = 12;
 
   const {
