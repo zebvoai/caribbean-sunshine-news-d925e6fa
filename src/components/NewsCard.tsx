@@ -120,10 +120,12 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
   return (
     <article className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 cursor-pointer flex flex-col h-full card-lift border border-border/40">
       <div className="relative overflow-hidden">
-        {!imgError && safeImageSrc ? (
+        {!imgError && (cardSrc || safeImageSrc) ? (
           <img
-            src={safeImageSrc}
+            src={cardSrc || safeImageSrc}
             alt={article.title}
+            width={800}
+            height={500}
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
