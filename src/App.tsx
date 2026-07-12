@@ -54,6 +54,11 @@ const App = () => {
             <Route path="/live" element={<LiveUpdatesListPage />} />
             <Route path="/live/:slug" element={<LiveUpdatePage />} />
             <Route path="/page/:slug" element={<DynamicPage />} />
+            <Route path="/dominica-carnival-:year" element={<EventLandingPage eventKey="dominica-carnival" />} />
+            <Route path="/wcmf-:year" element={<EventLandingPage eventKey="wcmf" />} />
+            <Route path="/miss-dominica-:year" element={<EventLandingPage eventKey="miss-dominica" />} />
+            <Route path="/obituaries" element={<ObituariesPage />} />
+            <Route path="/people/:slug" element={<PersonPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminAuthGuard><AdminLayout /></AdminAuthGuard>}>
               <Route index element={<AdminDashboard />} />
