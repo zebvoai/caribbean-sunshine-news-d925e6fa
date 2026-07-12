@@ -61,6 +61,8 @@ const App = () => {
             <Route path="/miss-dominica-:year" element={<EventLandingPage eventKey="miss-dominica" />} />
             <Route path="/obituaries" element={<ObituariesPage />} />
             <Route path="/people/:slug" element={<PersonPage />} />
+            <Route path="/author/:slug" element={<AuthorPage />} />
+            <Route path="/tag/:slug" element={<TagPage />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin" element={<AdminAuthGuard><AdminLayout /></AdminAuthGuard>}>
               <Route index element={<AdminDashboard />} />
