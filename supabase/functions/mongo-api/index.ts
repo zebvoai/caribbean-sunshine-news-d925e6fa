@@ -417,10 +417,11 @@ Deno.serve(async (req) => {
         if (body.is_breaking !== undefined) update.isBreaking = body.is_breaking;
         if (body.is_featured !== undefined) update.isFeatured = body.is_featured;
         if (body.is_pinned !== undefined) update.isPinned = body.is_pinned;
-        if (body.meta_title !== undefined || body.meta_description !== undefined) {
+        if (body.meta_title !== undefined || body.meta_description !== undefined || body.seo_h1 !== undefined) {
           update.seo = {
-            metaTitle: body.meta_title || null,
-            metaDescription: body.meta_description || null,
+            metaTitle: body.meta_title ?? null,
+            metaDescription: body.meta_description ?? null,
+            h1: body.seo_h1 ?? null,
           };
         }
         if (body.social_embeds !== undefined) {
