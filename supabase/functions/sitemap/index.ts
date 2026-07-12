@@ -22,11 +22,13 @@ function escapeXml(s: string) {
 
 serve(async () => {
   try {
-    const [articles, categories, pages, liveUpdates] = await Promise.all([
+    const [articles, categories, pages, liveUpdates, authors, tags] = await Promise.all([
       fetchResource("articles", { status: "published" }),
       fetchResource("categories"),
       fetchResource("pages"),
       fetchResource("liveupdates"),
+      fetchResource("authors"),
+      fetchResource("tags"),
     ]);
 
     let urls = "";
@@ -37,6 +39,25 @@ serve(async () => {
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>\n`;
+
+    // Static evergreen landing pages
+    const currentYear = new Date().getUTCFullYear();
+    const staticEvergreen = [
+      { path: "/obituaries", changefreq: "daily", priority: "0.7" },
+      { path: `/dominica-carnival-${currentYear}`, changefreq: "weekly", priority: "0.7" },
+      { path: `/wcmf-${currentYear}`, changefreq: "weekly", priority: "0.7" },
+      { path: `/miss-dominica-${currentYear}`, changefreq: "weekly", priority: "0.7" },
+      { path: "/people/patrick-john", changefreq: "monthly", priority: "0.5" },
+      { path: "/people/dame-eugenia-charles", changefreq: "monthly", priority: "0.5" },
+      { path: "/people/roosevelt-skerrit", changefreq: "monthly", priority: "0.6" },
+    ];
+    for (const s of staticEvergreen) {
+      urls += `  <url>
+    <loc>${SITE_URL}${s.path}</loc>
+    <changefreq>${s.changefreq}</changefreq>
+    <priority>${s.priority}</priority>
+  </url>\n`;
+    }
 
     // Articles
     for (const a of articles) {
@@ -55,6 +76,28 @@ serve(async () => {
     <loc>${SITE_URL}/category/${escapeXml(c.slug)}</loc>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
+  </url>\n`;
+    }
+
+    // Author profile pages
+    for (const a of authors) {
+      const slug = a.slug || null;
+      if (!slug) continue;
+      if (a.is_active === false) continue;
+      urls += `  <url>
+    <loc>${SITE_URL}/author/${escapeXml(slug)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>\n`;
+    }
+
+    // Tag archives
+    for (const t of tags) {
+      if (!t.slug) continue;
+      urls += `  <url>
+    <loc>${SITE_URL}/tag/${escapeXml(t.slug)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.4</priority>
   </url>\n`;
     }
 
