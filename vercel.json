@@ -2,7 +2,12 @@
   "redirects": [
     {
       "source": "/:path(.*)",
-      "has": [{ "type": "host", "value": "dominicanews.dm" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "dominicanews.dm"
+        }
+      ],
       "destination": "https://www.dominicanews.dm/:path",
       "permanent": true
     }
@@ -15,6 +20,10 @@
     {
       "source": "/api/storage/:bucket/:path*",
       "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/storage/v1/object/public/:bucket/:path*"
+    },
+    {
+      "source": "/api/storage-render/:bucket/:path*",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/storage/v1/render/image/public/:bucket/:path*"
     },
     {
       "source": "/api/auth/token",
@@ -43,6 +52,13 @@
       ],
       "destination": "/api/og-meta?slug=:slug"
     },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/rss/:slug.xml",
+      "destination": "https://xqzffikjyrdmbuptreyj.supabase.co/functions/v1/rss?category=:slug"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

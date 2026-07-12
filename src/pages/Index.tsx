@@ -10,7 +10,7 @@ import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import TrendingSidebar from "@/components/TrendingSidebar";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, getOptimizedImageUrl } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
 
 
@@ -182,6 +182,26 @@ const Index = () => {
         isPartOf: { "@type": "WebSite", name: "Dominica News", url: "https://www.dominicanews.dm" },
       }
     : null;
+  const heroImageForPreload = heroArticle?.image
+    ? getOptimizedImageUrl(heroArticle.image, { width: 1200, format: "webp", quality: 78 })
+    : "";
+  const itemListLd = mappedArticles.length > 0
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: isCategory ? `${sectionTitle} News` : "Latest News",
+        itemListElement: mappedArticles.slice(0, 20).map((a, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `https://www.dominicanews.dm/news/${a.slug}`,
+          name: a.title,
+        })),
+      }
+    : null;
+  const rssHref = isCategory
+    ? `https://www.dominicanews.dm/rss.xml?category=${encodeURIComponent(activeCat!)}`
+    : "https://www.dominicanews.dm/rss.xml";
+  const rssTitle = isCategory ? `${sectionTitle} — Dominica News RSS` : "Dominica News RSS";
 
   return (
     <div className="min-h-screen bg-background">
@@ -195,11 +215,18 @@ const Index = () => {
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDesc} />
+        <link rel="alternate" type="application/rss+xml" title={rssTitle} href={rssHref} />
+        {heroImageForPreload && (
+          <link rel="preload" as="image" href={heroImageForPreload} fetchPriority="high" />
+        )}
         {breadcrumbLd && (
           <script type="application/ld+json">{JSON.stringify(breadcrumbLd)}</script>
         )}
         {collectionLd && (
           <script type="application/ld+json">{JSON.stringify(collectionLd)}</script>
+        )}
+        {itemListLd && (
+          <script type="application/ld+json">{JSON.stringify(itemListLd)}</script>
         )}
       </Helmet>
       <SiteHeader />
@@ -310,7 +337,7 @@ const Index = () => {
               {/* Hero card */}
               {heroArticle && (
                 <Link to={`/news/${heroArticle.slug}`} className="block animate-fade-in-up">
-                  <NewsCard article={heroArticle} isBreaking={heroArticle.is_breaking} variant="hero" />
+                  <NewsCard article={heroArticle} isBreaking={heroArticle.is_breaking} variant="hero" priority />
                 </Link>
               )}
 

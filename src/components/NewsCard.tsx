@@ -1,34 +1,45 @@
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import type { NewsArticle } from "@/data/newsData";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getOptimizedImageUrl, getProxiedAssetUrl } from "@/lib/networkProxy";
 
 export interface NewsCardProps {
   article: NewsArticle;
   isBreaking?: boolean;
   isLiveEnded?: boolean;
   variant?: "default" | "hero" | "compact";
+  /** True for the single above-the-fold LCP image on the page. */
+  priority?: boolean;
 }
 
-const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default" }: NewsCardProps) => {
+const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", priority = false }: NewsCardProps) => {
   const [imgError, setImgError] = useState(false);
-  const safeImageSrc = getProxiedAssetUrl(article.image?.trim() ?? "");
+  const raw = article.image?.trim() ?? "";
+  // WebP-optimized derivatives via Supabase image transform; falls back to proxied original.
+  const heroSrc = getOptimizedImageUrl(raw, { width: 1200, format: "webp", quality: 78 });
+  const cardSrc = getOptimizedImageUrl(raw, { width: 800, format: "webp", quality: 75 });
+  const thumbSrc = getOptimizedImageUrl(raw, { width: 240, height: 240, format: "webp", quality: 72 });
+  const safeImageSrc = getProxiedAssetUrl(raw);
 
   useEffect(() => {
     setImgError(false);
-  }, [safeImageSrc]);
+  }, [raw]);
 
   if (variant === "hero") {
+    const src = heroSrc || safeImageSrc;
     return (
       <article className="group relative bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700 cursor-pointer card-lift">
         <div className="grid md:grid-cols-[1.2fr_1fr] gap-0">
           <div className="relative overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[440px]">
-            {!imgError && safeImageSrc ? (
+            {!imgError && src ? (
               <img
-                src={safeImageSrc}
+                src={src}
                 alt={article.title}
-                loading="eager"
-                decoding="async"
+                width={1200}
+                height={800}
+                loading={priority ? "eager" : "eager"}
+                fetchPriority={priority ? "high" : "auto"}
+                decoding={priority ? "sync" : "async"}
                 referrerPolicy="no-referrer"
                 onError={() => setImgError(true)}
                 className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1200ms] ease-out"
@@ -77,10 +88,12 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default" }: New
     return (
       <article className="group flex gap-4 items-start cursor-pointer py-3.5">
         <div className="relative overflow-hidden rounded-xl flex-shrink-0 w-24 h-24 shadow-sm">
-          {!imgError && safeImageSrc ? (
+          {!imgError && (thumbSrc || safeImageSrc) ? (
             <img
-              src={safeImageSrc}
+              src={thumbSrc || safeImageSrc}
               alt={article.title}
+              width={96}
+              height={96}
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
@@ -107,10 +120,12 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default" }: New
   return (
     <article className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 cursor-pointer flex flex-col h-full card-lift border border-border/40">
       <div className="relative overflow-hidden">
-        {!imgError && safeImageSrc ? (
+        {!imgError && (cardSrc || safeImageSrc) ? (
           <img
-            src={safeImageSrc}
+            src={cardSrc || safeImageSrc}
             alt={article.title}
+            width={800}
+            height={500}
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
