@@ -442,7 +442,7 @@ const ArticlePage = () => {
           )}
           {article.categories && (
             <Link
-              to={`/?cat=${categorySlug}`}
+              to={`/category/${categorySlug}`}
               className="inline-block bg-primary/8 text-primary text-[9px] font-semibold px-3.5 py-1.5 rounded-full hover:bg-primary/15 transition-colors uppercase tracking-[0.15em] border border-primary/15"
             >
               {categoryName}
@@ -630,10 +630,10 @@ const ArticlePage = () => {
               {" "}and follow the{" "}
               <Link to="/" className="text-primary hover:underline">latest Dominica news</Link>
               {" "}across{" "}
-              <Link to={`/?cat=${categorySlug}`} className="text-primary hover:underline">{categoryName}</Link>,{" "}
-              <Link to="/?cat=politics" className="text-primary hover:underline">Politics</Link>,{" "}
-              <Link to="/?cat=business" className="text-primary hover:underline">Business</Link>,{" "}
-              <Link to="/?cat=sports" className="text-primary hover:underline">Sports</Link>, and{" "}
+              <Link to={`/category/${categorySlug}`} className="text-primary hover:underline">{categoryName}</Link>,{" "}
+              <Link to="/category/politics" className="text-primary hover:underline">Politics</Link>,{" "}
+              <Link to="/category/business" className="text-primary hover:underline">Business</Link>,{" "}
+              <Link to="/category/sports" className="text-primary hover:underline">Sports</Link>, and{" "}
               <Link to="/live" className="text-primary hover:underline">Live Updates</Link>{" "}
               from the Commonwealth of Dominica.
             </p>
