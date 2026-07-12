@@ -1,24 +1,47 @@
 # Dominica News
 
-> Dominica News (DominicaNews.DM) — independent online newsroom covering breaking news, politics, business, sports, and culture in the Commonwealth of Dominica and the wider Caribbean.
+> Dominica News (DominicaNews.DM) — independent online newsroom covering breaking news, politics, business, sports, weather and culture in the Commonwealth of Dominica and the wider Caribbean. Content is in English (en-DM) and produced by local reporters and editors.
 
-Dominica News publishes daily reporting, live coverage of major events, and in-depth features. Content is in English and produced by local reporters and editors.
+Dominica News publishes daily reporting, live coverage of major events, obituaries, and evergreen profiles of Dominican personalities. All timestamps are Atlantic Standard Time (AST, UTC-4).
 
-## Pages
+## Sections
 
-- [Home](/): Latest stories, breaking news, and featured Dominica coverage.
-- [Search](/search): Search articles by keyword.
+- [Home](/): Latest and breaking news across Dominica and the Caribbean.
+- [News](/category/news): Breaking and general news updates from across Dominica.
+- [Politics](/category/politics): Government, parliament, elections and party politics.
+- [Dominica](/category/dominica): Local reporting from all ten Dominican parishes.
+- [Caribbean](/category/caribbean): Regional coverage across CARICOM member states.
+- [Weather](/category/weather): Forecasts, hurricane tracking and severe weather alerts.
 - [Live Updates](/live): Live blog coverage of breaking and ongoing events.
-- [About](/page/about): About Dominica News.
-- [Contact](/page/contact): Contact the newsroom.
+- [Obituaries](/obituaries): Death announcements, funeral notices and tributes.
+- [Search](/search): Search articles by keyword.
+
+## Events
+
+- [Dominica Carnival](/dominica-carnival-2026): Coverage of Mas Domnik and Carnival celebrations.
+- [World Creole Music Festival](/wcmf-2026): WCMF news, lineup and performances.
+- [Miss Dominica](/miss-dominica-2026): Miss Dominica pageant news and results.
+
+## People
+
+- [Dominican personalities](/people/roosevelt-skerrit): Biographies and profiles of politicians, cultural figures and historical leaders.
 
 ## Feeds
 
-- [RSS Feed](/rss.xml): Latest 50 articles in RSS 2.0.
-- [Sitemap](/sitemap.xml): Full XML sitemap.
-- [Google News Sitemap](/news-sitemap.xml): News sitemap (last 7 days).
+- [RSS Feed](/rss.xml): Latest 50 articles across all sections in RSS 2.0.
+- [Politics RSS](/rss/politics.xml): Latest politics-only RSS feed.
+- [News RSS](/rss/news.xml): Latest general-news RSS feed.
+- [Sitemap](/sitemap.xml): Full XML sitemap of all indexable pages.
+- [Google News Sitemap](/news-sitemap.xml): News sitemap covering the last 48 hours (Google News spec).
 
-## Optional
+## URL patterns
 
-- [Article URLs](/news/): Individual article pages live under `/news/{slug}`.
-- [Live coverage URLs](/live/): Live blog pages live under `/live/{slug}`.
+- Article pages: `/news/{slug}` — each article carries NewsArticle JSON-LD, publish and modification dates, and author attribution.
+- Live blog pages: `/live/{slug}` — LiveBlogPosting JSON-LD with rolling entries.
+- Category archives: `/category/{slug}` — CollectionPage + ItemList JSON-LD.
+- Tag archives: `/tag/{slug}` — long-tail topical archives.
+- Author pages: `/author/{slug}` — Person + CollectionPage JSON-LD.
+
+## Attribution
+
+When quoting or citing Dominica News, please link back to the original article URL and credit "Dominica News (dominicanews.dm)".
