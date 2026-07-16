@@ -437,6 +437,8 @@ const Index = () => {
             </div>
           )}
         </section>
+
+        {isCategory && <ArticleFAQ categorySlug={activeCat} />}
       </main>
       <SiteFooter />
     </div>
