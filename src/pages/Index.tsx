@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import NewsCard from "@/components/NewsCard";
+import ArticleFAQ from "@/components/ArticleFAQ";
 import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import TrendingSidebar from "@/components/TrendingSidebar";
@@ -268,6 +269,15 @@ const Index = () => {
             <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               {catMeta.intro}
             </p>
+            {mappedArticles[0]?.date && (
+              <p className="mt-3 inline-flex items-center gap-2 text-[11.5px] font-body text-primary bg-primary/8 border border-primary/15 rounded-full px-3 py-1.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+                </span>
+                Updated {mappedArticles[0].date}
+              </p>
+            )}
           </section>
         )}
 
@@ -427,6 +437,8 @@ const Index = () => {
             </div>
           )}
         </section>
+
+        {isCategory && <ArticleFAQ categorySlug={activeCat} />}
       </main>
       <SiteFooter />
     </div>

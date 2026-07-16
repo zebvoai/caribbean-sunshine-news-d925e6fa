@@ -510,7 +510,11 @@ const ArticlePage = () => {
         </h1>
 
         {/* ── Excerpt ─────────────────────────────────────────────────────── */}
-        <p className="text-base md:text-lg text-muted-foreground font-serif italic mb-8 leading-[1.7] border-l-4 border-primary/25 pl-6 animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+        <p
+          data-speakable="excerpt"
+          className="text-base md:text-lg text-muted-foreground font-serif italic mb-8 leading-[1.7] border-l-4 border-primary/25 pl-6 animate-fade-in-up"
+          style={{ animationDelay: "0.15s" }}
+        >
           {article.excerpt}
         </p>
 
@@ -604,12 +608,27 @@ const ArticlePage = () => {
           </button>
         </div>
 
-        {/* ── Article Body (with inline embeds) ────────────────────────── */}
+        {/* ── Article Body (with inline embeds, entity links, TOC) ────── */}
         <InlineArticleBody
           html={article.body}
           className="news-prose text-justify max-w-none"
           style={{ animationDelay: "0.35s" }}
+          imageAltFallback={`${article.title} — ${categoryName} news from Dominica News`}
         />
+
+        {/* ── In-body category hub link (SEO: descriptive anchor to category) ── */}
+        <aside className="my-10 rounded-2xl border-l-4 border-primary/40 bg-muted/30 p-5 not-prose">
+          <p className="text-[13.5px] text-foreground/85 font-body leading-relaxed">
+            <strong className="text-foreground">More {categoryName} news:</strong>{" "}
+            Follow our full coverage of{" "}
+            <Link to={`/category/${categorySlug}`} className="text-primary font-semibold hover:underline">
+              Dominica {categoryName.toLowerCase()} news
+            </Link>
+            {" "}or read the{" "}
+            <Link to="/" className="text-primary font-semibold hover:underline">latest breaking news in Dominica</Link>{" "}
+            from Dominica News.
+          </p>
+        </aside>
 
         {/* ── Social Embeds ───────────────────────────────────────────────── */}
         {article.social_embeds && article.social_embeds.length > 0 && (
