@@ -21,9 +21,14 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
   const thumbSrc = getOptimizedImageUrl(raw, { width: 240, height: 240, format: "webp", quality: 72 });
   const safeImageSrc = getProxiedAssetUrl(raw);
 
-  useEffect(() => {
-    setImgError(false);
-  }, [raw]);
+  // Category-aware, descriptive alt text — better for SEO and structured data
+  // than raw titles alone. Falls back gracefully when metadata is missing.
+  const cat = (article.category || "News").trim();
+  const catLabel = /news$/i.test(cat) ? cat : `${cat} news`;
+  const title = (article.title || "").trim();
+  const altText = title
+    ? `${title} — ${catLabel} from Dominica News${isBreaking ? " (breaking)" : ""}`
+    : `${catLabel} from Dominica News`;
 
   if (variant === "hero") {
     const src = heroSrc || safeImageSrc;
