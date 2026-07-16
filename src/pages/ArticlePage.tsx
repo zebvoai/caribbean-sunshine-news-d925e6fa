@@ -9,6 +9,7 @@ import { getProxiedAssetUrl } from "@/lib/networkProxy";
 import PageLoader from "@/components/PageLoader";
 import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
 import InlineArticleBody from "@/components/InlineArticleBody";
+import ArticleFAQ from "@/components/ArticleFAQ";
 import {
   Calendar,
   User,
