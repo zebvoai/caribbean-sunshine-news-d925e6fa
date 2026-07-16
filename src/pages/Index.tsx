@@ -264,24 +264,25 @@ const Index = () => {
         )}
 
         {isCategory && catMeta?.intro && (
-          <section className="-mt-2 max-w-4xl">
-            <p className="text-[15px] md:text-base text-muted-foreground font-body leading-[1.75]">
+          <section className="-mt-2 sm:-mt-4 max-w-4xl px-1 sm:px-0">
+            <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               {catMeta.intro}
             </p>
           </section>
         )}
 
         {!activeCat && (
-          <section className="max-w-4xl -mt-2" aria-label="About Dominica News">
+          <section className="max-w-4xl -mt-2 sm:-mt-4 px-1 sm:px-0" aria-label="About Dominica News">
             <h2 className="sr-only">About Dominica News</h2>
-            <p className="text-[15px] md:text-base text-muted-foreground font-body leading-[1.75]">
+            <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               <strong className="text-foreground font-semibold">Dominica News</strong> is the leading independent
-              online newsroom in the Commonwealth of Dominica, publishing breaking news, politics, weather, business,
-              community stories and Caribbean updates from Roseau, Portsmouth and across the Nature Isle. Follow the
-              latest headlines below, or jump straight to{" "}
+              online newsroom in the Commonwealth of Dominica, delivering breaking news in Dominica, politics, weather,
+              business, community stories and Caribbean updates every day from Roseau, Portsmouth and across the Nature
+              Isle. Trusted by readers at home and in the Dominican diaspora, we publish verified reports, official
+              statements and in-depth features. Jump straight to{" "}
               <Link to="/category/dominica" className="text-primary hover:underline">Dominica news</Link>,{" "}
               <Link to="/category/politics" className="text-primary hover:underline">politics</Link>,{" "}
-              <Link to="/category/weather" className="text-primary hover:underline">weather</Link>, and{" "}
+              <Link to="/category/weather" className="text-primary hover:underline">weather</Link>, or{" "}
               <Link to="/category/caribbean" className="text-primary hover:underline">Caribbean coverage</Link>.
             </p>
           </section>
