@@ -279,7 +279,7 @@ const Index = () => {
             <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               <strong className="text-foreground font-semibold">Dominica News</strong> is the leading independent
               news online source in the Commonwealth of Dominica, publishing the latest news from Dominica and
-              Dominica breaking news every day — politics, weather, business, crime, community stories and Caribbean
+              Dominica breaking news every day - politics, weather, business, crime, community stories and Caribbean
               updates from Roseau, Portsmouth and across the Nature Isle. Trusted by readers at home and in the
               Dominican diaspora for verified reports, official statements and in-depth features. Jump straight to{" "}
               <Link to="/category/dominica" className="text-primary hover:underline">Dominica news</Link>,{" "}
