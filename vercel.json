@@ -10,6 +10,18 @@
       ],
       "destination": "https://www.dominicanews.dm/:path",
       "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "query", "key": "cat", "value": "(?<cat>[^&]+)" }],
+      "destination": "/category/:cat",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "has": [{ "type": "query", "key": "cat", "value": "(?<cat>[^&]+)" }],
+      "destination": "/category/:cat",
+      "permanent": true
     }
   ],
   "rewrites": [

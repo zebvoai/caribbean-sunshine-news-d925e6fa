@@ -273,13 +273,15 @@ const Index = () => {
 
         {!activeCat && (
           <section className="max-w-4xl -mt-2 sm:-mt-4" aria-label="About Dominica News">
-            <h2 className="sr-only">About Dominica News</h2>
+            <h1 className="font-heading font-bold text-2xl sm:text-3xl md:text-[34px] leading-[1.15] tracking-tight text-foreground mb-3">
+              Dominica News Online — Latest News from Dominica &amp; Breaking News Today
+            </h1>
             <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               <strong className="text-foreground font-semibold">Dominica News</strong> is the leading independent
-              online newsroom in the Commonwealth of Dominica, delivering breaking news in Dominica, politics, weather,
-              business, community stories and Caribbean updates every day from Roseau, Portsmouth and across the Nature
-              Isle. Trusted by readers at home and in the Dominican diaspora, we publish verified reports, official
-              statements and in-depth features. Jump straight to{" "}
+              news online source in the Commonwealth of Dominica, publishing the latest news from Dominica and
+              Dominica breaking news every day — politics, weather, business, crime, community stories and Caribbean
+              updates from Roseau, Portsmouth and across the Nature Isle. Trusted by readers at home and in the
+              Dominican diaspora for verified reports, official statements and in-depth features. Jump straight to{" "}
               <Link to="/category/dominica" className="text-primary hover:underline">Dominica news</Link>,{" "}
               <Link to="/category/politics" className="text-primary hover:underline">politics</Link>,{" "}
               <Link to="/category/weather" className="text-primary hover:underline">weather</Link>, or{" "}
