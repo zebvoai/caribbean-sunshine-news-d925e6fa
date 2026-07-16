@@ -43,7 +43,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
             {!imgError && src ? (
               <img
                 src={src}
-                alt={article.title}
+                alt={altText}
                 width={1200}
                 height={800}
                 loading={priority ? "eager" : "eager"}
@@ -100,7 +100,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
           {!imgError && (thumbSrc || safeImageSrc) ? (
             <img
               src={thumbSrc || safeImageSrc}
-              alt={article.title}
+              alt={altText}
               width={96}
               height={96}
               loading="lazy"
@@ -132,7 +132,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
         {!imgError && (cardSrc || safeImageSrc) ? (
           <img
             src={cardSrc || safeImageSrc}
-            alt={article.title}
+            alt={altText}
             width={800}
             height={500}
             loading="lazy"
