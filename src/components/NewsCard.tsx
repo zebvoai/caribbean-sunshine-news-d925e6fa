@@ -21,6 +21,15 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
   const thumbSrc = getOptimizedImageUrl(raw, { width: 240, height: 240, format: "webp", quality: 72 });
   const safeImageSrc = getProxiedAssetUrl(raw);
 
+  // Category-aware, descriptive alt text — better for SEO and structured data
+  // than raw titles alone. Falls back gracefully when metadata is missing.
+  const cat = (article.category || "News").trim();
+  const catLabel = /news$/i.test(cat) ? cat : `${cat} news`;
+  const title = (article.title || "").trim();
+  const altText = title
+    ? `${title} — ${catLabel} from Dominica News${isBreaking ? " (breaking)" : ""}`
+    : `${catLabel} from Dominica News`;
+
   useEffect(() => {
     setImgError(false);
   }, [raw]);
@@ -34,7 +43,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
             {!imgError && src ? (
               <img
                 src={src}
-                alt={article.title}
+                alt={altText}
                 width={1200}
                 height={800}
                 loading={priority ? "eager" : "eager"}
@@ -91,7 +100,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
           {!imgError && (thumbSrc || safeImageSrc) ? (
             <img
               src={thumbSrc || safeImageSrc}
-              alt={article.title}
+              alt={altText}
               width={96}
               height={96}
               loading="lazy"
@@ -123,7 +132,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
         {!imgError && (cardSrc || safeImageSrc) ? (
           <img
             src={cardSrc || safeImageSrc}
-            alt={article.title}
+            alt={altText}
             width={800}
             height={500}
             loading="lazy"

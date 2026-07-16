@@ -50,35 +50,35 @@ const CATEGORY_META: Record<string, { title: string; desc: string; heading: stri
     desc: "Latest Caribbean news, regional politics, CARICOM updates and stories from across the Caribbean — curated by Dominica News.",
     heading: "Caribbean News",
     intro:
-      "Caribbean news from a Dominican perspective — CARICOM decisions, regional elections, hurricane response, sport, and cross-island stories that shape life in the Commonwealth of Dominica and its neighbours. Updated throughout the day by the Dominica News editorial team.",
+      "Caribbean news from a Dominican perspective — CARICOM decisions, regional elections, hurricane response, cricket and cross-island stories that shape life in the Commonwealth of Dominica and its neighbours. Dominica News tracks headlines from Antigua, Barbados, St Lucia, Trinidad, Jamaica, Guyana and the wider region, updated throughout the day so readers on the Nature Isle stay informed on Caribbean affairs that matter at home.",
   },
   dominica: {
     title: "Dominica News: Latest Updates from the Nature Isle",
     desc: "All the latest news from the Commonwealth of Dominica — communities, government, culture and events from the Nature Isle.",
     heading: "Dominica News",
     intro:
-      "The latest news from the Commonwealth of Dominica — Roseau to Portsmouth, Kalinago Territory to Marigot. Community stories, government announcements, culture and events reported daily from across the Nature Isle.",
+      "Dominica news from across the Commonwealth of Dominica — Roseau to Portsmouth, Kalinago Territory to Marigot. Dominica News reports community stories, government announcements, business developments, culture and events every day from the Nature Isle, giving residents at home and the Dominican diaspora abroad a trusted independent source for what is happening in Dominica right now, with context on how each story affects daily life.",
   },
   news: {
     title: "Latest News | Dominica News",
     desc: "Breaking headlines and the latest news stories from Dominica and the Caribbean, updated throughout the day.",
     heading: "Latest News",
     intro:
-      "Breaking headlines and the latest news in Dominica and the wider Caribbean, updated throughout the day. Follow ongoing stories, official statements, and verified reports from Dominica News.",
+      "Latest news in Dominica and breaking headlines from across the Caribbean, updated throughout the day by the Dominica News editorial team. Follow developing stories, official government statements, verified reports and eyewitness accounts from Roseau, Portsmouth and the wider Commonwealth of Dominica. This page brings together the newest articles from every section — politics, weather, community, business and Caribbean coverage — as they are published.",
   },
   politics: {
     title: "Dominica Politics News | Elections & Government",
     desc: "Dominica political news — elections, parliament, government policy, and political analysis from across the Commonwealth of Dominica.",
     heading: "Politics",
     intro:
-      "Dominica political news — general elections, parliamentary debate, government policy, DLP and UWP developments, and diplomatic affairs. Independent political coverage from Dominica News, with context on how each decision affects citizens.",
+      "Dominica politics news — general elections, parliamentary debate, government policy, DLP and UWP developments, cabinet decisions and diplomatic affairs. Dominica News delivers independent political coverage from the Commonwealth of Dominica, tracking statements from Prime Minister Roosevelt Skerrit, opposition leaders and civil society, with clear context on how each decision affects citizens, public services and Dominica's standing in the Caribbean and internationally.",
   },
   weather: {
     title: "Dominica Weather News | Hurricanes & Forecasts",
     desc: "Dominica weather updates, hurricane and tropical storm alerts, forecasts and climate coverage for the Nature Isle.",
     heading: "Weather",
     intro:
-      "Dominica weather updates — hurricane and tropical storm alerts, daily forecasts, marine warnings, and long-term climate coverage. Sourced from the Dominica Meteorological Service and regional monitoring agencies, and updated as conditions change.",
+      "Dominica weather news — hurricane and tropical storm alerts, daily forecasts, marine warnings, flood advisories and long-term climate coverage for the Nature Isle. Dominica News sources updates from the Dominica Meteorological Service, ODM and regional monitoring agencies including the NHC, publishing storm bulletins and preparedness guidance as conditions change so residents across Roseau, Portsmouth and rural communities can plan and stay safe.",
   },
 };
 
@@ -264,24 +264,25 @@ const Index = () => {
         )}
 
         {isCategory && catMeta?.intro && (
-          <section className="-mt-2 max-w-4xl">
-            <p className="text-[15px] md:text-base text-muted-foreground font-body leading-[1.75]">
+          <section className="-mt-2 sm:-mt-4 max-w-4xl px-1 sm:px-0">
+            <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               {catMeta.intro}
             </p>
           </section>
         )}
 
         {!activeCat && (
-          <section className="max-w-4xl -mt-2" aria-label="About Dominica News">
+          <section className="max-w-4xl -mt-2 sm:-mt-4 px-1 sm:px-0" aria-label="About Dominica News">
             <h2 className="sr-only">About Dominica News</h2>
-            <p className="text-[15px] md:text-base text-muted-foreground font-body leading-[1.75]">
+            <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               <strong className="text-foreground font-semibold">Dominica News</strong> is the leading independent
-              online newsroom in the Commonwealth of Dominica, publishing breaking news, politics, weather, business,
-              community stories and Caribbean updates from Roseau, Portsmouth and across the Nature Isle. Follow the
-              latest headlines below, or jump straight to{" "}
+              online newsroom in the Commonwealth of Dominica, delivering breaking news in Dominica, politics, weather,
+              business, community stories and Caribbean updates every day from Roseau, Portsmouth and across the Nature
+              Isle. Trusted by readers at home and in the Dominican diaspora, we publish verified reports, official
+              statements and in-depth features. Jump straight to{" "}
               <Link to="/category/dominica" className="text-primary hover:underline">Dominica news</Link>,{" "}
               <Link to="/category/politics" className="text-primary hover:underline">politics</Link>,{" "}
-              <Link to="/category/weather" className="text-primary hover:underline">weather</Link>, and{" "}
+              <Link to="/category/weather" className="text-primary hover:underline">weather</Link>, or{" "}
               <Link to="/category/caribbean" className="text-primary hover:underline">Caribbean coverage</Link>.
             </p>
           </section>
