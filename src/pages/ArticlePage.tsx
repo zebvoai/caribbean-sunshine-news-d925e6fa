@@ -750,6 +750,11 @@ const ArticlePage = () => {
           </div>
         </section>
 
+        {/* ── Category FAQ (evergreen) ───────────────────────────────────── */}
+        <ArticleFAQ categorySlug={categorySlug} />
+
+
+
 
 
         {/* ── Related Articles ────────────────────────────────────────────── */}
