@@ -30,6 +30,10 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
     ? `${title} — ${catLabel} from Dominica News${isBreaking ? " (breaking)" : ""}`
     : `${catLabel} from Dominica News`;
 
+  useEffect(() => {
+    setImgError(false);
+  }, [raw]);
+
   if (variant === "hero") {
     const src = heroSrc || safeImageSrc;
     return (
