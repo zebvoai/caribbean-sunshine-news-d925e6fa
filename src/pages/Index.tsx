@@ -272,7 +272,7 @@ const Index = () => {
         )}
 
         {!activeCat && (
-          <section className="max-w-4xl -mt-2 sm:-mt-4" aria-label="About Dominica News">
+          <section className="-mt-2 sm:-mt-4" aria-label="About Dominica News">
             <h1 className="font-heading font-bold text-2xl sm:text-3xl md:text-[34px] leading-[1.15] tracking-tight text-foreground mb-3">
               Dominica News - Latest News from Dominica &amp; Breaking News Today
             </h1>
