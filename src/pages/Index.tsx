@@ -264,7 +264,7 @@ const Index = () => {
         )}
 
         {isCategory && catMeta?.intro && (
-          <section className="-mt-2 sm:-mt-4 max-w-4xl px-1 sm:px-0">
+          <section className="-mt-2 sm:-mt-4 max-w-4xl">
             <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               {catMeta.intro}
             </p>
@@ -272,7 +272,7 @@ const Index = () => {
         )}
 
         {!activeCat && (
-          <section className="max-w-4xl -mt-2 sm:-mt-4 px-1 sm:px-0" aria-label="About Dominica News">
+          <section className="max-w-4xl -mt-2 sm:-mt-4" aria-label="About Dominica News">
             <h2 className="sr-only">About Dominica News</h2>
             <p className="text-[14.5px] sm:text-[15px] md:text-base text-muted-foreground font-body leading-[1.7] sm:leading-[1.75]">
               <strong className="text-foreground font-semibold">Dominica News</strong> is the leading independent
