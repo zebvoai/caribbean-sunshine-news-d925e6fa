@@ -6,7 +6,7 @@ import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
 import { mongoApi, MongoLiveUpdate } from "@/lib/mongoApi";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, retryImageFallback } from "@/lib/networkProxy";
 import { Radio } from "lucide-react";
 
 const formatDate = (iso: string) =>
@@ -35,6 +35,7 @@ const LiveUpdateCard = ({ update }: { update: MongoLiveUpdate }) => (
           referrerPolicy="no-referrer"
           onError={(e) => {
             const img = e.currentTarget;
+            if (retryImageFallback(img)) return;
             if (img.dataset.fallbackApplied === "true") {
               img.style.display = "none";
               return;
