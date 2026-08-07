@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import type { NewsArticle } from "@/data/newsData";
-import { getOptimizedImageUrl, getProxiedAssetUrl } from "@/lib/networkProxy";
+import { buildImageCandidates } from "@/lib/networkProxy";
 
 export interface NewsCardProps {
   article: NewsArticle;
@@ -13,13 +13,21 @@ export interface NewsCardProps {
 }
 
 const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", priority = false }: NewsCardProps) => {
-  const [imgError, setImgError] = useState(false);
   const raw = article.image?.trim() ?? "";
-  // WebP-optimized derivatives via Supabase image transform; falls back to proxied original.
-  const heroSrc = getOptimizedImageUrl(raw, { width: 1200, format: "webp", quality: 78 });
-  const cardSrc = getOptimizedImageUrl(raw, { width: 800, format: "webp", quality: 75 });
-  const thumbSrc = getOptimizedImageUrl(raw, { width: 240, height: 240, format: "webp", quality: 72 });
-  const safeImageSrc = getProxiedAssetUrl(raw);
+
+  // Ordered fallbacks: WebP transform → same-origin proxy → direct storage URL.
+  // Prevents a transient proxy 502 from permanently showing "No image".
+  const candidates = useMemo(() => {
+    if (variant === "hero") return buildImageCandidates(raw, { width: 1200, format: "webp", quality: 78 });
+    if (variant === "compact") return buildImageCandidates(raw, { width: 240, height: 240, format: "webp", quality: 72 });
+    return buildImageCandidates(raw, { width: 800, format: "webp", quality: 75 });
+  }, [raw, variant]);
+
+  const [attempt, setAttempt] = useState(0);
+  const src = candidates[attempt] || "";
+  const exhausted = candidates.length === 0 || attempt >= candidates.length;
+
+  const handleError = useCallback(() => setAttempt((n) => n + 1), []);
 
   // Category-aware, descriptive alt text — better for SEO and structured data
   // than raw titles alone. Falls back gracefully when metadata is missing.
@@ -31,8 +39,9 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
     : `${catLabel} from Dominica News`;
 
   useEffect(() => {
-    setImgError(false);
-  }, [raw]);
+    setAttempt(0);
+  }, [raw, variant]);
+
 
   if (variant === "hero") {
     const src = heroSrc || safeImageSrc;
