@@ -11,7 +11,7 @@ import SiteFooter from "@/components/SiteFooter";
 import BreakingTicker from "@/components/BreakingTicker";
 import TrendingSidebar from "@/components/TrendingSidebar";
 import { mongoApi, MongoArticle } from "@/lib/mongoApi";
-import { getProxiedAssetUrl, getOptimizedImageUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, getOptimizedImageUrl, retryImageFallback } from "@/lib/networkProxy";
 import type { NewsArticle } from "@/data/newsData";
 
 
@@ -324,6 +324,7 @@ const Index = () => {
                         referrerPolicy="no-referrer"
                         onError={(e) => {
                           const img = e.currentTarget;
+                          if (retryImageFallback(img)) return;
                           if (img.dataset.fallbackApplied === "true") { img.style.display = "none"; return; }
                           img.dataset.fallbackApplied = "true";
                           img.src = "/placeholder.svg";

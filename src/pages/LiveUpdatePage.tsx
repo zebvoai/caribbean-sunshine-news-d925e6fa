@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { mongoApi, MongoLiveUpdate, LiveBlogEntry } from "@/lib/mongoApi";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, retryImageFallback } from "@/lib/networkProxy";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
@@ -283,7 +283,7 @@ const LiveUpdatePage = () => {
               alt={update.cover_image_alt || update.title}
               className="w-full rounded-lg object-cover max-h-[500px]"
               referrerPolicy="no-referrer"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
+              onError={(e) => { if (!retryImageFallback(e.currentTarget)) e.currentTarget.style.display = "none"; }}
             />
           </figure>
         )}
@@ -397,7 +397,7 @@ const LiveUpdatePage = () => {
                             alt={entry.image_alt || ""}
                             className="w-full max-h-80 object-cover rounded-lg mb-3"
                             referrerPolicy="no-referrer"
-                            onError={(e) => { e.currentTarget.style.display = "none"; }}
+                            onError={(e) => { if (!retryImageFallback(e.currentTarget)) e.currentTarget.style.display = "none"; }}
                           />
                         )}
 

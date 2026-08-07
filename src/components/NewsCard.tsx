@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import type { NewsArticle } from "@/data/newsData";
-import { getOptimizedImageUrl, getProxiedAssetUrl } from "@/lib/networkProxy";
+import { buildImageCandidates } from "@/lib/networkProxy";
 
 export interface NewsCardProps {
   article: NewsArticle;
@@ -13,13 +13,21 @@ export interface NewsCardProps {
 }
 
 const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", priority = false }: NewsCardProps) => {
-  const [imgError, setImgError] = useState(false);
   const raw = article.image?.trim() ?? "";
-  // WebP-optimized derivatives via Supabase image transform; falls back to proxied original.
-  const heroSrc = getOptimizedImageUrl(raw, { width: 1200, format: "webp", quality: 78 });
-  const cardSrc = getOptimizedImageUrl(raw, { width: 800, format: "webp", quality: 75 });
-  const thumbSrc = getOptimizedImageUrl(raw, { width: 240, height: 240, format: "webp", quality: 72 });
-  const safeImageSrc = getProxiedAssetUrl(raw);
+
+  // Ordered fallbacks: WebP transform → same-origin proxy → direct storage URL.
+  // Prevents a transient proxy 502 from permanently showing "No image".
+  const candidates = useMemo(() => {
+    if (variant === "hero") return buildImageCandidates(raw, { width: 1200, format: "webp", quality: 78 });
+    if (variant === "compact") return buildImageCandidates(raw, { width: 240, height: 240, format: "webp", quality: 72 });
+    return buildImageCandidates(raw, { width: 800, format: "webp", quality: 75 });
+  }, [raw, variant]);
+
+  const [attempt, setAttempt] = useState(0);
+  const src = candidates[attempt] || "";
+  const exhausted = candidates.length === 0 || attempt >= candidates.length;
+
+  const handleError = useCallback(() => setAttempt((n) => n + 1), []);
 
   // Category-aware, descriptive alt text — better for SEO and structured data
   // than raw titles alone. Falls back gracefully when metadata is missing.
@@ -31,16 +39,16 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
     : `${catLabel} from Dominica News`;
 
   useEffect(() => {
-    setImgError(false);
-  }, [raw]);
+    setAttempt(0);
+  }, [raw, variant]);
+
 
   if (variant === "hero") {
-    const src = heroSrc || safeImageSrc;
     return (
       <article className="group relative bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700 cursor-pointer card-lift">
         <div className="grid md:grid-cols-[1.2fr_1fr] gap-0">
           <div className="relative overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[440px]">
-            {!imgError && src ? (
+            {!exhausted && src ? (
               <img
                 src={src}
                 alt={altText}
@@ -50,7 +58,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
                 fetchPriority={priority ? "high" : "auto"}
                 decoding={priority ? "sync" : "async"}
                 referrerPolicy="no-referrer"
-                onError={() => setImgError(true)}
+                onError={handleError}
                 className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1200ms] ease-out"
               />
             ) : (
@@ -97,16 +105,16 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
     return (
       <article className="group flex gap-4 items-start cursor-pointer py-3.5">
         <div className="relative overflow-hidden rounded-xl flex-shrink-0 w-24 h-24 shadow-sm">
-          {!imgError && (thumbSrc || safeImageSrc) ? (
+          {!exhausted && src ? (
             <img
-              src={thumbSrc || safeImageSrc}
+              src={src}
               alt={altText}
               width={96}
               height={96}
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
-              onError={() => setImgError(true)}
+              onError={handleError}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
@@ -129,16 +137,16 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
   return (
     <article className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 cursor-pointer flex flex-col h-full card-lift border border-border/40">
       <div className="relative overflow-hidden">
-        {!imgError && (cardSrc || safeImageSrc) ? (
+        {!exhausted && src ? (
           <img
-            src={cardSrc || safeImageSrc}
+            src={src}
             alt={altText}
             width={800}
             height={500}
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
+            onError={handleError}
             className="w-full aspect-[16/10] object-cover group-hover:scale-[1.06] transition-transform duration-[800ms] ease-out"
           />
         ) : (

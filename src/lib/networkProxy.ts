@@ -88,3 +88,65 @@ export const getOptimizedImageUrl = (
     return getProxiedAssetUrl(raw);
   }
 };
+
+const SUPABASE_ORIGIN = (() => {
+  try {
+    return new URL(import.meta.env.VITE_SUPABASE_URL as string).origin;
+  } catch {
+    return "";
+  }
+})();
+
+/**
+ * Converts a same-origin proxied storage path back to its absolute storage URL.
+ * Used as a last-resort fallback when the proxy hiccups (e.g. 502 from the CDN edge).
+ */
+export const getDirectAssetUrl = (url: string | null | undefined): string => {
+  const raw = (url || "").trim();
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (!SUPABASE_ORIGIN) return raw;
+
+  const [pathOnly, query = ""] = raw.split("?");
+  const qs = query ? `?${query}` : "";
+  if (pathOnly.startsWith("/api/storage-render/")) {
+    return `${SUPABASE_ORIGIN}/storage/v1/render/image/public/${pathOnly.slice("/api/storage-render/".length)}${qs}`;
+  }
+  if (pathOnly.startsWith("/api/storage/")) {
+    return `${SUPABASE_ORIGIN}/storage/v1/object/public/${pathOnly.slice("/api/storage/".length)}${qs}`;
+  }
+  return raw;
+};
+
+/**
+ * Ordered list of URLs to try for one image: optimized → proxied original → direct storage.
+ * Deduplicated, empty entries removed.
+ */
+export const buildImageCandidates = (
+  url: string | null | undefined,
+  opts: ImageOptimizeOptions = {}
+): string[] => {
+  const raw = (url || "").trim();
+  if (!raw) return [];
+  const list = [
+    getOptimizedImageUrl(raw, opts),
+    getProxiedAssetUrl(raw),
+    getDirectAssetUrl(getOptimizedImageUrl(raw, opts)),
+    getDirectAssetUrl(getProxiedAssetUrl(raw)),
+    raw,
+  ].filter(Boolean);
+  return Array.from(new Set(list));
+};
+
+/**
+ * DOM-level image error recovery: retries the direct storage URL once when the
+ * same-origin proxy fails. Returns true when a retry was scheduled.
+ */
+export const retryImageFallback = (img: HTMLImageElement): boolean => {
+  if (img.dataset.directFallback === "true") return false;
+  const direct = getDirectAssetUrl(img.getAttribute("src") || "");
+  if (!direct || direct === img.getAttribute("src")) return false;
+  img.dataset.directFallback = "true";
+  img.src = direct;
+  return true;
+};

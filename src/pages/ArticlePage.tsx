@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
 import { mongoApi } from "@/lib/mongoApi";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, retryImageFallback } from "@/lib/networkProxy";
 import PageLoader from "@/components/PageLoader";
 import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
 import InlineArticleBody from "@/components/InlineArticleBody";
@@ -562,6 +562,7 @@ const ArticlePage = () => {
               referrerPolicy="no-referrer"
               onError={(e) => {
                 const img = e.currentTarget;
+                if (retryImageFallback(img)) return;
                 if (img.dataset.fallbackApplied === "true") { img.style.display = "none"; return; }
                 img.dataset.fallbackApplied = "true";
                 img.src = "/placeholder.svg";

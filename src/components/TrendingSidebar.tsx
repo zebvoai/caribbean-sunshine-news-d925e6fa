@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { TrendingUp, ArrowUpRight } from "lucide-react";
 import type { NewsArticle } from "@/data/newsData";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, retryImageFallback } from "@/lib/networkProxy";
 
 interface TrendingItem extends NewsArticle {
   slug: string;
@@ -53,7 +53,7 @@ const TrendingSidebar = ({ articles }: { articles: TrendingItem[] }) => {
                     loading="lazy"
                     referrerPolicy="no-referrer"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    onError={(e) => { const img = e.target as HTMLImageElement; if (!retryImageFallback(img)) img.style.display = "none"; }}
                   />
                 </div>
               )}
