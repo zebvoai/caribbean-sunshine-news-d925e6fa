@@ -562,6 +562,7 @@ const ArticlePage = () => {
               referrerPolicy="no-referrer"
               onError={(e) => {
                 const img = e.currentTarget;
+                if (retryImageFallback(img)) return;
                 if (img.dataset.fallbackApplied === "true") { img.style.display = "none"; return; }
                 img.dataset.fallbackApplied = "true";
                 img.src = "/placeholder.svg";

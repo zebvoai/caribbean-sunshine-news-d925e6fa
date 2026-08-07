@@ -137,3 +137,16 @@ export const buildImageCandidates = (
   ].filter(Boolean);
   return Array.from(new Set(list));
 };
+
+/**
+ * DOM-level image error recovery: retries the direct storage URL once when the
+ * same-origin proxy fails. Returns true when a retry was scheduled.
+ */
+export const retryImageFallback = (img: HTMLImageElement): boolean => {
+  if (img.dataset.directFallback === "true") return false;
+  const direct = getDirectAssetUrl(img.getAttribute("src") || "");
+  if (!direct || direct === img.getAttribute("src")) return false;
+  img.dataset.directFallback = "true";
+  img.src = direct;
+  return true;
+};
