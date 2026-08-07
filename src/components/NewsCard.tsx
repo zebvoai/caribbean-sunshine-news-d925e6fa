@@ -44,12 +44,11 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
 
 
   if (variant === "hero") {
-    const src = heroSrc || safeImageSrc;
     return (
       <article className="group relative bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-700 cursor-pointer card-lift">
         <div className="grid md:grid-cols-[1.2fr_1fr] gap-0">
           <div className="relative overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[440px]">
-            {!imgError && src ? (
+            {!exhausted && src ? (
               <img
                 src={src}
                 alt={altText}
@@ -59,7 +58,7 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
                 fetchPriority={priority ? "high" : "auto"}
                 decoding={priority ? "sync" : "async"}
                 referrerPolicy="no-referrer"
-                onError={() => setImgError(true)}
+                onError={handleError}
                 className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[1200ms] ease-out"
               />
             ) : (
@@ -106,16 +105,16 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
     return (
       <article className="group flex gap-4 items-start cursor-pointer py-3.5">
         <div className="relative overflow-hidden rounded-xl flex-shrink-0 w-24 h-24 shadow-sm">
-          {!imgError && (thumbSrc || safeImageSrc) ? (
+          {!exhausted && src ? (
             <img
-              src={thumbSrc || safeImageSrc}
+              src={src}
               alt={altText}
               width={96}
               height={96}
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"
-              onError={() => setImgError(true)}
+              onError={handleError}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             />
           ) : (
@@ -138,16 +137,16 @@ const NewsCard = ({ article, isBreaking, isLiveEnded, variant = "default", prior
   return (
     <article className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-500 cursor-pointer flex flex-col h-full card-lift border border-border/40">
       <div className="relative overflow-hidden">
-        {!imgError && (cardSrc || safeImageSrc) ? (
+        {!exhausted && src ? (
           <img
-            src={cardSrc || safeImageSrc}
+            src={src}
             alt={altText}
             width={800}
             height={500}
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"
-            onError={() => setImgError(true)}
+            onError={handleError}
             className="w-full aspect-[16/10] object-cover group-hover:scale-[1.06] transition-transform duration-[800ms] ease-out"
           />
         ) : (
