@@ -63,6 +63,7 @@ const App = () => {
             <Route path="/miss-dominica-:year" element={<EventLandingPage eventKey="miss-dominica" />} />
             <Route path="/obituaries" element={<ObituariesPage />} />
             <Route path="/people/:slug" element={<PersonPage />} />
+            <Route path="/authors" element={<AuthorsPage />} />
             <Route path="/author/:slug" element={<AuthorPage />} />
             <Route path="/tag/:slug" element={<TagPage />} />
             <Route path="/roseau-news" element={<RoseauNewsPage />} />
