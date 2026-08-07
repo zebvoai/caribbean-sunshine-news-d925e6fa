@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { TrendingUp, ArrowUpRight } from "lucide-react";
 import type { NewsArticle } from "@/data/newsData";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, retryImageFallback } from "@/lib/networkProxy";
 
 interface TrendingItem extends NewsArticle {
   slug: string;

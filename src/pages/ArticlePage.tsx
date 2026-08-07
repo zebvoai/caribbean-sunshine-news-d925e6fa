@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
 import { mongoApi } from "@/lib/mongoApi";
-import { getProxiedAssetUrl } from "@/lib/networkProxy";
+import { getProxiedAssetUrl, retryImageFallback } from "@/lib/networkProxy";
 import PageLoader from "@/components/PageLoader";
 import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
 import InlineArticleBody from "@/components/InlineArticleBody";
