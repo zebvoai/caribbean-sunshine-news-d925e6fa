@@ -82,7 +82,7 @@ const AuthorsPage = () => {
           <p className="text-muted-foreground max-w-3xl">
             Dominica News is produced by local journalists reporting from Roseau, Portsmouth and
             across the Nature Isle. Every story is written, edited and verified by the newsroom
-            team below — browse a profile to read all of that contributor's latest news from Dominica.
+            team below - browse a profile to read all of that contributor's latest news from Dominica.
           </p>
         </header>
 
