@@ -140,13 +140,15 @@ const AuthorPage = () => {
           <ol className="flex flex-wrap items-center gap-2">
             <li><Link to="/" className="hover:text-primary underline-offset-4 hover:underline">Dominica News</Link></li>
             <li aria-hidden="true">›</li>
+            <li><Link to="/authors" className="hover:text-primary underline-offset-4 hover:underline">Authors</Link></li>
+            <li aria-hidden="true">›</li>
             <li className="text-foreground font-medium">{author.full_name}</li>
           </ol>
         </nav>
 
         <header className="mb-10 flex flex-col sm:flex-row items-start sm:items-center gap-6 pb-8 border-b border-border">
           {author.avatar_url ? (
-            <img src={author.avatar_url} alt={author.full_name} className="w-28 h-28 rounded-full object-cover border border-border" />
+            <img src={author.avatar_url} alt={`${author.full_name} — ${author.role || "reporter"} at Dominica News`} className="w-28 h-28 rounded-full object-cover border border-border" />
           ) : (
             <div className="w-28 h-28 rounded-full bg-primary/10 text-primary font-heading font-bold text-3xl flex items-center justify-center">
               {author.full_name.charAt(0)}
@@ -156,12 +158,23 @@ const AuthorPage = () => {
             <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-1">{author.role || "Reporter"}</p>
             <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">{author.full_name}</h1>
             {author.bio && <p className="text-muted-foreground max-w-2xl">{author.bio}</p>}
+            {(author.expertise?.length || author.specialization?.length) ? (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {[...(author.expertise || []), ...(author.specialization || [])].map((t) => (
+                  <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            ) : null}
             <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
               {author.location && <span className="inline-flex items-center gap-1"><MapPin className="w-4 h-4" /> {author.location}</span>}
               {author.email && <a href={`mailto:${author.email}`} className="inline-flex items-center gap-1 hover:text-primary"><Mail className="w-4 h-4" /> {author.email}</a>}
+              <Link to="/authors" className="hover:text-primary underline-offset-4 hover:underline">All contributors</Link>
             </div>
           </div>
         </header>
+
 
         <section>
           <h2 className="text-2xl font-heading font-bold text-foreground mb-6">
