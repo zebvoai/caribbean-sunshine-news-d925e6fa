@@ -34,6 +34,7 @@ import EventLandingPage from "./pages/EventLandingPage";
 import ObituariesPage from "./pages/ObituariesPage";
 import PersonPage from "./pages/PersonPage";
 import AuthorPage from "./pages/AuthorPage";
+import AuthorsPage from "./pages/AuthorsPage";
 import TagPage from "./pages/TagPage";
 import { RoseauNewsPage, PortsmouthNewsPage, HurricaneSeasonPage, ElectionsPage } from "./pages/staticLandings";
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ const App = () => {
             <Route path="/miss-dominica-:year" element={<EventLandingPage eventKey="miss-dominica" />} />
             <Route path="/obituaries" element={<ObituariesPage />} />
             <Route path="/people/:slug" element={<PersonPage />} />
+            <Route path="/authors" element={<AuthorsPage />} />
             <Route path="/author/:slug" element={<AuthorPage />} />
             <Route path="/tag/:slug" element={<TagPage />} />
             <Route path="/roseau-news" element={<RoseauNewsPage />} />
