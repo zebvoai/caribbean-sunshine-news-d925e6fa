@@ -547,7 +547,16 @@ const ArticlePage = () => {
               <span className="w-1 h-1 rounded-full bg-border" />
               <span className="flex items-center gap-1">
                 <User className="h-3.5 w-3.5" />
-                {article.authors.full_name}
+                {(article.authors as any).slug ? (
+                  <Link
+                    to={`/author/${(article.authors as any).slug}`}
+                    className="hover:text-primary hover:underline transition-colors"
+                  >
+                    {article.authors.full_name}
+                  </Link>
+                ) : (
+                  article.authors.full_name
+                )}
               </span>
             </>
           )}
