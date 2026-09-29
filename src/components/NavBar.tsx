@@ -95,8 +95,10 @@ const NavBar = () => {
 
         <div
           ref={scrollerRef}
-          className="flex items-center justify-center gap-0.5 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
+          className="overflow-x-auto scrollbar-hide scroll-smooth px-4"
         >
+        <div className="flex items-center justify-start gap-0.5 w-max mx-auto">
+
           <Link
             to="/"
             onMouseEnter={() => prefetch(null)}
@@ -138,6 +140,8 @@ const NavBar = () => {
             Live
           </Link>
         </div>
+        </div>
+
 
         {/* Right arrow */}
         {canScrollRight && (
