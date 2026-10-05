@@ -1,47 +1,69 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import SplashLoader from "./components/SplashLoader";
+import DelayedLoader from "./components/DelayedLoader";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import AdminLayout from "./components/admin/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminArticlesPage from "./pages/admin/AdminArticlesPage";
-import CreateArticlePage from "./pages/admin/CreateArticlePage";
-import AdminAuthorsPage from "./pages/admin/AdminAuthorsPage";
-import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
-import EditArticlePage from "./pages/admin/EditArticlePage";
-import ArticlePage from "./pages/ArticlePage";
-import SearchPage from "./pages/SearchPage";
-import LiveUpdatesListPage from "./pages/LiveUpdatesListPage";
-import LiveUpdatePage from "./pages/LiveUpdatePage";
-import AdminLoginPage from "./pages/admin/AdminLoginPage";
-import AdminAuthGuard from "./components/admin/AdminAuthGuard";
-import DynamicPage from "./pages/DynamicPage";
-import AdminPagesPage from "./pages/admin/AdminPagesPage";
-import AdminBreakingNewsPage from "./pages/admin/AdminBreakingNewsPage";
-import AdminTagsPage from "./pages/admin/AdminTagsPage";
-import AdminSettingsPage from "./pages/admin/AdminSettingsPage";
-import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
-import AdminLiveUpdatesPage from "./pages/admin/AdminLiveUpdatesPage";
-import AdminSchedulePage from "./pages/admin/AdminSchedulePage";
-import AdminTrashPage from "./pages/admin/AdminTrashPage";
-import AdminBackupPage from "./pages/admin/AdminBackupPage";
-import EventLandingPage from "./pages/EventLandingPage";
-import ObituariesPage from "./pages/ObituariesPage";
-import PersonPage from "./pages/PersonPage";
-import AuthorPage from "./pages/AuthorPage";
-import AuthorsPage from "./pages/AuthorsPage";
-import TagPage from "./pages/TagPage";
-import { RoseauNewsPage, PortsmouthNewsPage, HurricaneSeasonPage, ElectionsPage } from "./pages/staticLandings";
+import { lazyRoute, lazyNamed, installLinkPrefetch, prefetchAllRoutesWhenIdle } from "./lib/routePrefetch";
+
+const starts = (p: string) => (path: string) => path.startsWith(p);
+const is = (p: string) => (path: string) => path === p;
+const isAdmin = starts("/admin");
+
+const ArticlePage = lazyRoute(starts("/news/"), () => import("./pages/ArticlePage"), 0);
+const SearchPage = lazyRoute(is("/search"), () => import("./pages/SearchPage"));
+const LiveUpdatesListPage = lazyRoute(is("/live"), () => import("./pages/LiveUpdatesListPage"), 0);
+const LiveUpdatePage = lazyRoute(starts("/live/"), () => import("./pages/LiveUpdatePage"));
+const DynamicPage = lazyRoute(starts("/page/"), () => import("./pages/DynamicPage"));
+const EventLandingPage = lazyRoute((p) => /^\/(dominica-carnival|wcmf|miss-dominica)-/.test(p), () => import("./pages/EventLandingPage"), 2);
+const ObituariesPage = lazyRoute(is("/obituaries"), () => import("./pages/ObituariesPage"));
+const PersonPage = lazyRoute(starts("/people/"), () => import("./pages/PersonPage"), 2);
+const AuthorPage = lazyRoute(starts("/author/"), () => import("./pages/AuthorPage"));
+const AuthorsPage = lazyRoute(is("/authors"), () => import("./pages/AuthorsPage"));
+const TagPage = lazyRoute(starts("/tag/"), () => import("./pages/TagPage"));
+const NotFound = lazyRoute(() => false, () => import("./pages/NotFound"), 3);
+const statics = () => import("./pages/staticLandings");
+const staticTest = (p: string) => ["/roseau-news", "/portsmouth-news", "/hurricane-season-dominica", "/dominica-elections"].includes(p);
+const RoseauNewsPage = lazyNamed(staticTest, statics, "RoseauNewsPage");
+const PortsmouthNewsPage = lazyNamed(staticTest, statics, "PortsmouthNewsPage");
+const HurricaneSeasonPage = lazyNamed(staticTest, statics, "HurricaneSeasonPage");
+const ElectionsPage = lazyNamed(staticTest, statics, "ElectionsPage");
+
+// Admin chunks: prefetched only on intent (priority 9 = last during idle).
+const A = (l: () => Promise<any>) => lazyRoute(isAdmin, l, 9);
+const AdminLayout = A(() => import("./components/admin/AdminLayout"));
+const AdminAuthGuard = A(() => import("./components/admin/AdminAuthGuard"));
+const AdminLoginPage = A(() => import("./pages/admin/AdminLoginPage"));
+const AdminDashboard = A(() => import("./pages/admin/AdminDashboard"));
+const AdminArticlesPage = A(() => import("./pages/admin/AdminArticlesPage"));
+const CreateArticlePage = A(() => import("./pages/admin/CreateArticlePage"));
+const EditArticlePage = A(() => import("./pages/admin/EditArticlePage"));
+const AdminAuthorsPage = A(() => import("./pages/admin/AdminAuthorsPage"));
+const AdminCategoriesPage = A(() => import("./pages/admin/AdminCategoriesPage"));
+const AdminPagesPage = A(() => import("./pages/admin/AdminPagesPage"));
+const AdminBreakingNewsPage = A(() => import("./pages/admin/AdminBreakingNewsPage"));
+const AdminTagsPage = A(() => import("./pages/admin/AdminTagsPage"));
+const AdminSettingsPage = A(() => import("./pages/admin/AdminSettingsPage"));
+const AdminAnalyticsPage = A(() => import("./pages/admin/AdminAnalyticsPage"));
+const AdminLiveUpdatesPage = A(() => import("./pages/admin/AdminLiveUpdatesPage"));
+const AdminSchedulePage = A(() => import("./pages/admin/AdminSchedulePage"));
+const AdminTrashPage = A(() => import("./pages/admin/AdminTrashPage"));
+const AdminBackupPage = A(() => import("./pages/admin/AdminBackupPage"));
+
 const queryClient = new QueryClient();
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
   const hideSplash = useCallback(() => setShowSplash(false), []);
+
+  useEffect(() => {
+    installLinkPrefetch();
+    const t = setTimeout(prefetchAllRoutesWhenIdle, 2500);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -50,6 +72,7 @@ const App = () => {
         <Sonner />
         {showSplash && <SplashLoader onFinish={hideSplash} />}
         <BrowserRouter>
+          <Suspense fallback={<DelayedLoader delay={200} />}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/category/:slug" element={<Index />} />
@@ -91,6 +114,7 @@ const App = () => {
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
