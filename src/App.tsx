@@ -23,6 +23,7 @@ const ObituariesPage = lazyRoute(is("/obituaries"), () => import("./pages/Obitua
 const PersonPage = lazyRoute(starts("/people/"), () => import("./pages/PersonPage"), 2);
 const AuthorPage = lazyRoute(starts("/author/"), () => import("./pages/AuthorPage"));
 const AuthorsPage = lazyRoute(is("/authors"), () => import("./pages/AuthorsPage"));
+const FeedPage = lazyRoute(is("/feed"), () => import("./pages/FeedPage"));
 const TagPage = lazyRoute(starts("/tag/"), () => import("./pages/TagPage"));
 const NotFound = lazyRoute(() => false, () => import("./pages/NotFound"), 3);
 const statics = () => import("./pages/staticLandings");
@@ -87,6 +88,7 @@ const App = () => {
             <Route path="/obituaries" element={<ObituariesPage />} />
             <Route path="/people/:slug" element={<PersonPage />} />
             <Route path="/authors" element={<AuthorsPage />} />
+            <Route path="/feed" element={<FeedPage />} />
             <Route path="/author/:slug" element={<AuthorPage />} />
             <Route path="/tag/:slug" element={<TagPage />} />
             <Route path="/roseau-news" element={<RoseauNewsPage />} />
