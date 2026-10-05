@@ -45,6 +45,7 @@ serve(async () => {
     const staticEvergreen = [
       { path: "/obituaries", changefreq: "daily", priority: "0.7" },
       { path: "/authors", changefreq: "weekly", priority: "0.6" },
+      { path: "/feed", changefreq: "hourly", priority: "0.8" },
       { path: `/dominica-carnival-${currentYear}`, changefreq: "weekly", priority: "0.7" },
       { path: `/wcmf-${currentYear}`, changefreq: "weekly", priority: "0.7" },
       { path: `/miss-dominica-${currentYear}`, changefreq: "weekly", priority: "0.7" },
