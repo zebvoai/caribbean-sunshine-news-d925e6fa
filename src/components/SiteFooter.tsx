@@ -93,7 +93,7 @@ const SiteFooter = () => {
                 .map((cat) => (
                   <li key={cat.id}>
                     <Link
-                      to={`/?cat=${cat.slug}`}
+                      to={`/category/${cat.slug}`}
                       className="opacity-55 hover:opacity-100 hover:translate-x-1 inline-block transition-all duration-300"
                     >
                       {cat.name}

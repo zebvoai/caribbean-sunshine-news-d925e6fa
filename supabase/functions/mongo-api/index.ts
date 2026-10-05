@@ -449,6 +449,13 @@ Deno.serve(async (req) => {
           { _id: new ObjectId(id) },
           { $set: update }
         );
+        try {
+          const saved = await db.collection("articles").findOne(
+            { _id: new ObjectId(id) },
+            { projection: { slug: 1, status: 1 } }
+          );
+          if (saved?.status === "published" && saved.slug) await pingIndexNow([saved.slug]);
+        } catch (_) { /* non-blocking */ }
         return jsonResponse({ success: true });
       }
 
@@ -504,6 +511,7 @@ Deno.serve(async (req) => {
         }
 
         const result = await db.collection("articles").insertOne(doc);
+        if (doc.status === "published" && doc.slug) await pingIndexNow([doc.slug]);
         return jsonResponse({ id: result.insertedId.toString() });
       }
 

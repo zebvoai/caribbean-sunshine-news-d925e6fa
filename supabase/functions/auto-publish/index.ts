@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from "npm:mongodb@6";
+import { pingIndexNow } from "../_shared/indexnow.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -27,20 +28,18 @@ Deno.serve(async (req) => {
     const db = await getDb();
     const now = new Date();
 
-    // Find all articles with status "scheduled" and scheduledFor <= now
-    const result = await db.collection("articles").updateMany(
-      {
-        status: "scheduled",
-        scheduledFor: { $lte: now },
-      },
-      {
-        $set: {
-          status: "published",
-          publishedAt: now,
-          updatedAt: now,
-        },
-      }
-    );
+    const filter = { status: "scheduled", scheduledFor: { $lte: now } };
+    const due = await db.collection("articles")
+      .find(filter, { projection: { slug: 1 } })
+      .toArray();
+
+    const result = await db.collection("articles").updateMany(filter, {
+      $set: { status: "published", publishedAt: now, updatedAt: now },
+    });
+
+    if (result.modifiedCount > 0) {
+      await pingIndexNow(due.map((d: any) => d.slug));
+    }
 
     return new Response(
       JSON.stringify({
