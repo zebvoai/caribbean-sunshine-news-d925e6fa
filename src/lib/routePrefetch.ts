@@ -1,5 +1,6 @@
 // Route code prefetching: lazy route chunks + idle/intent-based preloading.
 import { lazy, ComponentType } from "react";
+import { prefetchArticle } from "@/lib/articleCache";
 
 type Loader = () => Promise<{ default: ComponentType<any> }>;
 
@@ -29,6 +30,8 @@ export function lazyNamed<T extends ComponentType<any>>(
 }
 
 export function prefetchRoute(path: string) {
+  const m = /^\/news\/([^/?#]+)/.exec(path);
+  if (m) prefetchArticle(decodeURIComponent(m[1]));
   for (const e of registry) {
     if (e.test(path) && !done.has(e.load)) {
       done.add(e.load);
