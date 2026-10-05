@@ -293,6 +293,7 @@ const ArticlePage = () => {
       datePublished: article.published_at,
       dateModified: article.updated_at || article.published_at,
       wordCount,
+      timeRequired: `PT${Math.max(1, Math.round(wordCount / 200))}M`,
       articleSection: article.categories?.name || "News",
       author: article.authors
         ? { "@type": "Person", name: article.authors.full_name, jobTitle: article.authors.role }
@@ -301,6 +302,8 @@ const ArticlePage = () => {
         "@type": "NewsMediaOrganization",
         name: "Dominica News",
         url: "https://www.dominicanews.dm",
+        publishingPrinciples: "https://www.dominicanews.dm/page/editorial-policy",
+        correctionsPolicy: "https://www.dominicanews.dm/page/corrections-policy",
         logo: {
           "@type": "ImageObject",
           url: "https://www.dominicanews.dm/favicon.svg",
