@@ -121,6 +121,13 @@ const NavBar = () => {
             ))}
 
           <Link
+            to="/feed"
+            className={`${linkBase} ${location.pathname === "/feed" ? activeClass : inactiveClass}`}
+          >
+            Feed
+          </Link>
+
+          <Link
             to="/live"
             className={`${linkBase} flex items-center gap-1.5 ${
               isLiveActive
