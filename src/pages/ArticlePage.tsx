@@ -5,6 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
 import { mongoApi } from "@/lib/mongoApi";
+import { getCachedArticle, fetchArticle } from "@/lib/articleCache";
 import { getProxiedAssetUrl, retryImageFallback } from "@/lib/networkProxy";
 import PageLoader from "@/components/PageLoader";
 import SocialEmbedRenderer from "@/components/SocialEmbedRenderer";
@@ -195,20 +196,22 @@ const ArticlePage = () => {
   useEffect(() => {
     if (!slug) return;
     viewCounted.current = false;
+    let cancelled = false;
 
-    const load = async () => {
-      setLoading(true);
-      try {
-        const data = await mongoApi.getArticleBySlug(slug);
-        setArticle(data as unknown as Article);
-      } catch {
-        navigate("/404", { replace: true });
-      } finally {
-        setLoading(false);
-      }
-    };
+    const cached = getCachedArticle(slug);
+    if (cached) {
+      setArticle(cached as Article);
+      setLoading(false);
+      window.scrollTo(0, 0);
+      return;
+    }
 
-    load();
+    setLoading(true);
+    fetchArticle(slug)
+      .then((data) => { if (!cancelled) setArticle(data as Article); })
+      .catch(() => { if (!cancelled) navigate("/404", { replace: true }); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, [slug, navigate]);
 
   // ── Increment view count ───────────
