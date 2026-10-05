@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import SiteHeader from "@/components/SiteHeader";
 import NavBar from "@/components/NavBar";
 import SiteFooter from "@/components/SiteFooter";
@@ -272,45 +273,13 @@ const ArticlePage = () => {
   }, [article]);
 
 
-  // ── SEO meta tags ──────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!article) return;
+  // ── SEO meta (rendered via <Helmet>) ──────────────────────────────────────
+  const seo = (() => {
+    if (!article) return null;
     const title = article.meta_title || article.title;
     const description = article.meta_description || article.excerpt;
-    const url = window.location.href;
+    const url = `https://www.dominicanews.dm/news/${article.slug || slug}`;
     const image = article.cover_image_url || "";
-
-    document.title = title + " | Dominica News";
-
-    const setMeta = (name: string, content: string, attr = "name") => {
-      let el = document.querySelector(`meta[${attr}="${name}"]`);
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, name);
-        document.head.appendChild(el);
-      }
-      el.setAttribute("content", content);
-    };
-
-    setMeta("description", description);
-    setMeta("og:title", title, "property");
-    setMeta("og:description", description, "property");
-    setMeta("og:url", url, "property");
-    setMeta("og:type", "article", "property");
-    setMeta("og:image", image, "property");
-    setMeta("twitter:card", "summary_large_image");
-    setMeta("twitter:title", title);
-    setMeta("twitter:description", description);
-    setMeta("twitter:image", image);
-
-    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-    if (!canonical) {
-      canonical = document.createElement("link") as HTMLLinkElement;
-      canonical.rel = "canonical";
-      document.head.appendChild(canonical);
-    }
-    canonical.href = url;
-
     const wordCount = article.body.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length;
     const schema: Record<string, unknown> = {
       "@context": "https://schema.org",
@@ -364,26 +333,8 @@ const ArticlePage = () => {
         { "@type": "ListItem", position: 3, name: article.title, item: url },
       ],
     };
-    let ld = document.querySelector('script[type="application/ld+json"]');
-    if (!ld) {
-      ld = document.createElement("script");
-      ld.setAttribute("type", "application/ld+json");
-      document.head.appendChild(ld);
-    }
-    ld.textContent = JSON.stringify(schema);
-    let bcLd = document.querySelector('script[type="application/ld+json"][data-bc="1"]');
-    if (!bcLd) {
-      bcLd = document.createElement("script");
-      bcLd.setAttribute("type", "application/ld+json");
-      bcLd.setAttribute("data-bc", "1");
-      document.head.appendChild(bcLd);
-    }
-    bcLd.textContent = JSON.stringify(breadcrumbSchema);
-
-    return () => {
-      document.title = "Dominica News";
-    };
-  }, [article]);
+    return { title, description, url, image, schema, breadcrumbSchema };
+  })();
 
   // ── Share handlers ─────────────────────────────────────────────────────────
   const articlePath = slug ? `/news/${slug}` : "";
@@ -456,6 +407,24 @@ const ArticlePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {seo && (
+        <Helmet>
+          <title>{`${seo.title} | Dominica News`}</title>
+          <meta name="description" content={seo.description} />
+          <link rel="canonical" href={seo.url} />
+          <meta property="og:title" content={seo.title} />
+          <meta property="og:description" content={seo.description} />
+          <meta property="og:url" content={seo.url} />
+          <meta property="og:type" content="article" />
+          {seo.image && <meta property="og:image" content={seo.image} />}
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={seo.title} />
+          <meta name="twitter:description" content={seo.description} />
+          {seo.image && <meta name="twitter:image" content={seo.image} />}
+          <script type="application/ld+json">{JSON.stringify(seo.schema)}</script>
+          <script type="application/ld+json">{JSON.stringify(seo.breadcrumbSchema)}</script>
+        </Helmet>
+      )}
       {/* Reading progress bar */}
       <div className="reading-progress" style={{ "--progress": `${progress}%` } as React.CSSProperties} />
 
