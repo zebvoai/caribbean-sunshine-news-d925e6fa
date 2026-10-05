@@ -302,6 +302,8 @@ const ArticlePage = () => {
         "@type": "NewsMediaOrganization",
         name: "Dominica News",
         url: "https://www.dominicanews.dm",
+        publishingPrinciples: "https://www.dominicanews.dm/page/editorial-policy",
+        correctionsPolicy: "https://www.dominicanews.dm/page/corrections-policy",
         logo: {
           "@type": "ImageObject",
           url: "https://www.dominicanews.dm/favicon.svg",
