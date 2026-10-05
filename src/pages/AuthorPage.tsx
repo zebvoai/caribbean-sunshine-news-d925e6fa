@@ -169,8 +169,10 @@ const AuthorPage = () => {
             ) : null}
             <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">
               {author.location && <span className="inline-flex items-center gap-1"><MapPin className="w-4 h-4" /> {author.location}</span>}
-              {author.email && <a href={`mailto:${author.email}`} className="inline-flex items-center gap-1 hover:text-primary"><Mail className="w-4 h-4" /> {author.email}</a>}
+              <a href={`mailto:${author.email || "reportingdesk@dominicanews.com"}`} className="inline-flex items-center gap-1 hover:text-primary"><Mail className="w-4 h-4" /> {author.email || "Contact the newsroom"}</a>
               <Link to="/authors" className="hover:text-primary underline-offset-4 hover:underline">All contributors</Link>
+              <Link to="/page/editorial-policy" className="hover:text-primary underline-offset-4 hover:underline">Editorial policy</Link>
+              <Link to="/page/corrections-policy" className="hover:text-primary underline-offset-4 hover:underline">Report an error</Link>
             </div>
           </div>
         </header>
