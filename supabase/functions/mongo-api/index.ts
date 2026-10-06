@@ -1,4 +1,5 @@
 import { MongoClient, ObjectId } from "npm:mongodb@6";
+import { pingIndexNow } from "../_shared/indexnow.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -511,7 +512,9 @@ Deno.serve(async (req) => {
         }
 
         const result = await db.collection("articles").insertOne(doc);
-        if (doc.status === "published" && doc.slug) await pingIndexNow([doc.slug]);
+        try {
+          if (doc.status === "published" && doc.slug) await pingIndexNow([doc.slug]);
+        } catch (e) { console.error("IndexNow ping failed", e); }
         return jsonResponse({ id: result.insertedId.toString() });
       }
 
